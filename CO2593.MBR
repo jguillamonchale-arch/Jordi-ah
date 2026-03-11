@@ -1,0 +1,380 @@
+     H DATEDIT(*YMD/)                                                                               
+      *                                                                                             
+      * @PPAR1- Libre                                                                               
+      * @PPAR2- De momento libre                                                                    
+      * @PJOBT- Trabajo                                                                             
+      * Recibe:                                                                                     
+      * @PERRO> '1' No debe presentarse pantalla                                                    
+      * Devuelve:                                                                                   
+      * @PERRO- ' ' Todo ha sido O.K.                                                               
+      * @PERRO- 'A' Se ha pulsado tecla de retroceso o final                                        
+      *****************************************************************                             
+      * DATA DE MODIFICACIÓ: 09/02/2004  MARCA: 09024              *                                
+      * AUTOR: TL                                                  *                                
+      * DOCUMENTACIÓ: ELIMINAR FICHERO PMPROM                      *                                
+      *                                                            *                                
+      **************************************************************                                
+B0251* Modificación: BD-251           Marca: B0251                *                                
+B0251* Fecha Inicio: 02/06/2020                                   *                                
+B0251*       Autor : Lluís Albert Grau                            *                                
+B0251* Descripción : Problemas con API SalesForce                 *                                
+B0251*               El programa CO2593 (PURLIBC8) intenta        *                                
+B0251*               abrir pantalla y viene de WS.                *                                
+B0251*               Si user=QUSER es como si fuera BATCH y no    *                                
+B0251*               debe abrir pantalla.                         *                                
+B0251**************************************************************                                
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FCO2593FM  CF   E             WORKSTN INFDS(FMTDS)                                             
+B0251F                                     USROPN                                                   
+09024F*PMPROM    IF   E             DISK                                                            
+     D                SDS                                                       Datos               
+     D  SDSPGM                 1     10                                         Progra              
+     D  SDSJOB               244    253                                         Id Job              
+     D  SDSUSR               254    263                                         Id Usu              
+     D  SDSJNBR              264    269                                         Id Usu              
+                                                                                                    
+     D* AREA DE DADES D'INFORMACIÓ ARXIU                                                            
+     D  FMTDS          DS                                                                           
+     D    FMTPOCUR           370    371B 0                                                          
+     D    FMTPOS             378    379B 0                                                          
+     D    FMTRCD         *RECORD                                                8 A                 
+     D* AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                       
+     D  DSLDA        E DS                  EXTNAME(PURLDADS)                                        
+     D    CCCDEEM                    30    OVERLAY(ZZDEEM)                                          
+                                                                                                    
+      * PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                               
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+      * CONTROL DEL FLUXE DEL PROGRAMA AMB INICIALITZACIÓ DE POSIC. INICIAL                         
+     D                 DS                                                                           
+     D  ZXOPT                  1      6                                                             
+     D    ZXOPT1               1      3                                                             
+     D    ZXOPT2               4      6                                                             
+                                                                                                    
+     D* Descomposicion de FIELD para tomar la parte del diccionario                                 
+     D                 DS                                                                           
+     D  FIELD                  1     10                                                             
+     D    ZXFMTO               1      3                                                             
+     D    ZXFIE4               4      7                                                             
+      * Definicion de algunas constantes                                                            
+     D  ZXZERO10       C                   '0000000000'                                             
+     D* CONTROL DEL FLUXE DEL PROGRAMA                                                              
+     D  @PCIAS         S                   LIKE(ZZCIAS)                                             
+     D  @PDLGA         S                   LIKE(ZZDLGA)                                             
+09024 * @PEFLD         S                   LIKE(PMFIEL)                                             
+09024D  @PEFLD         S                   LIKE(FIELD)                                              
+09024 * @PEFMT         S                   LIKE(PMFMTO)                                             
+09024D  @PEFMT         S                   LIKE(RECORD)                                             
+09024 * @PPROG         S                   LIKE(PMPROG)                                             
+09024D  @PPROG         S                   LIKE(SDSPGM)                                             
+09024 * @PEPGM         S                   LIKE(PMPROG)                                             
+09024D  @PEPGM         S                   LIKE(SDSPGM)                                             
+     D  @PCCIT         S              7                                                             
+     D  @PGEXP         S                   LIKE(W01GEXP)                                            
+     D  @PNPIC         S                   LIKE(W01NPIC)                                            
+     D  @PPEPE         S                   LIKE(W01PEPE)                                            
+     D  @PJOBT         S             18                                                             
+     D  @PPAR1         S              1                                                             
+     D  @PPAR2         S              1                                                             
+     D  ZXERRO         S              1                                                             
+     D  @PERRO         S              1                                                             
+     D  @PEERR         S              1                                                             
+     D  @PEOPT         S              2                                                             
+     D    @PPRG2       S             10                                                             
+     D    @PRCDR       S             10                                                             
+     D    @PFIEL       S             10                                                             
+     D    @POPCI       S              2                                                             
+     D                                                                                              
+                                                                                                    
+B0251D  @PTIPJ         S              1                                                             
+                                                                                                    
+      **************************************************************                                
+      * RUTINA  PRINCIPAL DEL PROGRAMA                             *                                
+      *------------------------------------------------------------*                                
+     C                   DOW       ZXOPT1 <> 'END'                                                  
+     C     ZXOPT1        CASEQ     'CLR'         SUBCLR                                             
+     C     ZXOPT1        CASEQ     'INZ'         SUBINZ                                             
+     C     ZXOPT1        CASEQ     'DSP'         SUBDSP                                             
+     C     ZXOPT1        CASEQ     'CMD'         SUBCMD                                             
+     C     ZXOPT1        CASEQ     'CHK'         SUBCHK                                             
+     C     ZXOPT1        CASEQ     'UPD'         SUBUPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+      *                                                                                             
+      * RECUPERACIÓ DE LA LDA DE COMPRES                                                            
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+                                                                                                    
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PPROG                                             
+     C                   PARM                    @PCCIT                                             
+     C                   PARM                    @PGEXP                                             
+     C                   PARM                    @PNPIC                                             
+     C                   PARM                    @PPEPE                                             
+     C                   PARM                    @PPAR1                                             
+     C                   PARM                    @PPAR2                                             
+     C                   PARM                    @PJOBT                                             
+     C                   PARM                    @PERRO                                             
+                                                                                                    
+     C                   EVAL      ZXOPT1='CLR'                                                     
+                                                                                                    
+B0251* ANTES DE NADA RECUPERO EL TIPO DE TRABAJO (INTERACTIVO O BATCH)                             
+B0251* SI EL TRABAJO ES BATCH TRANSFORMO TODO LO MANUAL EN AUTOMATICO                              
+B0251* '0' SIGNIFICA BATCH                                                                         
+B0251* '1' SIGNIFICA INTERACTIVO                                                                   
+B0251C                   CALL      'RTVTIJ'                                                         
+B0251C                   PARM      *BLANKS       @PTIPJ                                             
+                                                                                                    
+B0251C                   IF        @PTIPJ>='1'                                                      
+B0251C                   OPEN      CO2593FM                                                         
+B0251C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      CCCCTIT=@PCCIT                                                   
+     C                   EVAL      ZXERRO=@PERRO                                                    
+     C                   EVAL      @PERRO=*BLANKS                                                   
+B0251C                   IF        @PTIPJ='0'                                                       
+B0251C                   EVAL      ZXERRO='1'                                                       
+B0251C                   ENDIF                                                                      
+                                                                                                    
+     C     TINZSR        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE NETEJA DEL SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     SUBCLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT1='INZ'                                                     
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C     TCLRSR        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALIZACION Y CARGA DEL SFL                   *                                
+      *------------------------------------------------------------*                                
+     C     SUBINZ        BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      ZXOPT1='DSP'                                                     
+                                                                                                    
+     C                   EVAL      W01GEXP=@PGEXP                                                   
+     C                   EVAL      W01NPIC=@PNPIC                                                   
+     C                   EVAL      W01PEPE=@PPEPE                                                   
+                                                                                                    
+     C                   EVAL      PPPCMD1='CMD7806'                                                
+                                                                                                    
+     C     TSUBINZ       ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA VISUALIZACION DEL SFL                            *                                
+      *------------------------------------------------------------*                                
+     C     SUBDSP        BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      ZXOPT1='CMD'                                                     
+                                                                                                    
+     C                   IF        ZXERRO<'1'                                                       
+     C                   EVAL      CSRFILA=*ZEROS                                                   
+     C                   EVAL      CSRCOLU=*ZEROS                                                   
+     C                   EXFMT     W01                                                              
+     C                   ENDIF                                                                      
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C                   EVAL      CSRFILA=*ZEROS                                                   
+     C                   EVAL      CSRCOLU=*ZEROS                                                   
+                                                                                                    
+     C     TSUBDSP       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACION DE LOS CMD'S                          *                                
+      *------------------------------------------------------------*                                
+     C     SUBCMD        BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      ZXOPT1='CHK'                                                     
+                                                                                                    
+     C                   SELECT                                                                     
+      * FINALITZAR EL PROGRAMA                                                                      
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   EVAL      @PERRO='A'                                                       
+      * SOL·LICITUD AJUDA D'ARTICLES                                                                
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT1='DSP'                                                     
+     C                   EXSR      CS_POCUR2                                                        
+     C                   EXSR      SUBF4                                                            
+      * RETROCESO PANTALLA                                                                          
+     C                   WHEN      RETRO=*ON                                                        
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   EVAL      @PERRO='A'                                                       
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     TSUBCMD       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     SUBCMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT SUB                 *                                
+      *------------------------------------------------------------*                                
+     C     SUBF4         BEGSR                                                                      
+     C* DEL DICCIONARIO                                                                             
+     C                   IF        FIELD='W01GEXP' OR FIELD='W01NPIC'                               
+     C                             OR FIELD='W01PEPE'                                               
+                                                                                                    
+     C                   CALL      'MMPROM'                                     Query-Aut-F4   X    
+     C                   PARM      *BLANKS       @PEOPT                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEPGM                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEFMT                         PARM Qry-F4         
+     C                   PARM      'SINO    '    @PEFLD                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEERR                         PARM Qry-F4         
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ADP0304'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           W01F4T                                             
+      * Si no han realizado ninguna selección no tocamos nada                                       
+     C                   IF        @PEERR='A'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           W01F4T                                             
+      *                                                                                             
+     C                   IF        FIELD='W01GEXP'                                                  
+     C                   EVAL      W01GEXP=@PEOPT                                                   
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        FIELD='W01NPIC'                                                  
+     C                   EVAL      W01NPIC=@PEOPT                                                   
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        FIELD='W01PEPE'                                                  
+     C                   EVAL      W01PEPE=@PEOPT                                                   
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   GOTO      W01F4T                                                           
+     C                   ENDIF                                                                      
+                                                                                                    
+      * SI NO TIENE F4 SOPORTADO DOY ERROR                                                          
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ADP0304'                                                  
+     C     ERRGRL        CABEQ     *ON           W01F4T                                             
+                                                                                                    
+     C     W01F4T        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT SUB                 *                                
+      *------------------------------------------------------------*                                
+     C     SUBCHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT1='UPD'                                                     
+      *                                                                                             
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=W01GEXP                                                   
+     C                   CALL      'MMPROM'                                     Query-Aut-F4   X    
+     C                   PARM                    @PEOPT                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEPGM                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEFMT                         PARM Qry-F4         
+     C                   PARM      'SINO      '  @PEFLD                         PARM Qry-F4         
+     C                   PARM      'V'           @PEERR                         PARM Qry-F4         
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK31=*ON                                                        
+     C                   EVAL      @PERRO='3'                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TSUBCHK                                            
+                                                                                                    
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=W01NPIC                                                   
+     C                   CALL      'MMPROM'                                     Query-Aut-F4   X    
+     C                   PARM                    @PEOPT                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEPGM                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEFMT                         PARM Qry-F4         
+     C                   PARM      'SINO      '  @PEFLD                         PARM Qry-F4         
+     C                   PARM      'V'           @PEERR                         PARM Qry-F4         
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK32=*ON                                                        
+     C                   EVAL      @PERRO='3'                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TSUBCHK                                            
+                                                                                                    
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=W01PEPE                                                   
+     C                   CALL      'MMPROM'                                     Query-Aut-F4   X    
+     C                   PARM                    @PEOPT                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEPGM                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEFMT                         PARM Qry-F4         
+     C                   PARM      'SINO      '  @PEFLD                         PARM Qry-F4         
+     C                   PARM      'V'           @PEERR                         PARM Qry-F4         
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK33=*ON                                                        
+     C                   EVAL      @PERRO='3'                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TSUBCHK                                            
+      * VERIFICAMOS PARAMETROS DE IMPRESION                                                         
+     C                   CALL      'MM2559'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM      SDSPGM        @PPROG                                             
+     C                   PARM                    @PRCDR                                             
+     C                   PARM      'FMTO     '   @PFIEL                                             
+     C                   PARM      '01'          @POPCI                                             
+     C                   PARM      'LCM0035'     @PCCIT                                             
+     C                   PARM                    @PJOBT                                             
+     C                   PARM                    @PPRG2                                             
+     C                   PARM      '1'           @PPAR1                                             
+     C                   PARM                    @PPAR2                                             
+     C                   PARM      '1'           @PEERR                                             
+     C                   IF        @PEERR='A'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        @PEERR>' '                                                       
+     C                   EVAL      MSGER='MSG0084'                                                  
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TSUBCHK                                            
+      *                                                                                             
+      * Chequea la existencia del dispositivo de impresora                                          
+     C     TSUBCHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+      * Aunque no quierán visualizar la pantalla, si existe error la muestra                        
+B0251* Si estamos en BATCH, no visualizamos pantalla y salimos                                     
+B0251C                   if        ZXERRO <> '1'                                                    
+     C                   EVAL      ZXERRO=' '                                                       
+     C                   EVAL      ZXOPT1='DSP'                                                     
+B0251C                   else                                                                       
+B0251C                   EVAL      ZXOPT1='END'                                                     
+B0251C                   endif                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE MOURE CAMPS                                   *                                
+      *------------------------------------------------------------*                                
+     C     SUBUPD        BEGSR                                                                      
+     C                   EVAL      ZXOPT1='END'                                                     
+      * DATOS POR OK                                                                                
+     C                   EVAL      @PGEXP=W01GEXP                                                   
+     C                   EVAL      @PNPIC=W01NPIC                                                   
+     C                   EVAL      @PPEPE=W01PEPE                                                   
+                                                                                                    
+     C     SUBUPDT       ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE POSICIONAMENT DEL CURSOR                      *                                
+      *------------------------------------------------------------*                                
+     C     CS_POCUR2     BEGSR                                                                      
+      * OBTENIM LA POSICIO DEL CURSOR                                                               
+     C     FMTPOCUR      DIV       256           CSRFILA                                            
+     C                   MVR                     CSRCOLU                                            
+     C                   ENDSR                                                                      

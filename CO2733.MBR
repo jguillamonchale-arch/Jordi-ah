@@ -1,0 +1,173 @@
+      **************************************************************                                
+      *      Modificació: FDX01                                                                     
+      *            Autor: Carlos del Valle                                                          
+      * Data modificació: 03/01/2013                                                                
+      *       Descripció: Fluidra Direct: Correcciones y mejoras                                    
+      *          Función: Devuelve situación de distribución de conjunto Vta                        
+      *                                                                                             
+      *                   '1' Todos los componentes se almacenan en                                 
+      *                       Trace (SIOL='2')                                                      
+      *                   '2' Ningun componente se almacena en                                      
+      *                       Trace (SIOL<>'2')                                                     
+      *                   '3' Es un conjunto combinado, algunos se                                  
+      *                       almacenan en Trace y otros no                                         
+      *                   '4' NO es un conjunto de Ventas                                           
+      *                                                                                             
+      *--------------------------------------------------------------------------                   
+      * * Por si queremos parametrizar la reserva de conjuntos combinados                           
+      *                                                                                             
+      *                   'E' La empresa no permite reservar conjuntos combinados                   
+      *                       Es decir: Retorno con @PERRO='3' retornará 'E'                        
+      **************************************************************                                
+      *                                                                                             
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+      *                                                                                             
+     FMSARTI00  IF   E           K DISK                                                             
+     FMSCOJC    IF   E           K Disk                                                             
+     FMSCOJD    IF   E           K Disk                                                             
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSSTS           *STATUS                                                                    
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+      *                                                                                             
+     D  @PCIAS         S                   LIKE(M5CIAS)                                             
+     D  @PARTI         S                   LIKE(M5ARTI)                                             
+     D  @PVARI         S                   LIKE(M5VARI)                                             
+     D  @PMODE         S                   LIKE(M5MODE)                                             
+     D  @PERRO         S              1                                                             
+      *                                                                                             
+     D  ZXTCOJ         S              1    INZ                                                      
+     D  ZXSIOL         S              1  0 INZ                                                      
+     D  ZXNOOL         S              1  0 INZ                                                      
+      *                                                                                             
+      **********************************************************************                        
+      * Claves                                                                                      
+      **********************************************************************                        
+      *                                                                                             
+      *                                                                                             
+     C     KMSARTICO     KLIST                                                                      
+     C                   KFLD                    @PCIAS                                             
+     C                   KFLD                    NDCOMP                                             
+     C                   KFLD                    NDVAR2                                             
+     C                   KFLD                    NDMOD2                                             
+      *                                                                                             
+     C     KMSCOJC       KLIST                                                                      
+     C                   KFLD                    NDCIAS                                             
+     C                   KFLD                    NDARTI                                             
+     C                   KFLD                    NDVARI                                             
+     C                   KFLD                    NDMODE                                             
+     C                   KFLD                    NDTCOJ                                             
+      *                                                                                             
+      **********************************************************************                        
+      * Entrada de parámetros                                                                       
+      **********************************************************************                        
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PARTI                                             
+     C                   PARM                    @PVARI                                             
+     C                   PARM                    @PMODE                                             
+     C                   PARM                    @PERRO                                             
+      *                                                                                             
+      **********************************************************************                        
+      * Estructura de Programa                                                                      
+      **********************************************************************                        
+      *                                                                                             
+     C                   EVAL      @PERRO='4'                                                       
+     C                   EXSR      CS_CONJUNTO                                                      
+     C                   EVAL      *INLR=*ON                                                        
+      *                                                                                             
+      **********************************************************************                        
+      * Comprobar si es conjunto y sus componentes mat. propio                                      
+      **********************************************************************                        
+     C     CS_CONJUNTO   BEGSR                                                                      
+      *                                                                                             
+      * Miramos si es Conjunto de Venta                                                             
+      *                                                                                             
+     C                   EVAL      NDCIAS=@PCIAS                                                    
+     C                   EVAL      NDARTI=@PARTI                                                    
+     C                   EVAL      NDMODE=@PVARI                                                    
+     C                   EVAL      NDVARI=@PMODE                                                    
+     C                   EVAL      NDTCOJ='4'                                                       
+     C     KMSCOJC       CHAIN     MSCOJC                                                           
+     C                   IF        %FOUND(MSCOJC) AND NDBAJA<'1'                                    
+      *                                                                                             
+      * Miramos si es Conjunto de Compra                                                            
+      *                                                                                             
+     C                   EVAL      NDTCOJ='1'                                                       
+     C     KMSCOJC       CHAIN     MSCOJC                                                           
+     C                   IF        %FOUND(MSCOJC) AND NDBAJA<'1'                                    
+      *                                                                                             
+      * Si es Conjunto de Ventas y de Compra No lo trataremos como Cjto                             
+      *                                                                                             
+     C                   EVAL      ZXTCOJ=' '                                                       
+     C                   ELSE                                                                       
+      *                                                                                             
+      * Si es Conjunto de Ventas y No de Compra Si lo tratamos                                      
+      *                                                                                             
+     C                   EVAL      ZXTCOJ='4'                                                       
+     C                   ENDIF                                                                      
+     C                   ELSE                                                                       
+      *                                                                                             
+      * Si No es Conjunto de Venta , Pues no es Conjunto y punto                                    
+      *                                                                                             
+     C                   EVAL      ZXTCOJ=' '                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Es Conjunto                                                                                 
+      *                                                                                             
+     C                   IF        ZXTCOJ='4'                                                       
+      *                                                                                             
+     C                   EVAL      NDTCOJ='4'                                                       
+     C     KMSCOJC       SETLL     MSCOJD                                                           
+     C     KMSCOJC       READE     MSCOJD                                                           
+     C                   DOW       NOT %EOF(MSCOJD)                                                 
+      *                                                                                             
+     C                   IF        NDBAJA <> '1'                                                    
+     C     KMSARTICO     CHAIN     MSARTI00                                                         
+     C                   IF        %FOUND(MSARTI00)                                                 
+      *                                                                                             
+     C                   IF        M5SIOL='2'                                                       
+     C                   EVAL      ZXSIOL=1                                                         
+     C                   ELSE                                                                       
+     C                   EVAL      ZXNOOL=1                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KMSCOJC       READE     MSCOJD                                                           
+     C                   ENDDO                                                                      
+      *                                                                                             
+      * Establecemos el resultado                                                                   
+      *                                                                                             
+     C                   IF        ZXSIOL=1 AND ZXNOOL=1                                            
+     C                   EVAL      @PERRO='3'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        ZXSIOL=1 AND ZXNOOL=0                                            
+     C                   EVAL      @PERRO='1'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        ZXSIOL=0 AND ZXNOOL=0                                            
+     C                   EVAL      @PERRO='4'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        ZXSIOL=0 AND ZXNOOL=1                                            
+     C                   EVAL      @PERRO='2'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * La empresa no permite la reserva de conjuntos combinados                                    
+      * (Lo dejamos preparado P7NRCC no existe todavía en PMEMPR)                                   
+      *                                                                                             
+     C***                IF        P7NRCC=0 AND @PERRO='3'                                          
+     C***                EVAL      @PERRO='E'                                                       
+     C***                ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      

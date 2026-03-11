@@ -1,0 +1,523 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE SEGURIDAD                              *                                
+      **************************************************************                                
+      * TITOL: CO2755  © FLUIDRA SERVICES                          *                                
+      * DATA CREACIO:  14/05/2010    AUTOR: X.BOU                  *                                
+      * FUNCIO DEL PROGRAMA: OBTENIR CATEGORIA DE ROTACIO DE       *                                
+      *                      ARTICLE EN FUNCIO DE PARAMETRES       *                                
+      *                      DE EMPRESA.                           *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      **************************************************************                                
+      * Modificación: 01090                                        *                                
+      *        Autor: X.BOU                                        *                                
+      * Fecha Inicio: 01/09/2010                                   *                                
+      *  Descripción: Eliminar acceso a LDA y sustituirlo por      *                                
+      *               PMEMPR para recuperar empresa                *                                
+      **************************************************************                                
+FQ709 * DATA DE MODIFICACIÓ: 01/12/2010  MARCA: FQ709              *                                
+FQ709 * AUTOR: Teresa Boada                                        *                                
+FQ709 * DOCUMENTACIÓ: Omplir rotació a línies de comandes de compra*                                
+FQ709 **************************************************************                                
+      * DATA DE MODIFICACIÓ: 17/05/2013  MARCA: CR964              *                                
+      * AUTOR: JMARTINEZP                                          *                                
+      * DOCUMENTACIÓ: MODIFICACIONES CUBOS / ESTADÍSTICAS          *                                
+      **************************************************************                                
+08835 * DATA DE MODIFICACIÓ: 26/11/2025  MARCA: 08835              *                                
+08835 * AUTOR: Pere Vellet                                         *                                
+08835 * DOCUMENTACIÓ:SCE-104 classificació MTS/MTO incorrecta en FD*                                
+08835 **************************************************************                                
+                                                                                                    
+     H DATEDIT(*YMD/)                                                                               
+                                                                                                    
+     FPMLIBL    IF   E           K DISK                                                             
+     FMSLOAD    IF   E           K DISK                                                             
+     FMSSTOK    IF   E           K DISK                                                             
+     FMSCOJD    IF   E           K DISK                                                             
+     FMSARTI00  IF   E           K DISK                                                             
+01090FPMEMPR    IF   E           K DISK                                                             
+CR964FMSALMA05  IF   E           K DISK                                                             
+C1957Fmsstst    IF   E           K DISK                                                             
+                                                                                                    
+     D* AREA DE DADES DE PROGRAMA I INICIALITZACIO DE VALORS COMUNS                                 
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D    CCCPGM                     10    OVERLAY(SDSPGM)                                          
+     D  SDSJOB               244    253                                                             
+     D    CCCJOB                     10    OVERLAY(SDSJOB)                                          
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+                                                                                                    
+01090 * AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                       
+01090D*DSLDA         E DS                  EXTNAME(PURLDADS)                                        
+01090D*   CCCDEEM                    30    OVERLAY(ZZDEEM)                                          
+                                                                                                    
+      * PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                               
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D    INDCHG                      1    OVERLAY(WRK25)                                           
+     D    INDCPY                      1    OVERLAY(WRK26)                                           
+     D    INDDLT                      1    OVERLAY(WRK27)                                           
+     D    INDDSP                      1    OVERLAY(WRK28)                                           
+     D    INDCRT                      1    OVERLAY(WRK29)                                           
+     D    INDPROT                     1    OVERLAY(SETL00)                                          
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+      * Definicion de algunas constantes                                                            
+     D  ZXZERO10       C                   '0000000000'                                             
+      *IMPORTACIÓ DE PARÀMETRES                                                                     
+                                                                                                    
+     D  @PCIAS         S                   LIKE(PPCIAS)                                             
+     D  @PDLGA         S                   LIKE(MIDLGA)                                             
+     D  @PLOGE         S                   LIKE(MILGCA)                                             
+     D  @PARTI         S                   LIKE(M5ARTI)                                             
+     D  @PVARI         S                   LIKE(M5VARI)                                             
+     D  @PMODE         S                   LIKE(M5MODE)                                             
+     D  @PTCOJ         S              1A                                                            
+                                                                                                    
+      *EXPORTACIÓ DE PARÀMETRES                                                                     
+                                                                                                    
+     D  @PCROT         S              2A                                                            
+     D  @PCROTA        S              2A                                                            
+     D  @PCROTB        S              2A                                                            
+     D  @PCROTC        S              2A                                                            
+                                                                                                    
+     D* DEFINICIO DE CAMPS DE TREBALL                                                               
+      *                                                                                             
+     D  ZXCROTA        S              2  0                                                          
+     D  ZXCROTB        S              2  0                                                          
+     D  ZXCROTC        S              2  0                                                          
+      *                                                                                             
+     D  PPAMPL         DS                                                                           
+     D  PPCROT                 1      1                                                             
+     D  PPRISK                 2      2                                                             
+     D  PPDICO                 3      3                                                             
+     D  PPCONI                 4      4                                                             
+     D  PPOBJT                 5      5                                                             
+     D  PPCROP                 6      6                                                             
+     D  PPBBAC                 7     16                                                             
+     D  PPBBAP                17     26                                                             
+     D  PPEFIN                27     27                                                             
+     D  PPEQAR                28     28                                                             
+     D  PPDWVT                29     29                                                             
+     D  PPDWCT                30     30                                                             
+     D  PPDWPU                31     31                                                             
+     D  PPDWST                32     32                                                             
+     D  PPDWCV                33     33                                                             
+     D  PPDWFB                34     34                                                             
+     D  PPBLAN                35    500                                                             
+                                                                                                    
+     D  M1AMPL         DS                                                                           
+     D    M1PLUS               2      2                                                             
+                                                                                                    
+     D  M5AMPL         DS                                                                           
+     D    M5CTEC               1      1                                                             
+     D    M5PNAT               2      3                                                             
+     D    M5AUES               5      5                                                             
+     D    M5BLAN               6      6                                                             
+     D    M5OMP                7      7                                                             
+     D    M5ECOP               8      8                                                             
+     D    M5CLOT              44     44                                                             
+     D    M5CROB              46     46                                                             
+     d    m5TpOb              47     48                                                             
+     d    m5PrOb              49     50                                                             
+     d    M5XXXX              51     59                                                             
+     d    M5CROP              60     61                                                             
+     d    zxAmpl              62    100                                                             
+      *                                                                                             
+CR964D                                                                                              
+CR964D @PLOFD          S              1                                                             
+CR964D ZXLOFD          S              1                                                             
+CR964D @PECIAS         S                   LIKE(M5CIAS)                                             
+CR964D @PEARTI         S                   LIKE(M5ARTI)                                             
+CR964D @PEVARI         S                   LIKE(M5VARI)                                             
+CR964D @PEMODE         S                   LIKE(M5MODE)                                             
+CR964D @PEENTO         S              2                                                             
+CR964D @PEENTD         S             40                                                             
+CR964D @PECLAS         S              2                                                             
+      **************************************************************                                
+      * RUTINA PRINCIPAL DEL PGM :                                 *                                
+      *------------------------------------------------------------*                                
+     C                   EXSR      CS_MAIN                                                          
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL                                          *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+                                                                                                    
+      * Entrada de parámetros                                                                       
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PLOGE                                             
+     C                   PARM                    @PARTI                                             
+     C                   PARM                    @PVARI                                             
+     C                   PARM                    @PMODE                                             
+     C                   PARM                    @PTCOJ                                             
+     C                   PARM                    @PCROT                                             
+     C                   PARM                    @PCROTA                                            
+     C                   PARM                    @PCROTB                                            
+     C                   PARM                    @PCROTC                                            
+CR964C                   PARM                    @PLOFD                                             
+CR964C                   EVAL      ZXLOFD=*BLANKS                                                   
+CR964C                   IF        %PARMS=12                                                        
+CR964C                   EVAL      ZXLOFD=@PLOFD                                                    
+CR964C                   ENDIF                                                                      
+      *                                                                                             
+     C     KMSSTOK       KLIST                                                                      
+     C                   KFLD                    M1CIAS                                             
+     C                   KFLD                    M1MAGA                                             
+     C                   KFLD                    M1ARTI                                             
+     C                   KFLD                    M1VARI                                             
+     C                   KFLD                    M1MODE                                             
+      *                                                                                             
+C1957C     KMSSTST       KLIST                                                                      
+C1957C                   KFLD                    M6CIAS                                             
+C1957C                   KFLD                    M6DLGA                                             
+C1957C                   KFLD                    M6ARTI                                             
+C1957C                   KFLD                    M6VARI                                             
+C1957C                   KFLD                    M6MODE                                             
+C1957C                   KFLD                    M6NETL                                             
+      *                                                                                             
+     C     KMSLOAD       KLIST                                                                      
+     C                   KFLD                    MICIAS                                             
+     C                   KFLD                    MIDLGA                                             
+     C                   KFLD                    MILGCA                                             
+      *                                                                                             
+     C     KMSCOJD       KLIST                                                                      
+     C                   KFLD                    NDCIAS                                             
+     C                   KFLD                    NDARTI                                             
+     C                   KFLD                    NDVARI                                             
+     C                   KFLD                    NDMODE                                             
+     C                   KFLD                    NDTCOJ                                             
+                                                                                                    
+     C     KMSARTI00     KLIST                                                                      
+     C                   KFLD                    M5CIAS                                             
+     C                   KFLD                    M5ARTI                                             
+     C                   KFLD                    M5VARI                                             
+     C                   KFLD                    M5MODE                                             
+CR964                                                                                               
+CR964C     KMSALMA05     KLIST                                                                      
+CR964C                   KFLD                    M0CIAS                                             
+CR964C                   KFLD                    M0LOGE                                             
+CR964                                                                                               
+CR964C     KPMEMPR       KLIST                                                                      
+CR964C                   KFLD                    P7CIAS                                             
+CR964C                   KFLD                    P7DLGA                                             
+      *                                                                                             
+01090 * RECUPERACIÓ DE LA LDA DE COMPRES                                                            
+01090C*    *DTAARA       DEFINE    PURLDA        DSLDA                                              
+01090C*                  IN        DSLDA                                                            
+01090C*                                                                                             
+01090C     *loval        setll     pmempr                                                           
+01090C                   read      pmempr                                 50                        
+CR964C                   EVAL      P7DLGA=@PDLGA                                                    
+CR964C     KPMEMPR       CHAIN     PMEMPR                                                           
+      *                                                                                             
+      * VALORES COMUNES                                                                             
+      *                                                                                             
+01090C*                  MOVE      ZZCIAS        PPCIAS                                             
+01090C                   MOVE      P7CIAS        PPCIAS                                             
+CR964                                                                                               
+CR964C                   IF        @PLOGE=*BLANKS                                                   
+CR964C                   EVAL      @PLOGE=P7LOGS                                                    
+CR964C                   ENDIF                                                                      
+CR964C                   EVAL      M0CIAS=P7CIAS                                                    
+CR964C                   EVAL      M0LOGE=@PLOGE                                                    
+CR964C     KMSALMA05     CHAIN     MSALMA05                                                         
+CR964C                   IF        %FOUND AND M0TAL1='8' AND ZXLOFD=' '                             
+CR964C                   EVAL      ZXLOFD='1'                                                       
+CR964C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PRINCIPAL                                        *                                
+      *------------------------------------------------------------*                                
+     C     CS_MAIN       BEGSR                                                                      
+      *                                                                                             
+      * INICIALITZAR PARAMETRES DE RETORN                                                           
+      *                                                                                             
+     C                   EVAL      @PCROT=*BLANKS                                                   
+     C                   EVAL      @PCROTA=*BLANKS                                                  
+     C                   EVAL      @PCROTB=*BLANKS                                                  
+     C                   EVAL      @PCROTC=*BLANKS                                                  
+     C                   EVAL      ZXCROTA=*ZEROS                                                   
+     C                   EVAL      ZXCROTB=*ZEROS                                                   
+     C                   EVAL      ZXCROTC=*ZEROS                                                   
+      *                                                                                             
+      * ACCES A PARAMETRES DE EMPRESA ACTUAL                                                        
+      *                                                                                             
+     C     PPCIAS        CHAIN     PMLIBL                             81                            
+      *    ----------------------------------                                                       
+     C                   IF        CHAIN=*OFF                                                       
+      *    ----------------------------------                                                       
+     C                   IF        PPCROP='1'                                                       
+     C                   EXSR      CS_CROP1                                                         
+     C                   ELSE                                                                       
+     C                   EXSR      CS_CROPNO1                                                       
+     C                   ENDIF                                                                      
+      *    ----------------------------------                                                       
+     C                   ENDIF                                                                      
+      *    ----------------------------------                                                       
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA EMPRESA QUE RECUPERA DATOS DE MSSTOK             *                                
+      *------------------------------------------------------------*                                
+     C     CS_CROP1      BEGSR                                                                      
+      *                                                                                             
+      * BUSCAMOS EL ALMACEN DEL QUE DEBEMOS RECUPERAR LA INFORMACIÓN                                
+01090C*                  EVAL      MICIAS=ZZCIAS                                                    
+01090C                   EVAL      MICIAS=P7CIAS                                                    
+     C                   EVAL      MIDLGA=@PDLGA                                                    
+     C                   EVAL      MILGCA=@PLOGE                                                    
+     C                   EVAL      MIMAGA=*BLANKS                                                   
+     C     KMSLOAD       CHAIN     MSLOAD                                                           
+      *                                                                                             
+     C                   IF        %FOUND(MSLOAD)                                                   
+      *                                                                                             
+01090C*                  EVAL      M1CIAS=ZZCIAS                                                    
+01090C                   EVAL      M1CIAS=P7CIAS                                                    
+     C                   EVAL      M1MAGA=MIMAGA                                                    
+     C                   EVAL      M1ARTI=@PARTI                                                    
+     C                   EVAL      M1VARI=@PVARI                                                    
+     C                   EVAL      M1MODE=@PMODE                                                    
+     C     KMSSTOK       CHAIN     MSSTOK                                                           
+     C                   IF        %FOUND(MSSTOK)                                                   
+     C                   EVAL      %SUBST(@PCROT:1:1)=M1CROT                                        
+     C                   EVAL      %SUBST(@PCROT:2:1)=M1PLUS                                        
+     C                   ENDIF                                                                      
+CR964C                   EXSR      CS_DP0090                                                        
+                                                                                                    
+FQ709C*                  IF        @PTCOJ='4'                                                       
+FQ709C                   IF        @PTCOJ='1' OR @PTCOJ='4'                                         
+     C                   EXSR      CS_BUSROTC                                                       
+     C                   MOVE      ZXCROTA       @PCROTA                                            
+     C                   MOVE      ZXCROTB       @PCROTB                                            
+     C                   MOVE      ZXCROTC       @PCROTC                                            
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                   *                                
+      * Recuperar CATERORIA ROTACIÓN CONSERVARLA PARA ANALISIS TCT *                                
+      *------------------------------------------------------------*                                
+     C     CS_BUSROTC    BEGSR                                                                      
+      *                                                                                             
+01090C*                  EVAL      NDCIAS=ZZCIAS                                                    
+01090C                   EVAL      NDCIAS=P7CIAS                                                    
+     C                   EVAL      NDARTI=@PARTI                                                    
+     C                   EVAL      NDVARI=@PVARI                                                    
+     C                   EVAL      NDMODE=@PMODE                                                    
+     C                   EVAL      NDTCOJ=@PTCOJ                                                    
+      *                                                                                             
+     C     KMSCOJD       SETLL     MSCOJD                                                           
+     C     KMSCOJD       READE     MSCOJD                                 84                        
+      *                                                                                             
+     C                   DOW       *IN84=*OFF                                                       
+      *                                                                                             
+01070C*                  EVAL      M1CIAS=ZZCIAS                                                    
+01070C                   EVAL      M1CIAS=P7CIAS                                                    
+     C                   EVAL      M1MAGA=MIMAGA                                                    
+     C                   EVAL      M1ARTI=NDCOMP                                                    
+     C                   EVAL      M1VARI=NDVAR2                                                    
+     C                   EVAL      M1MODE=NDMOD2                                                    
+     C     KMSSTOK       CHAIN     MSSTOK                             81                            
+     C                   IF        CHAIN=*OFF AND NDBAJA<'1'                                        
+CR964C                   EXSR      CS_DP0090_C                                                      
+     C                   IF        M1CROT='A'                                                       
+     C                   EVAL      ZXCROTA=ZXCROTA+1                                                
+     C                   IF        M1PLUS='+'                                                       
+     C                   EVAL      ZXCROTC=ZXCROTC+1                                                
+     C                   ENDIF                                                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXCROTB=ZXCROTB+1                                                
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     KMSCOJD       READE     MSCOJD                                 84                        
+     C                   ENDDO                                                                      
+     C                                                                                              
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA EMPRESA QUE RECUPERA DATOS DE MSARTI             *                                
+      *------------------------------------------------------------*                                
+     C     CS_CROPNO1    BEGSR                                                                      
+      *                                                                                             
+      * BUSCAMOS EL MAESTRO DE ARTICULOS PARA RECUPERAR LA INFORMACION                              
+      *                                                                                             
+01090C*                  EVAL      M5CIAS=ZZCIAS                                                    
+01090C                   EVAL      M5CIAS=P7CIAS                                                    
+     C                   EVAL      M5ARTI=@PARTI                                                    
+     C                   EVAL      M5VARI=@PVARI                                                    
+     C                   EVAL      M5MODE=@PMODE                                                    
+     C     KMSARTI00     CHAIN     MSARTI00                                                         
+C1957C                   EVAL      M0CIAS=P7CIAS                                                    
+C1957C                   EVAL      M0LOGE=@PLOGE                                                    
+C1957C     KMSALMA05     CHAIN     MSALMA05                                                         
+C1957C                   IF        M5SIOL>='2' AND M0TAL1='8'                                       
+C1957C                             AND  M0DLGA=*BLANKS                                              
+C1957C                   EVAL      M6NETL=2                                                         
+C1957C                   ELSE                                                                       
+C1957C                   EVAL      M6NETL=1                                                         
+C1957C                   ENDIF                                                                      
+C1957C                   EVAL      M6DLGA=M0DLGA                                                    
+C1957 *                                                                                             
+C1957C                   EVAL      M6CIAS=P7CIAS                                                    
+C1957C                   EVAL      M6ARTI=@PARTI                                                    
+C1957C                   EVAL      M6VARI=@PVARI                                                    
+C1957C                   EVAL      M6MODE=@PMODE                                                    
+C1957C     KMSSTST       CHAIN     MSSTST                                                           
+C1957C                   IF        %FOUND                                                           
+C1957C                   EVAL      @PCROT=M6CLAS                                                    
+C1957c                   else                                                                       
+C1957C                   EVAL      @PCROT='B'                                                       
+C1957C                   ENDIF                                                                      
+      *                                                                                             
+C1957C*                  IF        %FOUND(MSARTI00)                                                 
+C1957C*                  EVAL      @PCROT=M5CROP                                                    
+C1957C*                  ENDIF                                                                      
+CR964C                   EXSR      CS_DP0090                                                        
+      *                                                                                             
+FQ709C*                  IF        @PTCOJ='4'                                                       
+FQ709C                   IF        @PTCOJ='1' OR @PTCOJ='4'                                         
+     C                   EXSR      CS_BUSROTC2                                                      
+     C                   MOVE      ZXCROTA       @PCROTA                                            
+     C                   MOVE      ZXCROTB       @PCROTB                                            
+     C                   MOVE      ZXCROTC       @PCROTC                                            
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                   *                                
+      * Recuperar CATERORIA ROTACIÓN CONSERVARLA PARA ANALISIS TCT *                                
+      *------------------------------------------------------------*                                
+     C     CS_BUSROTC2   BEGSR                                                                      
+      *                                                                                             
+01090C*                  EVAL      NDCIAS=ZZCIAS                                                    
+01090C                   EVAL      NDCIAS=P7CIAS                                                    
+     C                   EVAL      NDARTI=@PARTI                                                    
+     C                   EVAL      NDVARI=@PVARI                                                    
+     C                   EVAL      NDMODE=@PMODE                                                    
+     C                   EVAL      NDTCOJ=@PTCOJ                                                    
+      *                                                                                             
+     C     KMSCOJD       SETLL     MSCOJD                                                           
+     C     KMSCOJD       READE     MSCOJD                                 84                        
+      *                                                                                             
+     C                   DOW       *IN84=*OFF                                                       
+      *                                                                                             
+01090C*                  EVAL      M5CIAS=ZZCIAS                                                    
+01090C                   EVAL      M5CIAS=P7CIAS                                                    
+     C                   EVAL      M5ARTI=NDCOMP                                                    
+     C                   EVAL      M5VARI=NDVAR2                                                    
+     C                   EVAL      M5MODE=NDMOD2                                                    
+     C     KMSARTI00     CHAIN     MSARTI00                           81                            
+C1957C                   IF        M5SIOL>='2' AND M0TAL1='8'                                       
+C1957C                             AND  M0DLGA=*BLANKS                                              
+C1957C                   EVAL      M6NETL=2                                                         
+C1957C                   ELSE                                                                       
+C1957C                   EVAL      M6NETL=1                                                         
+C1957C                   ENDIF                                                                      
+C1957C                   EVAL      M6CIAS=P7CIAS                                                    
+C1957C                   EVAL      M6ARTI=NDCOMP                                                    
+C1957C                   EVAL      M6VARI=NDVAR2                                                    
+C1957C                   EVAL      M6MODE=NDMOD2                                                    
+C1957C     KMSSTST       CHAIN     MSSTST                             81                            
+     C                   IF        CHAIN=*OFF AND NDBAJA<'1'                                        
+CR964C                   EXSR      CS_DP0090_C                                                      
+C1957C*                  IF        %SUBST(M5CROP:1:1)='A'                                           
+C1957C*                  EVAL      ZXCROTA=ZXCROTA+1                                                
+C1957C*                  IF        %SUBST(M5CROP:2:1)='+'                                           
+C1957C*                  EVAL      ZXCROTC=ZXCROTC+1                                                
+C1957C*                  ENDIF                                                                      
+                                                                                                    
+C1957C                   IF        %SUBST(M6clas:1:1)='A'                                           
+C1957C                   EVAL      ZXCROTA=ZXCROTA+1                                                
+C1957C                   IF        %SUBST(M6clas:2:1)='+'                                           
+C1957C                   EVAL      ZXCROTC=ZXCROTC+1                                                
+C1957C                   ENDIF                                                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXCROTB=ZXCROTB+1                                                
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     KMSCOJD       READE     MSCOJD                                 84                        
+     C                   ENDDO                                                                      
+     C                                                                                              
+     C                   ENDSR                                                                      
+CR964                                                                                               
+CR964 **************************************************************                                
+CR964 * COMMON SUBRUTINE (CS_) :                                   *                                
+CR964 * Recuperar CATEGORIA ROTACIÓN PRODUCTIVA EN CASO DE OL O FD *                                
+CR964 *------------------------------------------------------------*                                
+CR964C     CS_DP0090     BEGSR                                                                      
+C1957c                   if        ppcrop='1'                                                       
+C1957c                   eval      m5cias=p7cias                                                    
+C1957c                   eval      m5arti=@parti                                                    
+C1957c                   eval      m5vari=@pvari                                                    
+C1957c                   eval      m5mode=@pmode                                                    
+C1957c     kmsarti00     chain     msarti00                                                         
+C1957c                   endif                                                                      
+CR964C                   IF        M5SIOL<>'2' AND ZXLOFD='1'                                       
+CR964C                   EVAL      @PECIAS=M5CIAS                                                   
+CR964C                   EVAL      @PEARTI=M5ARTI                                                   
+CR964C                   EVAL      @PEVARI=M5VARI                                                   
+CR964C                   EVAL      @PEMODE=M5MODE                                                   
+CR964 *                                                                                             
+CR964C                   CALL      'DP0090'                                                         
+CR964C                   PARM                    @PECIAS                                            
+CR964C                   PARM                    @PEARTI                                            
+CR964C                   PARM                    @PEVARI                                            
+CR964C                   PARM                    @PEMODE                                            
+CR964C                   PARM      *BLANKS       @PEENTO                                            
+CR964C                   PARM      *BLANKS       @PEENTD                                            
+CR964C                   PARM      *BLANKS       @PECLAS                                            
+08835C                   PARM      @PLOGE        @PELOGE           3                                
+08835 *                                                                                             
+CR964C                   IF        @PECLAS=*BLANKS                                                  
+CR964C                   EVAL      @PECLAS='B'                                                      
+CR964C                   ENDIF                                                                      
+CR964C                   EVAL      @PCROT=@PECLAS                                                   
+CR964C                   ENDIF                                                                      
+CR964C                   ENDSR                                                                      
+CR964                                                                                               
+CR964 **************************************************************                                
+CR964 * COMMON SUBRUTINE (CS_) :                                   *                                
+CR964 * Recuperar CATEGORIA ROTACIÓN PRODUCTIVA EN CASO DE OL O FD *                                
+CR964 *------------------------------------------------------------*                                
+CR964C     CS_DP0090_C   BEGSR                                                                      
+C1957c                   if        ppcrop='1'                                                       
+C1957c                   eval      m5cias=ndcias                                                    
+C1957c                   eval      m5arti=ndcomp                                                    
+C1957c                   eval      m5vari=ndvar2                                                    
+C1957c                   eval      m5mode=ndmod2                                                    
+C1957c     kmsarti00     chain     msarti00                                                         
+C1957c                   endif                                                                      
+CR964C                   IF        M5SIOL<>'2' AND ZXLOFD='1'                                       
+CR964C                   EVAL      @PECIAS=M5CIAS                                                   
+CR964C                   EVAL      @PEARTI=M5ARTI                                                   
+CR964C                   EVAL      @PEVARI=M5VARI                                                   
+CR964C                   EVAL      @PEMODE=M5MODE                                                   
+CR964 *                                                                                             
+CR964C                   CALL      'DP0090'                                                         
+CR964C                   PARM                    @PECIAS                                            
+CR964C                   PARM                    @PEARTI                                            
+CR964C                   PARM                    @PEVARI                                            
+CR964C                   PARM                    @PEMODE                                            
+CR964C                   PARM      *BLANKS       @PEENTO                                            
+CR964C                   PARM      *BLANKS       @PEENTD                                            
+CR964C                   PARM      *BLANKS       @PECLAS                                            
+CR964C                   IF        @PECLAS=*BLANKS                                                  
+CR964C                   EVAL      @PECLAS='B'                                                      
+CR964C                   ENDIF                                                                      
+C1957c                   if        ppcrop<>'1'                                                      
+C1957C*                  EVAL      M5CROP=@PECLAS                                                   
+C1957C                   EVAL      M6clas=@PECLAS                                                   
+C1957c                   else                                                                       
+C1957C                   EVAL      M1CROT=%subst(@PECLAS:1:1)                                       
+C1957C                   EVAL      M1plus=%subst(@PECLAS:2:1)                                       
+C1957c                   endif                                                                      
+                                                                                                    
+CR964C                   ENDIF                                                                      
+CR964C                   ENDSR                                                                      

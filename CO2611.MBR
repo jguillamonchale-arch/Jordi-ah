@@ -1,0 +1,200 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      *------------------------------------------------------------*                                
+      * TITOL: CO2611  © FLUIDRA S.A.                              *                                
+      * DATA CREACIO:  06/10/2010                                  *                                
+      * AUTOR: KIKE                                                *                                
+      * FUNCIO DEL PROGRAMA: SUMAR DIAS LABORABLES A UNA FECHA     *                                
+      * ************************************************************                                
+      * OBSERVACIONES_                                                                              
+      *          SOLO COTEMPLA DIAS FESTIVOS LOS SABADOS Y DOMINGOS                                 
+      *          HABRIA QUE CREAR CALENDARIO CON FESTIVOS                                           
+      **************************************************************                                
+C0088 * Modificación: CR191                                        *                                
+C0088 *        Autor: JMARTINEZP                                   *                                
+C0088 * Fecha Inicio: 03/05/2013                                   *                                
+C0088 *  Descripción: INTENTAR QUE CALCULE CORRECTAMENTE           *                                
+C0088 **************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+                                                                                                    
+      *                                                                                             
+     D  zxfecha_0      S               D   DATFMT(*ISO)                                             
+     D  zxfecha_1      S               D   DATFMT(*ISO)                                             
+     D  zxfecha_2      S               D   DATFMT(*ISO)                                             
+     D  zxfecha_tm     S               D   DATFMT(*ISO)                                             
+     D  zxfecha        S              8  0                                                          
+     D  zxfechaTX      S              8  0                                                          
+     D  zxdiff         S              6  0                                                          
+     D  zx_dia_s       S              1  0                                                          
+     D  zx_lunes       S              1  0                                                          
+     D  zx_semanas5    S              6  0                                                          
+     D  zx_add         S              6  0                                                          
+     D  zx_resto       S              1  0                                                          
+      *==================================================================                           
+      * PARAMETROS DE ENTRADA                                                                       
+     D  @pedat1        S              8  0                                                          
+     D  @pedat2        S              8  0                                                          
+     D  @pedays        S              5  0                                                          
+     D  @peerro        S              1                                                             
+CR191                                                                                               
+CR191 *****************************************************************                             
+CR191 *           Nº DIAS = @PEDAYS                                                                 
+CR191 *                                                                                             
+CR191 *           Nº SEMANAS = ENTERO DE (Nº DIAS : 5)                                              
+CR191 *                                                                                             
+CR191 *           Nº DÍAS REAL= Nº SEMANAS * 7                                                      
+CR191 *                                                                                             
+CR191 *           RESTO_SEMANA= RESTO DE ( Nº DIAS : 5)                                             
+CR191 *                                                                                             
+CR191 *           X= R E S T O _ S E M A N A S                                                      
+CR191 *                                                                                             
+CR191 *   PM_DAY |   0    1    2    3    4            SUMAR RESTO                                   
+CR191 *   ========----------------------------------------------------                              
+CR191 *     1  L |   X    X    X    X    X                                                          
+CR191 *   ------------------------------------------------------------                              
+CR191 *     2  M |   X    X    X    X    X+2                                                        
+CR191 *   ------------------------------------------------------------                              
+CR191 *     3  X |   X    X    X    X+2  X+2                                                        
+CR191 *   ------------------------------------------------------------                              
+CR191 *     4  J |   X    X    X+2  X+2  X+2                                                        
+CR191 *   ------------------------------------------------------------                              
+CR191 *     5  V |   X    X+2  X+2  X+2  X+2                                                        
+CR191 *   ------------------------------------------------------------                              
+CR191 *                                                                                             
+CR191 *   Nº DIAS REAL= Nº DIAS REAL + RESTO_SEMANAS                                                
+CR191 *   FECHA = FECHA + Nº DIAS REAL                                                              
+CR191******************************************************************                             
+CR191** @GETWEEK  PM_DAY=>(1=LUNES 2=MARTES ..... 0=DOMINGO)                                        
+CR191D pm_DATE         S              8  0                                                          
+CR191D pm_WEEK         S              2  0                                                          
+CR191D pm_DAY          S              2  0                                                          
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PEDAT1                                            
+     C                   PARM                    @peDAYS                                            
+     C                   PARM                    @PEDAT2                                            
+     C                   PARM                    @PEERRO                                            
+      *                                                                                             
+     C                   EVAL      PM_DATE=@PEDAT1                                                  
+     C                   CALL      '@GETWEEK'                                                       
+     C                   PARM                    pm_DATE                                            
+     C                   PARM                    pm_WEEK                                            
+     C                   PARM                    pm_DAY                                             
+      *                                                                                             
+CR191C                   EVAL       ZX_ADD=0                                                        
+CR191 * si sábado, iremos     2 dias hasta el viernes y le diremos que                              
+CR191 * verifique a partir del lunes                                                                
+CR191C                   IF         PM_DAY=6                                                        
+CR191C                   EVAL       PM_DAY=1                                                        
+CR191C                   EVAL       ZX_ADD=2                                                        
+CR191C                   ENDIF                                                                      
+CR191 * si DOMING, iremos     1 dias hasta el viernes y le diremos que                              
+CR191 * verifique a partir del lunes                                                                
+CR191 *                                                                                             
+CR191C                   IF         PM_DAY=0                                                        
+CR191C                   EVAL       PM_DAY=1                                                        
+CR191C                   EVAL       ZX_ADD=1                                                        
+CR191C                   ENDIF                                                                      
+CR191 *                                                                                             
+CR191C                   EVAL       zx_semanas5=@PEDAYS/5                                           
+CR191C                   EVAL       ZX_resto=%rem(@pedays:5)                                        
+CR191C                                                                                              
+CR191C                   EVAL       ZX_ADD=zx_semanas5*7+ZX_resto +ZX_ADD                           
+CR191C                   IF         ZX_resto>0                                                      
+CR191C                   SELECT                                                                     
+CR191C                   WHEN       PM_DAY=1                                                        
+CR191C                   WHEN       PM_DAY=2                                                        
+CR191C                   IF         ZX_resto>3                                                      
+CR191C                   EVAL       ZX_ADD=ZX_ADD+2                                                 
+CR191C                   ENDIF                                                                      
+CR191C                   WHEN       PM_DAY=3                                                        
+CR191C                   IF         ZX_resto>2                                                      
+CR191C                   EVAL       ZX_ADD=ZX_ADD+2                                                 
+CR191C                   ENDIF                                                                      
+CR191C                   WHEN       PM_DAY=4                                                        
+CR191C                   IF         ZX_resto>1                                                      
+CR191C                   EVAL       ZX_ADD=ZX_ADD+2                                                 
+CR191C                   ENDIF                                                                      
+CR191C                   WHEN       PM_DAY=5                                                        
+CR191C                   IF         ZX_resto>0                                                      
+CR191C                   EVAL       ZX_ADD=ZX_ADD+2                                                 
+CR191C                   ENDIF                                                                      
+CR191C                   ENDSL                                                                      
+CR191C                   ENDIF                                                                      
+CR191 *                                                                                             
+CR191C                   MONITOR                                                                    
+CR191C                   MOVE      @PEDAT1       ZXFECHA_0                                          
+CR191C                   ON-ERROR                                                                   
+CR191C                   EVAL      @PEERRO='1'                                                      
+CR191C                   GOTO      SIG                                                              
+CR191C                   ENDMON                                                                     
+CR191C                   ADDDUR    ZX_ADD:*D     ZXFECHA_0                                          
+CR191C                   MOVE      ZXFECHA_0     PM_DATE                                            
+CR191 *                                                                                             
+CR191C                   CALL      '@GETWEEK'                                                       
+CR191C                   PARM                    pm_DATE                                            
+CR191C                   PARM      0             pm_WEEK                                            
+CR191C                   PARM      0             pm_DAY                                             
+CR191C                   EVAL       ZX_ADD=0                                                        
+CR191 * si sábado, iremos     1 dias hasta el viernes y le diremos que                              
+CR191 * verifique a partir del lunes                                                                
+CR191C                   IF         PM_DAY=6                                                        
+CR191C                   EVAL       PM_DAY=1                                                        
+CR191C                   EVAL       ZX_ADD=2                                                        
+CR191C                   ENDIF                                                                      
+CR191 * si Doming, iremos     2 dias hasta el viernes y le diremos que                              
+CR191 * verifique a partir del lunes                                                                
+CR191 *                                                                                             
+CR191C                   IF         PM_DAY=0                                                        
+CR191C                   EVAL       PM_DAY=1                                                        
+CR191C                   EVAL       ZX_ADD=1                                                        
+CR191C                   ENDIF                                                                      
+CR191 *                                                                                             
+CR191C                   ADDDUR    ZX_ADD:*D     ZXFECHA_0                                          
+CR191C                   MOVE      ZXFECHA_0     @PEDAT2                                            
+CR191C                                                                                              
+CR191C     SIG           TAG                                                                        
+CR191c                   seton                                        LR                            
+CR191 *                                                                                             
+CR191C*                  MOVE      @PEDAT1       ZXFECHATX                                          
+CR191c*    *ISO          test(DE)                ZXFECHATX                                          
+CR191c*                  if        %error                                                           
+CR191c*                  eval      @peerro='1'                                                      
+CR191c*                  else                                                                       
+CR191c*                  eval      @peerro=*blanks                                                  
+CR191C*                  EXSR      cs_CALCULA                                                       
+CR191c*                  endif                                                                      
+CR191C*                                                                                             
+CR191C*    SIG           TAG                                                                        
+CR191c*                  seton                                        LR                            
+CR191***********************************************************************                        
+CR191C*    CS_CALCULA    BEGSR                                                                      
+CR191 * Calculo el día de la semana de la fecha:                                                    
+CR191 * Sabiendo que el 1 de enero de 2001 fue Lunes, cogiendo el resto                             
+CR191 * de la division de la diferencia de las fechas entre 7 tengo el día                          
+CR191 * de la semana  (1= lunes ..... 7=Domingo)                                                    
+CR191C*                  MOVE      @pedat1       zxfecha_1                                          
+CR191c*                  eval      zxfecha=20010101                                                 
+CR191C*                  MOVE      zxfecha       zxfecha_0                                          
+CR191c*                  eval      zxdiff=%diff(zxfecha_1:zxfecha_0                                 
+CR191c*                                         :*days)                                             
+CR191c*                  eval      zx_dia_s=%rem(zxdiff:7)+1                                        
+CR191 *                                                                                             
+CR191 * si la fecha va a ser esta semana no calculo nada y sumo dias                                
+CR191c*                  if        zx_dia_s+@pedays<6                                               
+CR191c*                  eval      zxfecha_2=zxfecha_1+%days(@pedays)                               
+CR191c*                  else                                                                       
+CR191 * calculo el proximo lunes                                                                    
+CR191c*                  eval      zx_lunes=(7-zx_dia_s)+1                                          
+CR191c*                  eval      zxfecha_tm=zxfecha_1+%days(zx_lunes)                             
+CR191 * guardo los dias laborables de la primera semana                                             
+CR191c*                  eval      zx_lunes-=2                                                      
+CR191 * calculo las semanas y resto de dias de una semana de 5 dias                                 
+CR191c*                  eval      zx_semanas5=(@pedays-zx_lunes)/5                                 
+CR191c*                  eval      zx_resto=%rem((@pedays-zx_lunes):5)                              
+CR191 * calculo los dias a la semana de 7 dias                                                      
+CR191c*                  eval      zx_add=zx_semanas5*7+zx_resto                                    
+CR191c*                  eval      zxfecha_2=zxfecha_TM+%days(zx_add)                               
+CR191c*                  endif                                                                      
+CR191c*                  move      zxfecha_2     @pedat2                                            
+CR191C*                  ENDSR                                                                      

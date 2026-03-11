@@ -1,0 +1,218 @@
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+      **************************************************************                                
+      * APLICACIÓ: KORE                                            *                                
+      *------------------------------------------------------------*                                
+      * TITOL: CO2610  © FLUIDRA   S.A.                            *                                
+      * DATA CREACIO:  07/03/2013                                  *                                
+      * AUTOR: DPTO. INFORMATICA                                   *                                
+      * FUNCIO DEL PROGRAMA: OBTENCION PEDIDOS PDTES SERVIR        *                                
+      *                      CLIENTES                              *                                
+      * DOCUMENTACIO:                                              *                                
+      **************************************************************                                
+     FCODEPE42  IF   E           K DISK                                         fichero detalles    
+     FCOCAPEA8  IF   E           K DISK                                         fichero detalles    
+     FMSLOAD    IF   E           K DISK                                         fichero detalles    
+     FMSARTI00  IF   E           K DISK                                         fichero detalles    
+     FPMUNAL    IF   E           K DISK                                         fichero detalles    
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+     D* AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                       
+     D  DSLDA        E DS                  EXTNAME(PURLDADS)                                        
+     D    CCCDEEM                    30    OVERLAY(ZZDEEM)                                          
+      * PARAMETROS DE ENTRADA                                                                       
+     D  @PCIAS         S                   LIKE(S5CIAS)                                             
+     D  @PDLGA         S                   LIKE(S5DLGA)                                             
+     D  @PARTI         S                   LIKE(S5ARTI)                                             
+     D  @PVARI         S                   LIKE(S5VARI)                                             
+     D  @PMODE         S                   LIKE(S5MODE)                                             
+     D  @PTCOJ         S                   LIKE(S5TCOJ)                                             
+     D  @PDATD         S                   LIKE(S5DAT8)                                             
+     D  @PDATH         S                   LIKE(S5DAT8)                                             
+     D  @PCANT         S                   LIKE(S5CANT)                                             
+     D  @PCAN1         S                   LIKE(S5CANT)                                             
+     D  @PLOGE         S                   LIKE(S5LOGE)                                             
+     D  @POMFD         S              1                                                             
+     D  @PERRO         S              1                                                             
+      * VARIABLES                                                                                   
+     D  ZXAUXIBS       S                   LIKE(XZAUXI)                                             
+     D  ZXARTIBS       S                   LIKE(P6ARTI)                                             
+     D  ZXVARIBS       S                   LIKE(P6VARI)                                             
+     D  ZXMODEBS       S                   LIKE(P6MODE)                                             
+     D  ZXUNIMBS       S                   LIKE(P6UNIM)                                             
+      *                                                                                             
+     D  ZXCANT         S                   LIKE(S5CANT)                                             
+     D  ZXDATD         S                   LIKE(S5DAT8)                                             
+     D  ZXDATH         S                   LIKE(S5DAT8)                                             
+      *                                                                                             
+     D SDE             S              1    DIM(9)                                                   
+      **************************************************************                                
+      * RUTINA  PRINCIPAL DEL PROGRAMA                             *                                
+      *------------------------------------------------------------*                                
+     C                   EXSR      SR01                                         Proceso Inicial     
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+      *                                                                                             
+     C     KPMUNAL       KLIST                                                                      
+     C                   KFLD                    P6CIAS                                             
+     C                   KFLD                    P6ARTI                                             
+     C                   KFLD                    P6VARI                                             
+     C                   KFLD                    P6MODE                                             
+     C                   KFLD                    P6UNIM                                             
+     C     KMSARTI00     KLIST                                                                      
+     C                   KFLD                    M5CIAS                                             
+     C                   KFLD                    M5ARTI                                             
+     C                   KFLD                    M5VARI                                             
+     C                   KFLD                    M5MODE                                             
+      *                                                                                             
+     C     KMSLOAD       KLIST                                                                      
+     C                   KFLD                    MICIAS                                             
+     C                   KFLD                    MIDLGA                                             
+     C                   KFLD                    MILGCA                                             
+      *                                                                                             
+     C     KCODEPE42     KLIST                                                  *KL PUDEPE11 4      
+     C                   KFLD                    S5CIAS                         CODIGO EMPRESA      
+     C                   KFLD                    S5ARTI                         CODIGO ARTICULO     
+     C                   KFLD                    S5VARI                         BLANCOS             
+     C                   KFLD                    S5MODE                         BLANCOS             
+     C                   KFLD                    S5TCOJ                         BLANCOS             
+     C                   KFLD                    S5LOGE                         BLANCOS             
+     C                   KFLD                    S5FRRR                         BLANCOS             
+      *                                                                                             
+     C     KCODEPE42_S   KLIST                                                  *KL PUDEPE11 4      
+     C                   KFLD                    S5CIAS                         CODIGO EMPRESA      
+     C                   KFLD                    S5ARTI                         CODIGO ARTICULO     
+     C                   KFLD                    S5VARI                         BLANCOS             
+     C                   KFLD                    S5MODE                         BLANCOS             
+     C                   KFLD                    S5TCOJ                         BLANCOS             
+     C                   KFLD                    S5LOGE                         BLANCOS             
+      *                                                                                             
+     C     KCOCAPEA8     KLIST                                                  *KL CODEPE11 4      
+     C                   KFLD                    S5CIAS                         CODIGO EMPRESA      
+     C                   KFLD                    S5DLGA                         CODIGO EMPRESA      
+     C                   KFLD                    S5NPCO                         CODIGO ARTICULO     
+     C                   KFLD                    S5TPED                         BLANCOS             
+     C                   KFLD                    S5DATP                         BLANCOS             
+     C                   KFLD                    S5NOPL                         BLANCOS             
+      ****************************************************                                          
+      * ENTRADA PARAMETROS                                                                          
+      ****************************************************                                          
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PARTI                                             
+     C                   PARM                    @PVARI                                             
+     C                   PARM                    @PMODE                                             
+     C                   PARM                    @PTCOJ                                             
+     C                   PARM                    @PDATD                                             
+     C                   PARM                    @PDATH                                             
+     C                   PARM                    @PCANT                                             
+     C                   PARM                    @PCAN1                                             
+     C                   PARM                    @PLOGE                                             
+     C                   PARM                    @POMFD                                             
+     C                   PARM                    @PERRO                                             
+     C                   ENDSR                                                                      
+      ***************************************************************                               
+      *SUBRUTINA DE CALCULO                                                                         
+      ***************************************************************                               
+     C     SR01          BEGSR                                                  Proceso Inicial     
+     C                   Z-ADD     @PCIAS        S5CIAS                                             
+     C                   MOVEL     @PARTI        S5ARTI                                             
+     C                   MOVEL     @PVARI        S5VARI                                             
+     C                   MOVEL     @PMODE        S5MODE                                             
+     C                   MOVEL     @PTCOJ        S5TCOJ                                             
+     C                   MOVEL     @PLOGE        S5LOGE                                             
+I1021C*                  MOVEL     @PDATH        S5FRRE                                             
+I1021C                   MOVEL     @PDATD        S5FRRE                                             
+I1021C                   MOVEL     @PDATH        ZXDATH                                             
+                                                                                                    
+     C                   EVAL      MICIAS=S5CIAS                                                    
+     C                   EVAL      MIDLGA=S5DLGA                                                    
+     C                   EVAL      MILGCA=S5LOGE                                                    
+     C     KMSLOAD       CHAIN     MSLOAD                             81                            
+      * leemos ficha artículo                                                                       
+     C                   EVAL      M5CIAS=S5CIAS                                                    
+     C                   EVAL      M5ARTI=S5ARTI                                                    
+     C                   EVAL      M5VARI=S5VARI                                                    
+     C                   EVAL      M5MODE=S5MODE                                                    
+     C     KMSARTI00     CHAIN     MSARTI00                           81                            
+      *                                                                                             
+     C                   EVAL      S5FRRR=ZXDATD                                                    
+     C     KCODEPE42     SETLL     CODEPE42                                                         
+     C     KCODEPE42_S   READE     CODEPE42                             8081                        
+     C                   DOW       NOT%EOF                                                          
+     C                   IF        ZXDATH<S5FRRR                                                    
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   IF        @POMFD='1' AND S5TPE4='2'                                        
+     C                   GOTO      TNEXT                                                            
+     C                   ENDIF                                                                      
+      * SOLO ORDENES EN CURSO                                                                       
+     C     KCOCAPEA8     SETLL     COCAPEA8                           81                            
+     C                   IF        %EQUAL(COCAPEA8)                                                 
+     C                   EVAL      P6CIAS=S5CIAS                                                    
+     C                   Z-ADD     S5CANT        ZXCANT                                             
+     C                   IF        S5CANC>0                                                         
+     C                   Z-ADD     S5CANC        ZXCANT                                             
+     C                   ENDIF                                                                      
+     C                   SUB       S5CANS        ZXCANT                                             
+     C                   IF        M5UNIM<>S5UNIM                                                   
+     C                   EVAL      ZXAUXIBS=ZXCANT                                                  
+     C                   EVAL      ZXARTIBS=M5ARTI                                                  
+     C                   EVAL      ZXVARIBS=M5VARI                                                  
+     C                   EVAL      ZXMODEBS=M5MODE                                                  
+     C                   EVAL      ZXUNIMBS=S5UNIM                                                  
+     C                   EXSR      CS_CNVUBS                                                        
+     C                   EVAL      ZXCANT=ZXAUXIBS                                                  
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     ZXCANT        IFGT      0                                                                
+     C                   ADD       ZXCANT        @PCANT                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * ENLAZO CON EL DETALLE                                                                       
+     C     TNEXT         TAG                                                                        
+     C     KCODEPE42_S   READE     CODEPE42                             8081                        
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C     TFIN          TAG                                                                        
+     C                   ENDSR                                                  Fin Subrutina       
+      **************************************************************                                
+      * SUBRUTINA PARA CONVERTIR UNIDADES PEDIDO A UNIDADES STOCK  *                                
+      **************************************************************                                
+     C     CS_CNVUBS     BEGSR                                                                      
+     C                   EVAL      XZAUXI=ZXAUXIBS                                                  
+     C                   MOVE      ZXARTIBS      P6ARTI                                             
+     C                   MOVE      ZXVARIBS      P6VARI                                             
+     C                   MOVE      ZXMODEBS      P6MODE                                             
+     C                   MOVE      ZXUNIMBS      P6UNIM                                             
+     C                   MOVE      '0'           P6TCOF                                             
+     C                   Z-ADD     0             P6COFA                                             
+     C     KPMUNAL       CHAIN     PMUNAL                             81                            
+     C                   IF        *IN81=*ON                                                        
+     C                   EVAL      P6VARI=*BLANKS                                                   
+     C                   EVAL      P6MODE=*BLANKS                                                   
+     C     KPMUNAL       CHAIN     PMUNAL                             81                            
+     C                   ENDIF                                                                      
+     C                   IF        P6TCOF<>'1'                                                      
+     C                   MULT      P6COFA        XZAUXI                                             
+     C                   ELSE                                                                       
+     C                   IF        P6COFA<>0                                                        
+     C                   DIV       P6COFA        XZAUXI                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   MOVE      '0'           XZDECI                                             
+     C                   MOVE      '0'           XZAJUD                                             
+      * AJUSTE Y DECIMALES                                                                          
+     C/COPY *LIBL/QSRDSRC,SRD001                                                                    
+      * OBTENGO LA CANTIDAD EN UNIDAD BASICA DEL ARTICULO                                           
+     C                   EVAL      ZXAUXIBS=XZAUXI                                                  
+     C                   ENDSR                                                                      

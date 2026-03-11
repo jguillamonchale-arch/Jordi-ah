@@ -1,0 +1,679 @@
+      **************************************************************                                
+      * TITOL: CO2696 © AQUAPOINT S.A.                             *                                
+      *                                                            *                                
+      * DATA CREACIO:  Febrero 2006  AUTOR: Carlos del Valle       *                                
+      * FUNCIO DEL PROGRAMA: Comprobación de Validez del Coenvío   *                                
+      *                      para Expedir                          *                                
+      *                                                            *                                
+      **************************************************************                                
+      * Retorno de Valores/Errores                                 *                                
+      *                                                            *                                
+      * ' ' = OK Puede Salir                                       *                                
+      * '0' = OK No es un Coenvío                                  *                                
+      * '1' = Línea no esta Reservada 100%                         *                                
+      * '2' = Faltan líneas por reservar                           *                                
+      * '3' = Estan todas las líneas pero hay alguna reserva Parci *                                
+      * '4' = Coenvío esta OK pero su anterior dependiente no      *                                
+      *                                                            *                                
+      **************************************************************                                
+C2280 * Modificación: C2280                                        *                                
+C2280 *        Autor: Josep Aragonès                               *                                
+C2280 * Fecha Inicio: 29/04/2016                                   *                                
+C2280 *  Descripción: Modis EDIS para Invictus                     *                                
+C2280 *               Validación de coenvio no tiene en cuenta EDTRLP                               
+C2280 **************************************************************                                
+H2007* Data de Modificació: 20/07/2017  Marca: H2007              *                                
+H2007* Autor: Cecilio Ruiz                                        *                                
+H2007*     Graba fichero COVACO para control errores              *                                
+H2007**************************************************************                                
+H1909* Data de Modificació: 20/07/2017  Marca: H1909              *                                
+H1909* Autor: Cecilio Ruiz                                        *                                
+H1909*     Ya no graba fichero COVACO para control errores        *                                
+H1909**************************************************************                                
+SCE54* Data de Modificació: 26/09/2024  Marca: SCE54              *                                
+SCE54* Autor: JMARTINEZP                                          *                                
+SCE54*     CONTROL DE CANTIDAD Y LINEAS CERRADAS                  *                                
+SCE54**************************************************************                                
+                                                                                                    
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+                                                                                                    
+     FCODEPE    IF   E           K DISK                                                             
+     FCODEPE21  IF   E           K DISK    RENAME(RCODEPE:RCODEPE21)                                
+     FCODEPE22  IF   E           K DISK    RENAME(RCODEPE:RCODEPE22)                                
+     FTRCPDE01  IF   E           K DISK    PREFIX(C_)                                               
+     FTRCPDE02  IF   E           K DISK    PREFIX(L_) RENAME(RTRCPDE:RTRCPDE02)                     
+     FCOXDOC    IF   E           K DISK                                                             
+     FCOXDOC06  IF   E           K DISK    RENAME(RCOXDOC:RCOXDOC06)                                
+     FCOXDOC07  IF   E           K DISK    RENAME(RCOXDOC:RCOXDOC07)                                
+C2280FEDTRLP30  IF   E           K DISK                                                             
+H1909 *H2007fcovaco    o    e           k disk                                                      
+H1909fcovaco    if A e           k disk                                                             
+                                                                                                    
+      * AREA DE DADES DE PROGRAMA I INICIALITZACIO DE VALORS COMUNS                                 
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+      *                                                                                             
+     D  @PCIAS         S                   LIKE(S5CIAS)                                             
+     D  @PDLGA         S                   LIKE(S5DLGA)                                             
+     D  @PNPCO         S                   LIKE(S5NPCO)                                             
+     D  @PTPED         S                   LIKE(S5TPED)                                             
+     D  @PDATP         S                   LIKE(S5DATP)                                             
+     D  @PNOPL         S                   LIKE(S5NOPL)                                             
+     D  @PLINE         S                   LIKE(S5LINE)                                             
+     D  @PERRO         S              1                                                             
+      *                                                                                             
+     D  ZXCONT         S              4  0                                                          
+     D  ZXTOLIN        S              4  0                                                          
+     D  ZX100          S              1                                                             
+     D  ZXDEPEND       S              1                                                             
+     D  ZXCOORI        S              2  0                                                          
+     D  ZXCOANT        S              2  0                                                          
+     D  ZXNUDEPE       S              2  0                                                          
+     D  ZXCCPP         S                   LIKE(S5CCPP)                                             
+H2007*                                                                                             
+H2007d zxtime          s               z   inz                                  Timestamp           
+H2007d zxsubr          s                   like(xosubr) inz                     Nombre Subrutina    
+H2007d zxnlog          s                   like(xonlog) inz                     Número Log          
+H2007d zxncoe          s                   like(xoncoe) inz                     Número Coenvío      
+H2007*                                                                                             
+      **************************************************************                                
+      * RUTINA PRINCIPAL                                                                            
+      *------------------------------------------------------------*                                
+      *                                                                                             
+     C                   EXSR      CS_CHECK0                                                        
+      *                                                                                             
+     C                   IF        @PERRO=*BLANKS                                                   
+     C                   EXSR      CS_CHECK1                                                        
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        @PERRO=*BLANKS                                                   
+     C                   EXSR      CS_CHECK23                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        @PERRO=*BLANKS                                                   
+     C                   EXSR      CS_CHECK4                                                        
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        @PERRO='0'                                                       
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL                                          *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+                                                                                                    
+     C     KCODEPE       KLIST                                                                      
+     C                   KFLD                    S5CIAS                                             
+     C                   KFLD                    S5DLGA                                             
+     C                   KFLD                    S5NPCO                                             
+     C                   KFLD                    S5TPED                                             
+     C                   KFLD                    S5DATP                                             
+     C                   KFLD                    S5NOPL                                             
+     C                   KFLD                    S5LINE                                             
+                                                                                                    
+     C     KCODEPE21     KLIST                                                                      
+     C                   KFLD                    S5CI02                                             
+     C                   KFLD                    S5DL02                                             
+     C                   KFLD                    S5NP02                                             
+     C                   KFLD                    S5TP02                                             
+     C                   KFLD                    S5DA02                                             
+     C                   KFLD                    S5NO02                                             
+     C                   KFLD                    S5LI02                                             
+                                                                                                    
+     C     KCOXDOC06     KLIST                                                                      
+     C                   KFLD                    TKCI02                                             
+     C                   KFLD                    TKDL02                                             
+     C                   KFLD                    TKNP02                                             
+     C                   KFLD                    TKTP02                                             
+     C                   KFLD                    TKDA02                                             
+     C                   KFLD                    TKNO02                                             
+     C                   KFLD                    TKLI02                                             
+                                                                                                    
+     C     KTRCPDE01     KLIST                                                                      
+     C                   KFLD                    C_S5CI02                                           
+     C                   KFLD                    C_S5DL02                                           
+     C                   KFLD                    C_S5NP02                                           
+     C                   KFLD                    C_S5TP02                                           
+     C                   KFLD                    C_S5DA02                                           
+     C                   KFLD                    C_S5NO02                                           
+     C                   KFLD                    C_S5LI02                                           
+                                                                                                    
+     C     KTRCPDE01X    KLIST                                                                      
+     C                   KFLD                    C_S5CI02                                           
+     C                   KFLD                    C_S5DL02                                           
+     C                   KFLD                    C_S5NP02                                           
+     C                   KFLD                    C_S5TP02                                           
+     C                   KFLD                    C_S5DA02                                           
+     C                   KFLD                    C_S5NO02                                           
+                                                                                                    
+     C     KTRCPDE02     KLIST                                                                      
+     C                   KFLD                    L_S5CIAS                                           
+     C                   KFLD                    L_S5DLGA                                           
+     C                   KFLD                    L_S5NPCO                                           
+     C                   KFLD                    L_S5TPED                                           
+     C                   KFLD                    L_S5DATP                                           
+     C                   KFLD                    L_S5NOPL                                           
+     C                   KFLD                    L_S5NCOE                                           
+                                                                                                    
+     C     KTRCPDE02X    KLIST                                                                      
+     C                   KFLD                    L_S5CIAS                                           
+     C                   KFLD                    L_S5DLGA                                           
+     C                   KFLD                    L_S5NPCO                                           
+     C                   KFLD                    L_S5TPED                                           
+     C                   KFLD                    L_S5DATP                                           
+     C                   KFLD                    L_S5NOPL                                           
+     C                   KFLD                    L_S5NCOE                                           
+     C                   KFLD                    L_S5NCOI                                           
+      *                                                                                             
+     C     KTRCPDE02Z    KLIST                                                                      
+     C                   KFLD                    L_S5CIAS                                           
+     C                   KFLD                    L_S5DLGA                                           
+     C                   KFLD                    L_S5NPCO                                           
+     C                   KFLD                    L_S5TPED                                           
+     C                   KFLD                    L_S5DATP                                           
+     C                   KFLD                    L_S5NOPL                                           
+C2280                                                                                               
+C2280C     KEDTRLP30     KLIST                                                                      
+C2280C                   KFLD                    T0CIA3                                             
+C2280C                   KFLD                    T0DLG3                                             
+C2280C                   KFLD                    T0NPC3                                             
+C2280C                   KFLD                    T0TPE3                                             
+C2280C                   KFLD                    T0DAT3                                             
+C2280C                   KFLD                    T0NOP3                                             
+C2280C                   KFLD                    T0LIN3                                             
+      *                                                                                             
+      * Entrada de parámetros                                                                       
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PLINE                                             
+     C                   PARM                    @PERRO                                             
+                                                                                                    
+     C                   EVAL      S5CIAS=@PCIAS                                                    
+     C                   EVAL      S5DLGA=@PDLGA                                                    
+     C                   EVAL      S5NPCO=@PNPCO                                                    
+     C                   EVAL      S5TPED=@PTPED                                                    
+     C                   EVAL      S5DATP=@PDATP                                                    
+     C                   EVAL      S5NOPL=@PNOPL                                                    
+     C                   EVAL      S5LINE=@PLINE                                                    
+                                                                                                    
+     C                   EVAL      @PERRO=*BLANKS                                                   
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * CHECK0  Comprobar si es un Coenvío                         *                                
+      *------------------------------------------------------------*                                
+     C     CS_CHECK0     BEGSR                                                                      
+      *                                                                                             
+     C     KCODEPE       CHAIN     CODEPE                                                           
+     C                   IF        NOT %FOUND(CODEPE)                                               
+14067C***                EVAL      @PERRO='0'                                                       
+14067C                   EVAL      @PERRO='1'                                                       
+     C                   ELSE                                                                       
+      *                                                                                             
+     C                   EVAL      ZXCCPP=S5CCPP                                                    
+      *                                                                                             
+      * Monto la Clave de Líneas Relacionadas de Pedido Ori. ventas                                 
+      * Accedo a Registro Original de la Comercial a ver si es coenvío                              
+      *                                                                                             
+      * Si es Xdoc busco una línea (Si fuera coenvío sólo debería ser de 1)                         
+      *                                                                                             
+     C                   IF        ZXCCPP='1'                                                       
+     C     KCODEPE       CHAIN     COXDOC                                                           
+     C                   EVAL      C_S5CI02=TKCI02                                                  
+     C                   EVAL      C_S5DL02=TKDL02                                                  
+     C                   EVAL      C_S5NP02=TKNP02                                                  
+     C                   EVAL      C_S5TP02=TKTP02                                                  
+     C                   EVAL      C_S5DA02=TKDA02                                                  
+     C                   EVAL      C_S5NO02=TKNO02                                                  
+     C                   EVAL      C_S5LI02=TKLI02                                                  
+     C                   ELSE                                                                       
+     C                   EVAL      C_S5CI02=S5CI02                                                  
+     C                   EVAL      C_S5DL02=S5DL02                                                  
+     C                   EVAL      C_S5NP02=S5NP02                                                  
+     C                   EVAL      C_S5TP02=S5TP02                                                  
+     C                   EVAL      C_S5DA02=S5DA02                                                  
+     C                   EVAL      C_S5NO02=S5NO02                                                  
+     C                   EVAL      C_S5LI02=S5LI02                                                  
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KTRCPDE01     CHAIN     TRCPDE01                           81                            
+      *                                                                                             
+     C                   IF        *IN81                                                            
+      *                                                                                             
+      * Si no encuentro vuelvo a buscar cambiando la clave porque                                   
+      * la trazabilidad me puede venir cambiada, dependiendo si es                                  
+      * pedido propio o no                                                                          
+      *                                                                                             
+     C                   IF        ZXCCPP='1'                                                       
+     C                   EVAL      C_S5CI02=TKCI01                                                  
+     C                   EVAL      C_S5DL02=TKDL01                                                  
+     C                   EVAL      C_S5NP02=TKNP01                                                  
+     C                   EVAL      C_S5TP02=TKTP01                                                  
+     C                   EVAL      C_S5DA02=TKDA01                                                  
+     C                   EVAL      C_S5NO02=TKNO01                                                  
+     C                   EVAL      C_S5LI02=TKLI01                                                  
+     C                   ELSE                                                                       
+     C                   EVAL      C_S5CI02=S5CI01                                                  
+     C                   EVAL      C_S5DL02=S5DL01                                                  
+     C                   EVAL      C_S5NP02=S5NP01                                                  
+     C                   EVAL      C_S5TP02=S5TP01                                                  
+     C                   EVAL      C_S5DA02=S5DA01                                                  
+     C                   EVAL      C_S5NO02=S5NO01                                                  
+     C                   EVAL      C_S5LI02=S5LI01                                                  
+     C                   ENDIF                                                                      
+     C     KTRCPDE01     CHAIN     TRCPDE01                           81                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+14067C*                  IF        *IN81                                                            
+14067C*                            OR NOT *IN81 AND C_S5NCOE<'01'                                   
+14067C                   If        NOT *IN81 AND C_S5NCOE<'01'                                      
+     C                             OR NOT *IN81 AND C_S5NCOE>'99'                                   
+     C                   EVAL      @PERRO='0'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+H2007c                   eval      zxsubr = 'CS_CHECK0'                                             
+H2007c                   eval      zxncoe = c_s5ncoe                                                
+H2007c                   exsr      cs_covaco                                                        
+H2007*                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * CHECK1  Comprobar si la línea está Reservada 100% (EN OL)  *                                
+      *------------------------------------------------------------*                                
+     C     CS_CHECK1     BEGSR                                                                      
+      *                                                                                             
+     C                   IF        S5CANC<>0                                                        
+     C                   EVAL      S5CANT=S5CANC                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+01070C*                  IF        S5CANT<>S5CANR                                                   
+01070C                   IF        S5CANT<>S5CANR+S5CANS                                            
+SCE54C                             AND S5STUL<'5'                                                   
+     C                   EVAL      @PERRO='1'                                                       
+     C                   ENDIF                                                                      
+C2280                                                                                               
+C2280 * Aunque esté reservada si la línea está retenida, no la tenemos en cuenta                    
+C2280C                   IF        @PERRO=' '                                                       
+C2280C                   EVAL      T0CIA3=S5CIAS                                                    
+C2280C                   EVAL      T0DLG3=S5DLGA                                                    
+C2280C                   EVAL      T0NPC3=S5NPCO                                                    
+C2280C                   EVAL      T0TPE3=S5TPED                                                    
+C2280C                   EVAL      T0DAT3=S5DATP                                                    
+C2280C                   EVAL      T0NOP3=S5NOPL                                                    
+C2280C                   EVAL      T0LIN3=S5LINE                                                    
+C2280C     KEDTRLP30     CHAIN     EDTRLP30                                                         
+C2280C                   IF        %FOUND(EDTRLP30) And                                             
+C3690C*                             (T0PHLD<>0 Or T0RISK<>0)                                        
+C3690C                              (T0PHLD<>0)                                                     
+C3690C*                  EVAL      @PERRO='1'                                                       
+C3690C                   EVAL      @PERRO='5'                                                       
+C2280C                   ENDIF                                                                      
+C3690C                   IF        %FOUND(EDTRLP30) And                                             
+C3690C                              (T0RISK<>0)                                                     
+C3690C                   EVAL      @PERRO='6'                                                       
+C3690C                   IF        T0RISK= 2                                                        
+C3690C                   EVAL      @PERRO='7'                                                       
+C3690C                   ENDIF                                                                      
+C2280C                   ENDIF                                                                      
+C2280C                   ENDIF                                                                      
+H2007*                                                                                             
+H2007c                   eval      zxsubr = 'CS_CHECK1'                                             
+H2007c                   eval      zxncoe = c_s5ncoe                                                
+H2007c                   exsr      cs_covaco                                                        
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * CHECK23 Comprobar si estan todas las líneas de la Comercial*                                
+      *         en TRACE                                           *                                
+      *         Ojo con división en Conjuntos y con fusión en Xdoc *                                
+      *                                                            *                                
+      *         El total de líneas del pedido original siempre     *                                
+      *         será el nº de líneas del pedido en sí + las extra  *                                
+      *         generadas por los conjuntos                        *                                
+      *------------------------------------------------------------*                                
+     C     CS_CHECK23    BEGSR                                                                      
+      *                                                                                             
+      * Ya dispongo del Nº de Líneas Totales                                                        
+      *                                                                                             
+     C                   MOVE      C_S5NCOF      ZXTOLIN                                            
+      *                                                                                             
+     C                   EVAL      L_S5CIAS=C_S5CIAS                                                
+     C                   EVAL      L_S5DLGA=C_S5DLGA                                                
+     C                   EVAL      L_S5NPCO=C_S5NPCO                                                
+     C                   EVAL      L_S5TPED=C_S5TPED                                                
+     C                   EVAL      L_S5DATP=C_S5DATP                                                
+     C                   EVAL      L_S5NOPL=C_S5NOPL                                                
+     C                   EVAL      L_S5NCOE=C_S5NCOE                                                
+     C                   EVAL      L_S5NCOI=*BLANKS                                                 
+      *                                                                                             
+      * Recorro el Coenvío Original de la Comercial                                                 
+      * y busco cada una de sus líneas en TRACE                                                     
+      *                                                                                             
+     C                   EVAL      ZX100='1'                                                        
+     C                   EVAL      ZXCONT=0                                                         
+     C     KTRCPDE02X    SETLL     TRCPDE02                                                         
+     C     KTRCPDE02     READE     TRCPDE02                                                         
+     C                   DOW       NOT %EOF(TRCPDE02)                                               
+      *                                                                                             
+      * Busco su Línea y si está OK                                                                 
+      *                                                                                             
+     C                   EVAL      S5CI02=L_S5CI02                                                  
+     C                   EVAL      S5DL02=L_S5DL02                                                  
+     C                   EVAL      S5NP02=L_S5NP02                                                  
+     C                   EVAL      S5TP02=L_S5TP02                                                  
+     C                   EVAL      S5DA02=L_S5DA02                                                  
+     C                   EVAL      S5NO02=L_S5NO02                                                  
+     C                   EVAL      S5LI02=L_S5LI02                                                  
+     C     KCODEPE21     CHAIN     CODEPE21                           81                            
+     C   81KCODEPE21     CHAIN     CODEPE22                           81                            
+      *                                                                                             
+      * Si no he encontrado podría ser Xdoc                                                         
+      *                                                                                             
+     C                   EVAL      *IN85=*ON                                                        
+     C                   IF        *IN81 AND L_S5CI02<>*BLANKS                                      
+     C                             AND L_S5NP02<>*BLANKS                                            
+     C                   EVAL      TKCI02=L_S5CI02                                                  
+     C                   EVAL      TKDL02=L_S5DL02                                                  
+     C                   EVAL      TKNP02=L_S5NP02                                                  
+     C                   EVAL      TKTP02=L_S5TP02                                                  
+     C                   EVAL      TKDA02=L_S5DA02                                                  
+     C                   EVAL      TKNO02=L_S5NO02                                                  
+     C                   EVAL      TKLI02=L_S5LI02                                                  
+     C     KCOXDOC06     CHAIN     COXDOC06                           85                            
+     C   85KCOXDOC06     CHAIN     COXDOC07                           85                            
+     C                   IF        *IN85 AND L_S5CI01<>*BLANKS                                      
+     C                             AND L_S5NP01<>*BLANKS                                            
+     C                   EVAL      TKCI02=L_S5CI01                                                  
+     C                   EVAL      TKDL02=L_S5DL01                                                  
+     C                   EVAL      TKNP02=L_S5NP01                                                  
+     C                   EVAL      TKTP02=L_S5TP01                                                  
+     C                   EVAL      TKDA02=L_S5DA01                                                  
+     C                   EVAL      TKNO02=L_S5NO01                                                  
+     C                   EVAL      TKLI02=L_S5LI01                                                  
+     C     KCOXDOC06     CHAIN     COXDOC06                           85                            
+     C   85KCOXDOC06     CHAIN     COXDOC07                           85                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        NOT *IN85                                                        
+     C                   EVAL      S5CIAS=TKCIAS                                                    
+     C                   EVAL      S5DLGA=TKDLGA                                                    
+     C                   EVAL      S5NPCO=TKNPCO                                                    
+     C                   EVAL      S5TPED=TKTPED                                                    
+     C                   EVAL      S5DATP=TKDATP                                                    
+     C                   EVAL      S5NOPL=TKNOPL                                                    
+     C                   EVAL      S5LINE=TKLINE                                                    
+     C                   EVAL      *IN81=*OFF                                                       
+     C     KCODEPE       CHAIN     CODEPE                                                           
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Si lo ha encontrado Cuenta                                                                  
+      *                                                                                             
+     C                   IF        NOT *IN81                                                        
+SCE54C                   IF        S5STUL<>'5'                                                      
+     C                   EVAL      ZXCONT=ZXCONT+1                                                  
+SCE54C                   ENDIF                                                                      
+      *                                                                                             
+      * Guardar en una variable si las reservas están 100%                                          
+      *                                                                                             
+     C                   IF        S5CANC<>0                                                        
+     C                   EVAL      S5CANT=S5CANC                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+01070C**                 IF        S5CANT<>S5CANR AND S5STUL<'5'                                    
+01070C                   IF        S5CANT<>S5CANR+S5CANS                                            
+01070C                             AND S5STUL<'5'                                                   
+     C                   EVAL      ZX100='0'                                                        
+     C                   ENDIF                                                                      
+C2280                                                                                               
+C2280 * Aunque esté reservada si la línea está retenida, no la tenemos en cuenta                    
+C2280C                   IF        ZX100='1'                                                        
+C2280C                   EVAL      T0CIA3=S5CIAS                                                    
+C2280C                   EVAL      T0DLG3=S5DLGA                                                    
+C2280C                   EVAL      T0NPC3=S5NPCO                                                    
+C2280C                   EVAL      T0TPE3=S5TPED                                                    
+C2280C                   EVAL      T0DAT3=S5DATP                                                    
+C2280C                   EVAL      T0NOP3=S5NOPL                                                    
+C2280C                   EVAL      T0LIN3=S5LINE                                                    
+C2280C     KEDTRLP30     CHAIN     EDTRLP30                                                         
+C2280C                   IF        %FOUND(EDTRLP30) And                                             
+C2280C                              (T0PHLD<>0 Or T0RISK<>0)                                        
+C2280C                   EVAL      ZX100='0'                                                        
+C2280C                   ENDIF                                                                      
+C2280C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KTRCPDE02     READE     TRCPDE02                                                         
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   IF        ZXCONT<>ZXTOLIN                                                  
+     C                   EVAL      @PERRO='2'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Están todas las líneas pero no 100% Reservadas                                              
+      *                                                                                             
+     C                   IF        @PERRO=*BLANKS AND ZX100='0'                                     
+     C                   EVAL      @PERRO='3'                                                       
+     C                   ENDIF                                                                      
+H2007*                                                                                             
+H2007c                   eval      zxsubr = 'CS_CHECK23'                                            
+H2007c                   eval      zxncoe = c_s5ncoe                                                
+H2007c                   exsr      cs_covaco                                                        
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * CHECK4  Comprobar si tiene un coenvío anterior que aún no  *                                
+      *         se ha servido                                      *                                
+      *         Los Coenvíos de 1 a 49 son independientes                                           
+      *------------------------------------------------------------*                                
+     C     CS_CHECK4     BEGSR                                                                      
+      *                                                                                             
+     C                   IF        C_S5NCOE>='51' AND C_S5NCOE<='99'                                
+      *                                                                                             
+     C                   MOVE      C_S5NCOE      ZXCOANT                                            
+     C                   EVAL      ZXDEPEND='1'                                                     
+      *                                                                                             
+      * Si Nº de Coenvío <= 49 ya no hay más anteriores que creen                                   
+      * dependencia                                                                                 
+      *                                                                                             
+     C                   DOW       ZXDEPEND='1'                                                     
+      *                                                                                             
+     C                   EVAL      ZXCOANT=ZXCOANT-1                                                
+      *                                                                                             
+     C                   IF        ZXCOANT<=49                                                      
+     C                   EVAL      ZXDEPEND='0'                                                     
+     C                   ELSE                                                                       
+      *                                                                                             
+      * Leo todo el pedido aver si encuentro este Nº de Coenvío                                     
+      *                                                                                             
+     C                   EVAL      ZXNUDEPE=49                                                      
+     C     KTRCPDE02Z    SETLL     TRCPDE02                                                         
+     C     KTRCPDE02Z    READE     TRCPDE02                                                         
+     C                   DOW       NOT %EOF(TRCPDE02)                                               
+      *                                                                                             
+     C                   IF        L_S5NCOE>='51' AND L_S5NCOE<='99'                                
+     C                   MOVE      L_S5NCOE      ZXNUDEPE                                           
+     C                   IF        ZXNUDEPE=ZXCOANT                                                 
+     C                   LEAVE                                                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXNUDEPE=49                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KTRCPDE02Z    READE     TRCPDE02                                                         
+     C                   ENDDO                                                                      
+      *                                                                                             
+      * Si ha encontrado Coenvío Anterior, debe estar como mínimo                                   
+      * listo para servir                                                                           
+      *                                                                                             
+     C                   IF        ZXNUDEPE<=49                                                     
+     C                   EVAL      ZXDEPEND='0'                                                     
+     C                   ELSE                                                                       
+      *                                                                                             
+      * Ya dispongo del Nº de Líneas Totales                                                        
+      *                                                                                             
+     C                   MOVE      L_S5NCOF      ZXTOLIN                                            
+     C                   EVAL      L_S5NCOI=*BLANKS                                                 
+      *                                                                                             
+      * Recorro el Coenvío Original de la Comercial                                                 
+      * y busco cada una de sus líneas en TRACE                                                     
+      *                                                                                             
+     C                   EVAL      ZX100='1'                                                        
+     C                   EVAL      ZXCONT=0                                                         
+     C     KTRCPDE02X    SETLL     TRCPDE02                                                         
+     C     KTRCPDE02     READE     TRCPDE02                                                         
+     C                   DOW       NOT %EOF(TRCPDE02)                                               
+      *                                                                                             
+      * Busco su Línea y si está OK                                                                 
+      *                                                                                             
+     C                   EVAL      S5CI02=L_S5CI02                                                  
+     C                   EVAL      S5DL02=L_S5DL02                                                  
+     C                   EVAL      S5NP02=L_S5NP02                                                  
+     C                   EVAL      S5TP02=L_S5TP02                                                  
+     C                   EVAL      S5DA02=L_S5DA02                                                  
+     C                   EVAL      S5NO02=L_S5NO02                                                  
+     C                   EVAL      S5LI02=L_S5LI02                                                  
+     C     KCODEPE21     CHAIN     CODEPE21                           81                            
+     C   81KCODEPE21     CHAIN     CODEPE22                           81                            
+      *                                                                                             
+      * Si no he encontrado podría ser Xdoc                                                         
+      *                                                                                             
+     C                   EVAL      *IN85=*ON                                                        
+     C                   IF        *IN81 AND L_S5CI02<>*BLANKS                                      
+     C                             AND L_S5NP02<>*BLANKS                                            
+     C                   EVAL      TKCI02=L_S5CI02                                                  
+     C                   EVAL      TKDL02=L_S5DL02                                                  
+     C                   EVAL      TKNP02=L_S5NP02                                                  
+     C                   EVAL      TKTP02=L_S5TP02                                                  
+     C                   EVAL      TKDA02=L_S5DA02                                                  
+     C                   EVAL      TKNO02=L_S5NO02                                                  
+     C                   EVAL      TKLI02=L_S5LI02                                                  
+     C     KCOXDOC06     CHAIN     COXDOC06                           85                            
+     C   85KCOXDOC06     CHAIN     COXDOC07                           85                            
+     C                   IF        *IN85 AND L_S5CI01<>*BLANKS                                      
+     C                             AND L_S5NP01<>*BLANKS                                            
+     C                   EVAL      TKCI02=L_S5CI01                                                  
+     C                   EVAL      TKDL02=L_S5DL01                                                  
+     C                   EVAL      TKNP02=L_S5NP01                                                  
+     C                   EVAL      TKTP02=L_S5TP01                                                  
+     C                   EVAL      TKDA02=L_S5DA01                                                  
+     C                   EVAL      TKNO02=L_S5NO01                                                  
+     C                   EVAL      TKLI02=L_S5LI01                                                  
+     C     KCOXDOC06     CHAIN     COXDOC06                           85                            
+     C   85KCOXDOC06     CHAIN     COXDOC07                           85                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        NOT *IN85                                                        
+     C                   EVAL      S5CIAS=TKCIAS                                                    
+     C                   EVAL      S5DLGA=TKDLGA                                                    
+     C                   EVAL      S5NPCO=TKNPCO                                                    
+     C                   EVAL      S5TPED=TKTPED                                                    
+     C                   EVAL      S5DATP=TKDATP                                                    
+     C                   EVAL      S5NOPL=TKNOPL                                                    
+     C                   EVAL      S5LINE=TKLINE                                                    
+     C                   EVAL      *IN81=*OFF                                                       
+     C     KCODEPE       CHAIN     CODEPE                                                           
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Si lo ha encontrado Cuenta                                                                  
+      *                                                                                             
+     C                   IF        NOT *IN81                                                        
+     C                   EVAL      ZXCONT=ZXCONT+1                                                  
+      *                                                                                             
+      * Guardar en una variable si las reservas están 100%                                          
+      *                                                                                             
+     C                   IF        S5CANC<>0                                                        
+     C                   EVAL      S5CANT=S5CANC                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+SCE54C*                  IF        S5CANT<>S5CANR AND S5STUL<'5'                                    
+SCE54C                   IF        S5CANT<>S5CANR+S5CANS                                            
+SCE54C                             AND S5STUL<'5'                                                   
+     C                   EVAL      ZX100='0'                                                        
+     C                   ENDIF                                                                      
+C2280                                                                                               
+C2280 * Aunque esté reservada si la línea está retenida, no la tenemos en cuenta                    
+C2280C                   IF        ZX100='1'                                                        
+C2280C                   EVAL      T0CIA3=S5CIAS                                                    
+C2280C                   EVAL      T0DLG3=S5DLGA                                                    
+C2280C                   EVAL      T0NPC3=S5NPCO                                                    
+C2280C                   EVAL      T0TPE3=S5TPED                                                    
+C2280C                   EVAL      T0DAT3=S5DATP                                                    
+C2280C                   EVAL      T0NOP3=S5NOPL                                                    
+C2280C                   EVAL      T0LIN3=S5LINE                                                    
+C2280C     KEDTRLP30     CHAIN     EDTRLP30                                                         
+C2280C                   IF        %FOUND(EDTRLP30) And                                             
+C2280C                              (T0PHLD<>0 Or T0RISK<>0)                                        
+C2280C                   EVAL      ZX100='0'                                                        
+C2280C                   ENDIF                                                                      
+C2280C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KTRCPDE02     READE     TRCPDE02                                                         
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   IF        ZXCONT<>ZXTOLIN                                                  
+     C                   EVAL      @PERRO='4'                                                       
+     C                   EVAL      ZXDEPEND='0'                                                     
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Están todas las líneas pero no 100% Reservadas                                              
+      *                                                                                             
+     C                   IF        @PERRO=*BLANKS AND ZX100='0'                                     
+     C                   EVAL      @PERRO='4'                                                       
+     C                   EVAL      ZXDEPEND='0'                                                     
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+H2007*                                                                                             
+H2007c                   eval      zxsubr = 'CS_CHECK4'                                             
+H2007c                   eval      zxncoe = c_s5ncoe                                                
+H2007c                   exsr      cs_covaco                                                        
+      *                                                                                             
+     C                   ENDSR                                                                      
+H2007**************************************************************                                
+H2007* Grabamos fichero COVACO                                                                     
+H2007*------------------------------------------------------------*                                
+H2007c     cs_covaco     begsr                                                                      
+H2007*                                                                                             
+H2007c                   eval      zxnlog += 1                                                      
+H2007c                   eval      zxtime = %timestamp()                                            
+H2007*                                                                                             
+H2007c                   clear                   rcovaco                                            
+H2007c                   eval      xonpco = @pnpco                                                  
+H2007c                   eval      xoline = @pline                                                  
+H2007c                   eval      xotime = %char(zxtime)                                           
+H2007*                                                                                             
+H2007c                   eval      xonlog = zxnlog                                                  
+H2007c                   eval      xoerro = @perro                                                  
+H2007c                   eval      xosubr = zxsubr                                                  
+H2007c                   eval      xototl = zxtolin                                                 
+H2007c                   eval      xocont = zxcont                                                  
+H2007c                   eval      xoncoe = zxncoe                                                  
+H1909 *H2007c                   write     rcovaco                                                   
+H1909C                   write     rcovaco                                                          
+H2007*                                                                                             
+H2007c                   endsr                                                                      
