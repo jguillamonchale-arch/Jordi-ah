@@ -1,0 +1,54 @@
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R REDMAID                                                                           
+     A            E2EVEN         5          TEXT('Evento')                                          
+     A            E2TMAI         2          TEXT('Tipo de E-Mail')                                  
+     A            E2CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            E2CODE        15          TEXT('Código según Tipo')                               
+     A            E2EEMA       100          TEXT('E-Mail Emisor')                                   
+     A            E2REMA       100          TEXT('E-Mail Receptor')                                 
+     A            E2BAJA         1          TEXT('BAJA')                                            
+      *                                                                                             
+     A            E2DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            E2DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            E2USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            E2HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            E2PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+      *                                                                                             
+      * Campos ampliados a posteriori                                                               
+      *                                                                                             
+     A            E2IDOE         1          TEXT('Impr. documento electrónico')                     
+     A            E2PAEE        30          TEXT('Persona acepta envío E-Mail')                     
+     A            E2FAEE         8          TEXT('Fecha acepta envío E-Mail')                       
+     A            E2L011         1          TEXT('Libre')                                           
+     A            E2L012         1          TEXT('Libre')                                           
+     A            E2L021         2          TEXT('Libre')                                           
+     A            E2L022         2          TEXT('Libre')                                           
+     A            E2L031         3          TEXT('Libre')                                           
+     A            E2L032         3          TEXT('Libre')                                           
+     A            E2L051         5          TEXT('Libre')                                           
+     A            E2L052         5          TEXT('Libre')                                           
+     A            E2L081         8          TEXT('Libre')                                           
+     A            E2L082         8          TEXT('Libre')                                           
+     A            E2L101        10          TEXT('Libre')                                           
+     A            E2L102        10          TEXT('Libre')                                           
+     A            E2L301        30          TEXT('Libre')                                           
+     A            E2L501        50          TEXT('Libre')                                           
+      *                                                                                             
+     A          K E2EVEN                                                                            
+     A          K E2TMAI                                                                            
+     A          K E2CIAS                                                                            
+     A          K E2CODE                                                                            
+     A          K E2REMA                                                                            

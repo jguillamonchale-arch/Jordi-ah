@@ -1,0 +1,17 @@
+      *                                                                                             
+      * ESTE FICHERO SE PUEDE BORRAR SIEMPRE QUE SE HAGA AL FINAL                                   
+      * O AL PRINCIPIO DEL DÍA PORQUE ES EL QUE SIRVE PARA DAR NOMBRE                               
+      * NMOTÉCNICO A LOS DOCUMENTOS DIGITALES: CCCAAAAMMDDNNNN.PDF                                  
+      * Y VARIA CADA DÍA                                                                            
+      *                                                                                             
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R REDFADC                                                                           
+     A            ECCIAS         3  0       TEXT('Empresa emisora')                                 
+     A            ECCUNO         9          TEXT('Empresa receptora')                               
+     A            ECDATE         8  0       TEXT('Fecha emisión')                                   
+     A            ECCCCC         3  0       TEXT('Contador')                                        
+      *                                                                                             
+     A          K ECCIAS                                                                            
+     A          K ECCUNO                                                                            
+     A          K ECDATE                                                                            

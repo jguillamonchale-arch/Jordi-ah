@@ -1,0 +1,19 @@
+     A          R EQTABL                                                                            
+     A                                      PFILE(EQTABL)                                           
+     A            EQMCOD        20                                                                  
+     A            EQACOD        20                                                                  
+     A            EQMCIA         3P 0                                                               
+     A            EQMDIV         6                                                                  
+     A            EQMVAL        60                                                                  
+     A            EQACIA         3P 0                                                               
+     A            EQAVAL        60                                                                  
+     A            EQTVAL        60                                                                  
+     A            EQDESC       100                                                                  
+     A            EQPRIO         3P 0                                                               
+     A          K EQMCOD                                                                            
+     A          K EQACOD                                                                            
+     A          K EQACIA                                                                            
+     A          K EQAVAL                                                                            
+     A          K EQMCIA                                                                            
+     A          K EQMDIV                                                                            
+     A          K EQMVAL                                                                            

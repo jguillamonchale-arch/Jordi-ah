@@ -1,0 +1,9 @@
+      *                 DDS ADP 400.             22/03/99  18:59                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  DPMX0101  Fich.trabajo cabeceras pedidos                                              
+      * Type  LF                                                                                    
+     A          R RDPMART                   PFILE(DPMART)                                           
+     A          K C9ITEM                                                                            
+     A          K C9CIAS                                                                            
+     A          K C9ENTO                                                                            

@@ -1,0 +1,51 @@
+      *                 DDS ADP 400.             03/12/98  11:37                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COPROC    PROMOCIONES COMERCIALES. CABECERA                                           
+      * Type  PF                                                                                    
+      *                                                                                             
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOPROC                                                                           
+     A            X0CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            X0PROM    R               TEXT('Código Promoción')                                
+     A                                      COLHDG('Código Promoción')                              
+     A                                      REFFLD(AL10)                                            
+     A            X0DES1    R               TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A                                      REFFLD(DES1)                                            
+     A            X0TEX1        75          TEXT('Texto 1')                                         
+     A                                      COLHDG('Texto 1')                                       
+     A            X0TEX2        75          TEXT('Texto 2')                                         
+     A                                      COLHDG('Texto 2')                                       
+     A            X0TEX3        75          TEXT('Texto 3')                                         
+     A                                      COLHDG('Texto 3')                                       
+     A            X0FDES    R               TEXT('Fec. aplic. desde')                               
+     A                                      COLHDG('Fec. aplic. desde')                             
+     A                                      REFFLD(DAT8)                                            
+     A            X0FHAS    R               TEXT('Fec. aplic. hasta')                               
+     A                                      COLHDG('Fec. aplic. hasta')                             
+     A                                      REFFLD(DAT8)                                            
+     A            X0BAJA    R               TEXT('Baja')                                            
+     A                                      COLHDG('Baja')                                          
+     A                                      REFFLD(BAJA)                                            
+     A            X0DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            X0DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            X0USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            X0PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            X0HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            X0TAGC         2          COLHDG('T.AGRUP' 'COMERCIAL')                           
+     A          K X0CIAS                                                                            
+     A          K X0PROM                                                                            

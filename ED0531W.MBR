@@ -1,0 +1,27 @@
+     A                                      UNIQUE                                                  
+     A          R RED0531W                                                                          
+     A            EWCIAS         3S 0       TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(PRDLIB/CIAS                                      
+     A                                             PRDLIB)                                          
+     A            EWDLGA         5A         TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(PRDLIB/DLGA                                      
+     A                                             PRDLIB)                                          
+     A            EWTDAJ         1A         TEXT('Tipo documento asociado')                         
+     A            EWCODE        25A         TEXT('Código')                                          
+     A            EWNDOC        25A         TEXT('Nº documento')                                    
+     A            EWFDOC         8P 0       TEXT('Fecha documento')                                 
+     A            EWLDOC         3S 0       TEXT('Línea documento')                                 
+     A            EWEVEN         5A         TEXT('Evento')                                          
+     A            EWVARE         4A         TEXT('Variable')                                        
+     A            EWDATO        40A         TEXT('Dato variable')                                   
+     A          K EWCIAS                                                                            
+     A          K EWDLGA                                                                            
+     A          K EWTDAJ                                                                            
+     A          K EWCODE                                                                            
+     A          K EWNDOC                                                                            
+     A          K EWFDOC                                                                            
+     A          K EWLDOC                                                                            
+     A          K EWEVEN                                                                            
+     A          K EWVARE                                                                            

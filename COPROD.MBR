@@ -1,0 +1,48 @@
+      *                 DDS ADP 400.             03/12/98  11:37                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COPROD    PROMOCIONES COMERCIALES. DETALLE                                            
+      * Type  PF                                                                                    
+      *                                                                                             
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOPROD                                                                           
+     A            X5CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            X5PROM    R               TEXT('Código Promoción')                                
+     A                                      COLHDG('Código Promoción')                              
+     A                                      REFFLD(AL10)                                            
+     A            X5CUST    R               TEXT('Cliente')                                         
+     A                                      COLHDG('Cliente')                                       
+     A                                      REFFLD(CUST)                                            
+     A            X5BAJA    R               TEXT('Baja')                                            
+     A                                      COLHDG('Baja')                                          
+     A                                      REFFLD(BAJA)                                            
+     A            X5PRES    R               TEXT('Presentado')                                      
+     A                                      COLHDG('Presentado')                                    
+     A                                      REFFLD(SINO)                                            
+     A            X5MOTN    R               TEXT('Motivo no Present.')                              
+     A                                      COLHDG('Motivo no Present.')                            
+     A                                      REFFLD(TIPG)                                            
+     A            X5RESP    R               TEXT('Resultado Presentado')                            
+     A                                      COLHDG('Resultado Presentado')                          
+     A                                      REFFLD(TIPG)                                            
+     A            X5DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            X5DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            X5USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            X5PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            X5HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K X5CIAS                                                                            
+     A          K X5PROM                                                                            
+     A          K X5CUST                                                                            

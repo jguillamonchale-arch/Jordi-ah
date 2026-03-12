@@ -1,0 +1,32 @@
+     A                                      UNIQUE                                                  
+     A          R DOM006                                                                            
+     A                                      PFILE(DOM006)                                           
+     A            D6CONO         3P 0                                                               
+     A            D6DIVI         6                                                                  
+     A            D6WHLO         6                                                                  
+     A            D6SUNO        20                                                                  
+     A            D6PRIO         3P 0                                                               
+     A            D6EWLO         6                                                                  
+     A            D6ADWL         1P 0                                                               
+     A            D6FDWL         6                                                                  
+     A            D6MLI1         9P 0                                                               
+     A            D6NLIN         9P 0                                                               
+     A            D6HORI         3P 0                                                               
+     A            D6LNAM        15P 6                                                               
+     A            D6DBQT         5P 2                                                               
+     A            D6MBQT         5P 2                                                               
+     A            D6OBO1         1P 0                                                               
+     A            D6MLI2         9P 0                                                               
+     A            D6VOLM        15P 6                                                               
+     A            D6GRWM        15P 6                                                               
+     A            D6DIDE         1P 0                                                               
+     A            D6RGDT         8P 0                                                               
+     A            D6RGTM         6P 0                                                               
+     A            D6LMDT         8P 0                                                               
+     A            D6CHNO         3P 0                                                               
+     A            D6CHID        20                                                                  
+     A          K D6CONO                                                                            
+     A          K D6DIVI                                                                            
+     A          K D6WHLO                                                                            
+     A          K D6SUNO                                                                            
+     A          K D6PRIO                                                                            

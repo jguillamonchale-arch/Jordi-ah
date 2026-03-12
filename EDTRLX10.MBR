@@ -1,0 +1,118 @@
+     A          R EDTRLX                                                                            
+     A                                      PFILE(EDTRLX)                                           
+     A            T0TREG         1P 0                                                               
+     A            T0CIAS         3P 0                                                               
+     A            T0DLGA        10                                                                  
+     A            T0NPCO        20                                                                  
+     A            T0TPED         4                                                                  
+     A            T0DATP         8P 0                                                               
+     A            T0NOPL         6P 0                                                               
+     A            T0LINE         3P 0                                                               
+     A            T0ARVM        50                                                                  
+     A            T0DES1        80                                                                  
+     A            T0CANT        15P 5                                                               
+     A            T0CANR        15P 5                                                               
+     A            T0CANP        15P 5                                                               
+     A            T0CANS        15P 5                                                               
+     A            T0CAND        15P 5                                                               
+     A            T0UNIM         4                                                                  
+     A            T0COFA        15P 5                                                               
+     A            T0TCOF         2                                                                  
+     A            T0DECI         1P 0                                                               
+     A            T0IMPO        15P 5                                                               
+     A            T0MONE         6                                                                  
+     A            T0CUST        20                                                                  
+     A            T0TDI1         4                                                                  
+     A            T0PRVR        20                                                                  
+     A            T0FLAN         8P 0                                                               
+     A            T0FREP         8P 0                                                               
+     A            T0FURE         8P 0                                                               
+     A            T0FRRE         8P 0                                                               
+     A            T0DWR0         8P 0                                                               
+     A            T0HWR0         6P 0                                                               
+     A            T0UWR0        20                                                                  
+     A            T0CIA1         3P 0                                                               
+     A            T0DLG1        10                                                                  
+     A            T0NPC1        20                                                                  
+     A            T0TPE1         4                                                                  
+     A            T0DAT1         8P 0                                                               
+     A            T0NOP1         6P 0                                                               
+     A            T0LIN1         3P 0                                                               
+     A            T0ARV1        50                                                                  
+     A            T0CAN1        15P 5                                                               
+     A            T0UNI1         4                                                                  
+     A            T0CFC1         3P 0                                                               
+     A            T0DWR1         8P 0                                                               
+     A            T0HWR1         6P 0                                                               
+     A            T0UWR1        20                                                                  
+     A            T0CIA2         3P 0                                                               
+     A            T0DLG2        10                                                                  
+     A            T0NPC2        20                                                                  
+     A            T0TPE2         4                                                                  
+     A            T0DAT2         8P 0                                                               
+     A            T0NOP2         6P 0                                                               
+     A            T0LIN2         3P 0                                                               
+     A            T0ARV2        50                                                                  
+     A            T0COM2        50                                                                  
+     A            T0CAN2        15P 5                                                               
+     A            T0UNI2         4                                                                  
+     A            T0CFC2         3P 0                                                               
+     A            T0CUS2        20                                                                  
+     A            T0DWR2         8P 0                                                               
+     A            T0HWR2         6P 0                                                               
+     A            T0UWR2        20                                                                  
+     A            T0CIA3         3P 0                                                               
+     A            T0DLG3        10                                                                  
+     A            T0NPC3        20                                                                  
+     A            T0TPE3         4                                                                  
+     A            T0DAT3         8P 0                                                               
+     A            T0NOP3         6P 0                                                               
+     A            T0LIN3         3P 0                                                               
+     A            T0CAN3        15P 5                                                               
+     A            T0UNI3         4                                                                  
+     A            T0DWR3         8P 0                                                               
+     A            T0HWR3         6P 0                                                               
+     A            T0UWR3        20                                                                  
+     A            T0EDSN         1P 0                                                               
+     A            T0EDFC         2                                                                  
+     A            T0EDDP         1P 0                                                               
+     A            T0ED3R         1P 0                                                               
+     A            T0AUCP         1P 0                                                               
+     A            T0FOPR         1P 0                                                               
+     A            T0MODI         1P 0                                                               
+     A            T0STCP         4                                                                  
+     A            T0STLP         2                                                                  
+     A            T0RISK         1P 0                                                               
+     A            T0PHLD         1P 0                                                               
+     A            T0XDOC         1P 0                                                               
+     A            T0PORT         1P 0                                                               
+     A            T0NCOE         4                                                                  
+     A            T0NCOI         4                                                                  
+     A            T0NCOF         4                                                                  
+     A            T0NDE2        20                                                                  
+     A            T0LIR2         3P 0                                                               
+     A            T0INFD        20                                                                  
+     A            T0LINI         3P 0                                                               
+     A            T0DWRF         8P 0                                                               
+     A            T0HWRF         6P 0                                                               
+     A            T0EDST         4                                                                  
+     A          K T0CIA1                                                                            
+     A          K T0DLG1                                                                            
+     A          K T0NPC1                                                                            
+     A          K T0TPE1                                                                            
+     A          K T0DAT1                                                                            
+     A          K T0NOP1                                                                            
+     A          K T0LIN1                                                                            
+     A          K T0ARV1                                                                            
+     A          K T0CIAS                                                                            
+     A          K T0DLGA                                                                            
+     A          K T0NPCO                                                                            
+     A          K T0TPED                                                                            
+     A          K T0DATP                                                                            
+     A          K T0NOPL                                                                            
+     A          K T0LINE                                                                            
+     A          K T0COM2                                                                            
+     A          K T0DWR0                                                                            
+     A          K T0HWR0                                                                            
+     A          K T0NPC3                                                                            
+     A          K T0LIN3                                                                            

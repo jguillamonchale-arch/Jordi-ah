@@ -1,0 +1,23 @@
+     A          R RCOVACO                                                                           
+     A            XONPCO        10          TEXT('Pedido                      ')                    
+     A                                      COLHDG('Pedido              ')                          
+     A            XOLINE         3  0       TEXT('Línea                       ')                    
+     A                                      COLHDG('Línea               ')                          
+     A            XOERRO         1          TEXT('Número error                ')                    
+     A                                      COLHDG('Número error        ')                          
+     A            XOTIME        26          TEXT('Timestamp                   ')                    
+     A                                      COLHDG('Timestamp           ')                          
+     A            XONLOG        11  0       TEXT('Número Log                  ')                    
+     A                                      COLHDG('Número Log          ')                          
+     A            XOSUBR        20          TEXT('Subrutina                   ')                    
+     A                                      COLHDG('Subrutina           ')                          
+     A            XOTOTL         5  0       TEXT('Total líneas                ')                    
+     A                                      COLHDG('Total líneas        ')                          
+     A            XOCONT        11  0       TEXT('Contador                    ')                    
+     A                                      COLHDG('Contador            ')                          
+     A            XONCOE         2          TEXT('Número Coenvío              ')                    
+     A                                      COLHDG('Número Coenvío      ')                          
+     A          K XONPCO                                                                            
+     A          K XOLINE                                                                            
+     A          K XOTIME                                                                            
+     A          K XONLOG                                                                            

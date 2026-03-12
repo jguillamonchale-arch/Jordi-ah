@@ -1,0 +1,25 @@
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R REDMAIV                                                                           
+     A            E1EVEN         5          TEXT('Evento')                                          
+     A            E1VARE         4          TEXT('Variable')                                        
+     A            E1BAJA         1          TEXT('BAJA')                                            
+      *                                                                                             
+     A            E1DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            E1DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            E1USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            E1HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            E1PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+      *                                                                                             
+     A          K E1EVEN                                                                            
+     A          K E1VARE                                                                            

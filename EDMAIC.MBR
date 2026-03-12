@@ -1,0 +1,40 @@
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R REDMAIC                                                                           
+     A            E0EVEN         5          TEXT('Evento')                                          
+     A            E0DES1        50          TEXT('Descripción')                                     
+     A            E0TI01         2          TEXT('Tipo 01')                                         
+     A            E0TI02         2          TEXT('Tipo 02')                                         
+     A            E0TI03         2          TEXT('Tipo 03')                                         
+     A            E0TI04         2          TEXT('Tipo 04')                                         
+     A            E0TI05         2          TEXT('Tipo 05')                                         
+     A            E0TI06         2          TEXT('Tipo 06')                                         
+     A            E0TI07         2          TEXT('Tipo 07')                                         
+     A            E0TI08         2          TEXT('Tipo 08')                                         
+     A            E0TI09         2          TEXT('Tipo 09')                                         
+     A            E0TI10         2          TEXT('Tipo 10')                                         
+     A            E0TDAJ         1          TEXT('Tipo Doc asociado')                               
+     A            E0ADJD         1          TEXT('Adjuntar documento')                              
+     A            E0BAJA         2          TEXT('BAJA')                                            
+      *                                                                                             
+     A            E0DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            E0DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            E0USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            E0HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            E0PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+      *                                                                                             
+      * Campos ampliados a posteriori                                                               
+      *                                                                                             
+     A            E0CEXD         1          TEXT('Campos extra en detalle')                         
+      *                                                                                             
+     A          K E0EVEN                                                                            

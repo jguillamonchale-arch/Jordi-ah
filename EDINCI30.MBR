@@ -1,0 +1,15 @@
+      *                 DDS ADP 400.             01/12/09  17:00                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  EDINCI30  Incidencias Entregas Directas V2                                            
+      * Type  LF                                                                                    
+     A          R REDINCI                   PFILE(EDINCI)                                           
+     A          K T4CIAS                                                                            
+     A          K T4DLGA                                                                            
+     A          K T4NPCO                                                                            
+     A          K T4TPED                                                                            
+     A          K T4DATP                                                                            
+     A          K T4NOPL                                                                            
+     A          K T4LINE                                                                            
+     A          K T4INFD                                                                            
+     A          K T4LINI                                                                            

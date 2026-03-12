@@ -1,0 +1,32 @@
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R REDFADG                                                                           
+     A            EDCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            EDDLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            EDFDIG        10          TEXT('Firma digital')                                   
+     A            EDGALM         1          TEXT('Almacenar')                                       
+     A            EDRALI        50          TEXT('Ruta Almacén IN')                                 
+     A            EDRALO        50          TEXT('Ruta Almacén OUT')                                
+      *                                                                                             
+     A            EDDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            EDDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            EDUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            EDHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            EDPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+      *                                                                                             
+     A          K EDCIAS                                                                            
+     A          K EDDLGA                                                                            

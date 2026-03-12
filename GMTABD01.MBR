@@ -1,0 +1,31 @@
+     A          R GMTABD                                                                            
+     A                                      PFILE(GMTABD)                                           
+     A            T1CTAB         8                                                                  
+     A            T1CELE        20                                                                  
+     A            T1DESC        80                                                                  
+     A            T1BAJA         1P 0                                                               
+     A            T1DA01         2                                                                  
+     A            T1DA02         4                                                                  
+     A            T1DA03         6                                                                  
+     A            T1DA04         8                                                                  
+     A            T1DA05        10                                                                  
+     A            T1DA06        12                                                                  
+     A            T1DA07        14                                                                  
+     A            T1DA08        16                                                                  
+     A            T1DA09        18                                                                  
+     A            T1DA10        20                                                                  
+     A            T1DA15        30                                                                  
+     A            T1DA25        50                                                                  
+     A            T1DA20        40                                                                  
+     A            T1DA50       100                                                                  
+     A            T1WRUS        20                                                                  
+     A            T1WRJO        20                                                                  
+     A            T1WRDT         8P 0                                                               
+     A            T1WRTM         6P 0                                                               
+     A            T1UPUS        20                                                                  
+     A            T1UPJO        20                                                                  
+     A            T1UPDT         8P 0                                                               
+     A            T1UPTM         6P 0                                                               
+     A          K T1CTAB                                                                            
+     A          K T1DESC                                                                            
+     A          K T1CELE                                                                            

@@ -1,0 +1,43 @@
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RDOOMHT                                                                           
+     A            DOCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            DODLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            DONPCO    R               TEXT('Número de pedido')                                
+     A                                      COLHDG('Número de pedido')                              
+     A                                      REFFLD(NPED)                                            
+     A            DOTPED    R               TEXT('Tipo de pedido')                                  
+     A                                      COLHDG('Tipo de pedido')                                
+     A                                      REFFLD(TPED)                                            
+     A            DODATP    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            DONOPL    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            DOUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            DOPROC    R               TEXT('T.Proc.')                                         
+     A                                      COLHDG('T.Proc.')                                       
+     A                                      REFFLD(BAJA)                                            
+     A            DOTMSP          Z         TEXT('Timestamp      ')                                 
+     A                                      COLHDG('Timestamp    ')                                 
+     A            DODATA     10000A         VARLEN                                                  
+     A                                      ALWNULL                                                 
+     A                                      TEXT('Datos')                                           
+     A                                      COLHDG('Datos')                                         
+      *                                                                                             
+     A          K DOCIAS                                                                            
+     A          K DODLGA                                                                            
+     A          K DONPCO                                                                            
+     A          K DOTPED                                                                            
+     A          K DODATP                                                                            
+     A          K DONOPL                                                                            
+     A          K DOTMSP                                                                            
+     A          K DOPROC                                                                            
+     A          K DOUSUA                                                                            

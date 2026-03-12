@@ -1,0 +1,42 @@
+      *                 DDS ADP 400.             21/05/09  16:00                                    
+      * Copyright (c)   FLUIDRA SERVICES Rights Reserved.                                           
+      * Aplic PUR                                                                                   
+      * File  DPM001    ITEM MASTERFILE DPM                                                         
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RDPMART                                                                           
+      *                                                                                             
+     A            C9ENTO         2          TEXT('ENTORNO              ')                           
+     A                                      COLHDG('ENTORNO            ')                           
+     A            C9CIAS         3  0       TEXT('EMPRESA              ')                           
+     A                                      COLHDG('EMPRESA            ')                           
+     A            C9ITEM        25          TEXT('CODIGO ARTICULO      ')                           
+     A                                      COLHDG('CODIGO ARTICULO    ')                           
+     A            C9PROP    R               TEXT('Propietario Estadistico')                         
+     A                                      COLHDG('Prop.Estadistico')                              
+     A                                      REFFLD(PRVR)                                            
+     A            C9ARES    R               TEXT('Artículo Estadistico')                            
+     A                                      COLHDG('Art.Estadistico')                               
+     A                                      REFFLD(ARVM)                                            
+     A            C9PRVR    R               TEXT('Propietario Estadistico')                         
+     A                                      COLHDG('Prop.Estadistico')                              
+     A                                      REFFLD(PRVR)                                            
+     A            C9DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            C9DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            C9USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            C9PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            C9BAJA    R               TEXT('Baja')                                            
+     A                                      COLHDG('Baja')                                          
+     A                                      REFFLD(BAJA)                                            
+     A          K C9ENTO                                                                            
+     A          K C9CIAS                                                                            
+     A          K C9ITEM                                                                            

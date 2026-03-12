@@ -1,0 +1,75 @@
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RDOH051                                                                           
+     A            D1CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            D1DLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            D1NPCO    R               TEXT('Número de pedido')                                
+     A                                      COLHDG('Número de pedido')                              
+     A                                      REFFLD(NPED)                                            
+     A            D1TPED    R               TEXT('Tipo de pedido')                                  
+     A                                      COLHDG('Tipo de pedido')                                
+     A                                      REFFLD(TPED)                                            
+     A            D1DATP    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            D1NOPL    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            D1LOGE    R               TEXT('LOGE')                                            
+     A                                      COLHDG('LOGE')                                          
+     A                                      REFFLD(LOGE)                                            
+     A            D1CAPA    R               TEXT('CAPACIDAD')                                       
+     A                                      COLHDG('CAPACIDAD')                                     
+     A                                      REFFLD(SINO)                                            
+     A            D1NLIN         5  0       TEXT('LINEAS CON STOCK')                                
+     A                                      COLHDG('LINEAS CON STOCK')                              
+     A            D1IMPO        15  5       TEXT('IMPORTE         ')                                
+     A                                      COLHDG('IMPORTE         ')                              
+     A            D1STOK         1          TEXT('STOCK    ')                                       
+     A                                      COLHDG('STOCK    ')                                     
+     A            D1TTTA         1          TEXT('TTTA     ')                                       
+     A                                      COLHDG('TTTA     ')                                     
+     A            D1FPAG         1          TEXT('F.PAGO   ')                                       
+     A                                      COLHDG('F.PAGO   ')                                     
+      *                                                                                             
+     A            D1IMPP        15  5       TEXT('PRIORITARIA IMPO')                                
+     A                                      COLHDG('PRIORITARIA IMPO')                              
+     A            D1LINP         5  0       TEXT('PRIORITARIA NLIN')                                
+     A                                      COLHDG('PRIORITARIA NLIN')                              
+     A            D1CAPP    R               TEXT('CAPACIDAD')                                       
+     A                                      COLHDG('CAPACIDAD')                                     
+     A                                      REFFLD(SINO)                                            
+     A            D1STOP         1          TEXT('STOCK    ')                                       
+     A                                      COLHDG('STOCK    ')                                     
+     A            D1PRIO         1          TEXT('PRIORIDAD NIVEL DLGA')                            
+     A                                      COLHDG('PRIORIDAD')                                     
+     A            D1DAT1         8  0       TEXT('FECHA             ')                              
+     A                                      COLHDG('FECHA            ')                             
+     A            D1HORA         6  0       TEXT('HORA              ')                              
+     A                                      COLHDG('HORA             ')                             
+     A            D1BAJA         1A                                                                 
+      *                                                                                             
+     A            D1CLIN         1A         TEXT('OMITIR CONTROL LIN.')                             
+     A                                      COLHDG('OMITIR CONTROL LN')                             
+     A            D1CSTK         1A         TEXT('OMITIR CTRL STOCK  ')                             
+     A                                      COLHDG('OMITIR CTRL STOCK')                             
+     A            D1OMAG         1A         TEXT('OMITIR ALMACEN   ')                               
+     A                                      COLHDG('OMITIR ALMACEN ')                               
+     A            D1OCAP         1A         TEXT('OMITIR CAPACIDAD   ')                             
+     A                                      COLHDG('OMITIR CAPACIDAD ')                             
+     A            D1OIMP         1A         TEXT('OMITIR IMPORTE MIN ')                             
+     A                                      COLHDG('OMITIR IMPORT.MIN')                             
+      *                                                                                             
+     A          K D1CIAS                                                                            
+     A          K D1DLGA                                                                            
+     A          K D1NPCO                                                                            
+     A          K D1TPED                                                                            
+     A          K D1DATP                                                                            
+     A          K D1NOPL                                                                            
+     A          K D1LOGE                                                                            
+     A          K D1DAT1                                                                            
+     A          K D1HORA                                                                            

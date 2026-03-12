@@ -1,0 +1,13 @@
+      *                 DDS ADP 400.             23/04/99  11:23                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COTARI03  Fichero de general de tarifas                                               
+      * Type  LF                                                                                    
+     A          R RCOTARI                   PFILE(COTARI)                                           
+     A          K T0CIAS                                                                            
+     A          K T0CLTR                                                                            
+     A          K T0TPTA                                                                            
+     A          K T0ARVM                                                                            
+     A          K T0GRTR                                                                            
+     A          K T0FDES                                                                            
+     A          K T0HORA                                                                            

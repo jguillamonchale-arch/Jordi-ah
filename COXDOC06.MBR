@@ -1,0 +1,15 @@
+      *                 DDS ADP 400.             30/11/98  13:10                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COXDOC06  Fichero detalle de XDOC                                                     
+      * Type  LF                                                                                    
+     A          R RCOXDOC                   PFILE(COXDOC)                                           
+     A          K TKCI01                                                                            
+     A          K TKDL01                                                                            
+     A          K TKNP01                                                                            
+     A          K TKTP01                                                                            
+     A          K TKDA01                                                                            
+     A          K TKNO01                                                                            
+     A          K TKLI01                                                                            
+     A          K TKARVP                                                                            
+     A          K TKNPCO                                                                            

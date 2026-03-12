@@ -1,0 +1,59 @@
+      *                 DDS ADP 400.             12/04/99  08:52                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  EIEXCE    EXCEPCIONES FICHEROS                                                        
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R REIEXCE                                                                           
+     A            Z0FILE    R               TEXT('FICHERO EDICOM   ')                               
+     A                                      COLHDG('FICHERO EDICOM ')                               
+     A                                      REFFLD(AL10)                                            
+     A            Z0CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            Z0CUST    R               TEXT('Código cliente')                                  
+     A                                      COLHDG('Código cliente')                                
+     A                                      REFFLD(CUST)                                            
+     A            Z0GRP2    R               TEXT('Grupo del cliente')                               
+     A                                      COLHDG('Grupo del cliente')                             
+     A                                      REFFLD(PRVR)                                            
+     A            Z0PAIS    R               TEXT('País')                                            
+     A                                      COLHDG('País')                                          
+     A                                      REFFLD(PAIS)                                            
+     A            Z0CAMP        30A         TEXT('CAMPO')                                           
+     A                                      COLHDG('CAMPO')                                         
+     A            Z0POSI         5S 0       TEXT('POSICION INICIAL')                                
+     A                                      COLHDG('POSICIÓN INICIAL')                              
+     A            Z0NPOS         5S 0       TEXT('Nº POSICIONES   ')                                
+     A                                      COLHDG('Nº POSICIONES   ')                              
+     A            Z03000      3000A         TEXT('        ')                                        
+     A                                      COLHDG('        ')                                      
+     A            Z0DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            Z0DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            Z0USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            Z0PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            Z0HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            Z0BAJA    R               TEXT('Baja')                                            
+     A                                      COLHDG('Baja')                                          
+     A                                      REFFLD(SINO)                                            
+     A            Z0DESC        30A         TEXT('DESCRIPCION')                                     
+     A                                      COLHDG('DESCRIPCION')                                   
+     A            Z0DESA       100A         TEXT('DESCR. AMPL')                                     
+     A                                      COLHDG('DESCR. AMPL')                                   
+     A          K Z0FILE                                                                            
+     A          K Z0CIAS                                                                            
+     A          K Z0PAIS                                                                            
+     A          K Z0GRP2                                                                            
+     A          K Z0CUST                                                                            
+     A          K Z0CAMP                                                                            

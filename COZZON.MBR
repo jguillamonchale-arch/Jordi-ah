@@ -1,0 +1,64 @@
+      *                 DDS ADP 400.             28/12/98  13:10                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       Astral Grup, S.A.                                                           
+      * File  COZZON    Zonas Comerciales                                                           
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOZZON                                                                           
+     A            TQCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            TQZONC    R               TEXT('Código de Zona')                                  
+     A                                      COLHDG('Código de Zona')                                
+     A                                      REFFLD(ZOPA)                                            
+     A            TQDCOM    R               TEXT('División Comercial')                              
+     A                                      COLHDG('División Comercial')                            
+     A                                      REFFLD(CLA1)                                            
+     A            TQSCOM    R               TEXT('Sub-División Comercial')                          
+     A                                      COLHDG('S-División Comercial')                          
+     A                                      REFFLD(CLA1)                                            
+     A            TQDLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            TQDES1    R               TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A                                      REFFLD(DES1)                                            
+      *                                                                                             
+      * Auditoría                                                                                   
+      *                                                                                             
+     A            TQBAJA    R               REFFLD(BAJA)                                            
+     A                                      COLHDG('BAJA')                                          
+     A                                      TEXT('BAJA')                                            
+     A            TQDAT1    R               REFFLD(DAT8)                                            
+     A                                      COLHDG('Data alta')                                     
+     A                                      TEXT('Data alta')                                       
+     A            TQHOR1    R               REFFLD(HORA)                                            
+     A                                      COLHDG('Hora alta')                                     
+     A                                      TEXT('Hora alta')                                       
+     A            TQUSU1    R               REFFLD(USUA)                                            
+     A                                      COLHDG('Usuari alta')                                   
+     A                                      TEXT('Usuari alta')                                     
+     A            TQPAN1    R               REFFLD(PANT)                                            
+     A                                      COLHDG('Pantalla alta')                                 
+     A                                      TEXT('Pantalla alta')                                   
+     A            TQDAT8    R               REFFLD(DAT8)                                            
+     A                                      COLHDG('Data modi')                                     
+     A                                      TEXT('Data modi')                                       
+     A            TQHOR8    R               REFFLD(HORA)                                            
+     A                                      COLHDG('Hora modi')                                     
+     A                                      TEXT('Hora modi')                                       
+     A            TQUSU8    R               REFFLD(USUA)                                            
+     A                                      COLHDG('Usuari modi')                                   
+     A                                      TEXT('Usuari modi')                                     
+     A            TQPAN8    R               REFFLD(PANT)                                            
+     A                                      COLHDG('Pantalla modi')                                 
+     A                                      TEXT('Pantalla modi')                                   
+     A            TQOMPC         1          TEXT('Omitir Propuesta Compras')                        
+     A                                      COLHDG('Omitir Prop. Compras')                          
+      *                                                                                             
+      * Claves                                                                                      
+      *                                                                                             
+     A          K TQCIAS                                                                            
+     A          K TQZONC                                                                            
+      *                                                                                             

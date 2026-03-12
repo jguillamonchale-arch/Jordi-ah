@@ -1,0 +1,62 @@
+      *                 DDS ADP 400.             28/12/98  13:10                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       Astral Grup, S.A.                                                           
+      * File  COZSUB    SubZonas Comerciales                                                        
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOZSUB                                                                           
+     A            TSCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            TSZONC    R               TEXT('Código de Zona')                                  
+     A                                      COLHDG('Código de Zona')                                
+     A                                      REFFLD(ZOPA)                                            
+     A            TSSUPC    R               TEXT('Código SubZona')                                  
+     A                                      COLHDG('Código SubZona')                                
+     A                                      REFFLD(SUPA)                                            
+     A            TSDES1    R               TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A                                      REFFLD(DES1)                                            
+     A            TSREPR    R               TEXT('Representante')                                   
+     A                                      COLHDG('Representante')                                 
+     A                                      REFFLD(REPR)                                            
+      *                                                                                             
+      * Auditoría                                                                                   
+      *                                                                                             
+     A            TSBAJA    R               REFFLD(BAJA)                                            
+     A                                      COLHDG('BAJA')                                          
+     A                                      TEXT('BAJA')                                            
+     A            TSDAT1    R               REFFLD(DAT8)                                            
+     A                                      COLHDG('Data alta')                                     
+     A                                      TEXT('Data alta')                                       
+     A            TSHOR1    R               REFFLD(HORA)                                            
+     A                                      COLHDG('Hora alta')                                     
+     A                                      TEXT('Hora alta')                                       
+     A            TSUSU1    R               REFFLD(USUA)                                            
+     A                                      COLHDG('Usuari alta')                                   
+     A                                      TEXT('Usuari alta')                                     
+     A            TSPAN1    R               REFFLD(PANT)                                            
+     A                                      COLHDG('Pantalla alta')                                 
+     A                                      TEXT('Pantalla alta')                                   
+     A            TSDAT8    R               REFFLD(DAT8)                                            
+     A                                      COLHDG('Data modi')                                     
+     A                                      TEXT('Data modi')                                       
+     A            TSHOR8    R               REFFLD(HORA)                                            
+     A                                      COLHDG('Hora modi')                                     
+     A                                      TEXT('Hora modi')                                       
+     A            TSUSU8    R               REFFLD(USUA)                                            
+     A                                      COLHDG('Usuari modi')                                   
+     A                                      TEXT('Usuari modi')                                     
+     A            TSPAN8    R               REFFLD(PANT)                                            
+     A                                      COLHDG('Pantalla modi')                                 
+     A                                      TEXT('Pantalla modi')                                   
+     A            TSOMPC         1          TEXT('Omitir Propuesta Compras')                        
+     A                                      COLHDG('Omitir Prop. Compras')                          
+      *                                                                                             
+      * Claves                                                                                      
+      *                                                                                             
+     A          K TSCIAS                                                                            
+     A          K TSZONC                                                                            
+     A          K TSSUPC                                                                            
+      *                                                                                             

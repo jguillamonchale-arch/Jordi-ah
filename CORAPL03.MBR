@@ -1,0 +1,11 @@
+      *                 DDS ADP 400.             28/12/98  11:15                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  CORAPL02  LÓGICO  de Rappels Clientes                                                 
+      * Type  LF                                                                                    
+     A          R RCORAPL                   PFILE(CORAPL)                                           
+     A          K SACIAS                                                                            
+     A          K SACUST                                                                            
+     A          K SATRPL                                                                            
+     A          K SAFDES                                                                            
+     A          K SAHORA                                                                            

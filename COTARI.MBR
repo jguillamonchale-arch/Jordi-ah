@@ -1,0 +1,69 @@
+      *                 DDS ADP 400.             19/01/99  08:39                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COTARI    Fichero de general de tarifas                                               
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOTARI                                                                           
+     A            T0CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            T0TPTA    R               TEXT('Tipo de tarifa')                                  
+     A                                      COLHDG('Tipo de tarifa')                                
+     A                                      REFFLD(TPTA)                                            
+     A            T0CLTR    R               TEXT('Num. de tarifa')                                  
+     A                                      COLHDG('Num. de tarifa')                                
+     A                                      REFFLD(CLTR)                                            
+     A            T0ARVM    R               TEXT('Artículo-variac.-mode.')                          
+     A                                      COLHDG('Artículo-variac.-mod')                          
+     A                                      REFFLD(ARVM)                                            
+     A            T0FDES    R               TEXT('Fecha Desde')                                     
+     A                                      COLHDG('Fecha Desde')                                   
+     A                                      REFFLD(DAT8)                                            
+     A            T0PREC    R               TEXT('Precio')                                          
+     A                                      COLHDG('Precio')                                        
+     A                                      REFFLD(PREC)                                            
+     A            T0CADP    R               TEXT('Cantidad para precio')                            
+     A                                      COLHDG('Cantidad para precio')                          
+     A                                      REFFLD(CADP)                                            
+     A            T0UNDP    R               TEXT('Unidad de medida')                                
+     A                                      COLHDG('Unidad de medida')                              
+     A                                      REFFLD(UNIM)                                            
+     A            T0MONE    R               TEXT('Moneda')                                          
+     A                                      COLHDG('Moneda')                                        
+     A                                      REFFLD(MONE)                                            
+     A            T0GRTR    R               TEXT('Grupo aplicación')                                
+     A                                      COLHDG('Grupo aplicación')                              
+     A                                      REFFLD(TIPO)                                            
+     A            T0TCST    R               TEXT('Tipo cantidad estándar')                          
+     A                                      COLHDG('Tipo cantidad estánd')                          
+     A                                      REFFLD(TCST)                                            
+     A            T0FTAR    R               TEXT('Fecha Tarifa')                                    
+     A                                      COLHDG('Fecha Tarifa')                                  
+     A                                      REFFLD(DAT8)                                            
+     A            T0DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            T0DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            T0PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            T0USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            T0HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            T0BAJA    R               TEXT('Baja')                                            
+     A                                      COLHDG('Baja')                                          
+     A                                      REFFLD(BAJA)                                            
+     A          K T0CIAS                                                                            
+     A          K T0CLTR                                                                            
+     A          K T0TPTA                                                                            
+     A          K T0ARVM                                                                            
+     A          K T0FDES                                                                            
+     A          K T0HORA                                                                            
+     A          K T0GRTR                                                                            

@@ -1,0 +1,85 @@
+     A          R RGXSTO0                                                                           
+     A                                      PFILE(GXSTO0)                                           
+     A            G1CIAS         3S 0       TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(PRDLIB/CIAS                                      
+     A                                             PRDLIB)                                          
+     A            G1MAGA        10          TEXT('Almacén')                                         
+     A                                      COLHDG('Almacén')                                       
+     A            G1ARTI        30          TEXT('Articulo')                                        
+     A                                      COLHDG('Artículo')                                      
+     A            G1VARI         6          TEXT('Variación')                                       
+     A                                      COLHDG('Variación')                                     
+     A            G1MODE         6          TEXT('Modelo')                                          
+     A                                      COLHDG('Modelo')                                        
+     A            G1CALI         2          TEXT('Calidad')                                         
+     A                                      COLHDG('Calidad')                                       
+     A            G1SACT        15P 5       TEXT('Stk. fisico')                                     
+     A                                      COLHDG('Stk. fisico')                                   
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            G1SKRE        15P 5       TEXT('Stk. reservado')                                  
+     A                                      COLHDG('Stk. reservado')                                
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            G1SKRP        15P 5       TEXT('Stk.reser.prod.')                                 
+     A                                      COLHDG('Stk.reser.prod.')                               
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            G1SKR1        15P 5       TEXT('Stk.proceso 1')                                   
+     A                                      COLHDG('Stk.proceso 1')                                 
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            G1SKR2        15P 5       TEXT('Stk.proceso 2')                                   
+     A                                      COLHDG('Stk.proceso 2')                                 
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            G1DAT1         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT1                                      
+     A                                             PRDLIB)                                          
+     A            G1DAT8         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT8                                      
+     A                                             PRDLIB)                                          
+     A            G1PANT        20          TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A            G1USUA        20          TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A            G1HORA         6S 0       TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(PRDLIB/HORA                                      
+     A                                             PRDLIB)                                          
+     A            G1PRVR        20          TEXT('Proveedor')                                       
+     A                                      COLHDG('Proveedor')                                     
+     A            G1CIAO         3S 0       TEXT('C.empresa Origen')                                
+     A                                      COLHDG('C.empresa Origen')                              
+     A                                      REFFLD(PRDLIB/CIAS                                      
+     A                                             PRDLIB)                                          
+     A            G1MAGO        10          TEXT('Almacén empr.Origen')                             
+     A                                      COLHDG('Almacén empr.Orig')                             
+     A            G1ARTO        30          TEXT('Articulo')                                        
+     A                                      COLHDG('Artículo')                                      
+     A            G1VARO         6          TEXT('Variación')                                       
+     A                                      COLHDG('Variación')                                     
+     A            G1MODO         6          TEXT('Modelo')                                          
+     A                                      COLHDG('Modelo')                                        
+     A            G1CALO         2          TEXT('Calidad')                                         
+     A                                      COLHDG('Calidad')                                       
+     A            G1UNIO         6          TEXT('UNIDAD ORIGEN')                                   
+     A                                      COLHDG('UNIDAD ORIGEN')                                 
+     A            G1ARES        50          TEXT('ARES')                                            
+     A                                      COLHDG('ARES')                                          
+     A          K G1CIAO                                                                            
+     A          K G1MAGO                                                                            
+     A          K G1ARTO                                                                            
+     A          K G1VARO                                                                            
+     A          K G1MODO                                                                            
+     A          K G1CALO                                                                            

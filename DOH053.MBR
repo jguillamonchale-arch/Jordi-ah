@@ -1,0 +1,52 @@
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RDOH053                                                                           
+     A            D3CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            D3DLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            D3NPCO    R               TEXT('Número de pedido')                                
+     A                                      COLHDG('Número de pedido')                              
+     A                                      REFFLD(NPED)                                            
+     A            D3TPED    R               TEXT('Tipo de pedido')                                  
+     A                                      COLHDG('Tipo de pedido')                                
+     A                                      REFFLD(TPED)                                            
+     A            D3DATP    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            D3NOPL    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            D3LOGE    R               TEXT('LOGE')                                            
+     A                                      COLHDG('LOGE')                                          
+     A                                      REFFLD(LOGE)                                            
+     A            D3IDAL         2A         TEXT('ID. ALGORITMO   ')                                
+     A                                      COLHDG('ID.  ALGORITMO  ')                              
+     A            D3NCAP        10S 0       TEXT('CAPACIDAD ACTUAL')                                
+     A                                      COLHDG('CAPACIDAD ACTUAL')                              
+     A            D3NLIN         5S 0       TEXT('LINEAS CON STOCK')                                
+     A                                      COLHDG('LINEAS CON STOCK')                              
+      *                                                                                             
+     A            D3IMPL        15S 5       TEXT('IMPORTE TOTAL LIN')                               
+     A                                      COLHDG('IMPORTE TOTAL LIN')                             
+      *                                                                                             
+     A            D3IDER        05A         TEXT('ID. INCIDENCIA   ')                               
+     A                                      COLHDG('ID. INCIDENCIA   ')                             
+      *                                                                                             
+     A            D3IDLI      1000A         TEXT('ID. LINEAS')                                      
+      *                                                                                             
+     A            D3DAT1         8  0       TEXT('FECHA             ')                              
+     A                                      COLHDG('FECHA            ')                             
+     A            D3HORA         6  0       TEXT('HORA              ')                              
+     A                                      COLHDG('HORA             ')                             
+      *                                                                                             
+     A          K D3CIAS                                                                            
+     A          K D3DLGA                                                                            
+     A          K D3NPCO                                                                            
+     A          K D3TPED                                                                            
+     A          K D3DATP                                                                            
+     A          K D3NOPL                                                                            
+     A          K D3IDAL                                                                            
+     A          K D3LOGE                                                                            
