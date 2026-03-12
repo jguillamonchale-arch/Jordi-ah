@@ -1,0 +1,49 @@
+      *                 DDS ADP 400.             25/06/98  14:16                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSFIID    Fichero de mensajes por idioma                                              
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RMSFIID                                                                           
+     A            NKCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            NKIDIO    R               TEXT('Idioma')                                          
+     A                                      COLHDG('Idioma')                                        
+     A                                      REFFLD(IDIO)                                            
+     A            NKPRTF    R               TEXT('PRTF')                                            
+     A                                      COLHDG('PRTF')                                          
+     A                                      REFFLD(PROG)                                            
+     A            NKFMTO    R               TEXT('Formato')                                         
+     A                                      COLHDG('Formato')                                       
+     A                                      REFFLD(PROG)                                            
+     A            NKFIEL    R               TEXT('Nombre de campo')                                 
+     A                                      COLHDG('Nombre de campo')                               
+     A                                      REFFLD(FIEL)                                            
+     A            NKLI80        80          TEXT('Literal de 80 posi.')                             
+     A                                      COLHDG('Literal de 80 posi.')                           
+     A            NKFIPR         3S 0       TEXT('Fila')                                            
+     A                                      COLHDG('Fila')                                          
+     A            NKCOPR         3S 0       TEXT('Columna')                                         
+     A                                      COLHDG('Columna')                                       
+     A            NKDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            NKDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            NKUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            NKHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            NKPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A          K NKCIAS                                                                            
+     A          K NKIDIO                                                                            
+     A          K NKPRTF                                                                            
+     A          K NKFMTO                                                                            
+     A          K NKFIEL                                                                            

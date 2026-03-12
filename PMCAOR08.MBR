@@ -1,0 +1,17 @@
+      *                 DDS ADP 400.             29/01/99  17:15                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PR2       ASTRAL Grup, S.A. PRODUCCION                                                
+      * File  PMCAOR08  Fichero de cabecera de órdenes.                                             
+      * Type  LF                                                                                    
+     A          R RPMCAOR                   PFILE(PMCAOR)                                           
+     A          K PFEMPR                                                                            
+     A          K PFESTR                                                                            
+     A          K PFVARI                                                                            
+     A          K PFMODE                                                                            
+     A          K PFDATI                                                                            
+     A          K PFDAT1                                                                            
+     A          K PFNOPL                                                                            
+     A          K PFNORD                                                                            
+     A          K PFINDX                                                                            
+  ex A          O PFINDX                    COMP(NE 0)                                              
+  ex A          S PFSTUO                    COMP(GT '10')                                           

@@ -1,0 +1,9 @@
+      *                 DDS ADP 400.             08/08/97  15:55                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSALMA00  Maestro almacenes empresa                                                   
+      * Type  LF                                                                                    
+     A          R RMSALMA                   PFILE(MSALMA)                                           
+     A          K M0CIAS                                                                            
+     A          K M0LOGE                                                                            
+     A          K M0MAGA                                                                            

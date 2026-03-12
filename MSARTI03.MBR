@@ -1,0 +1,11 @@
+      *                 DDS ADP 400.             02/02/99  14:08                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSARTI03  Maestro de artículos-variación-modelo                                       
+      * Type  LF                                                                                    
+     A          R RMSARTI                   PFILE(MSARTI)                                           
+     A          K M5CIAS                                                                            
+     A          K M5ARAL                                                                            
+     A          K M5ARTI                                                                            
+     A          K M5VARI                                                                            
+     A          K M5MODE                                                                            

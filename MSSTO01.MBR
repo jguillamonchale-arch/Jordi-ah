@@ -1,0 +1,12 @@
+      *                 DDS ADP 400.             27/01/98  11:04                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSSTO01   F stocks por Artí.Alma.Cali                                                 
+      * Type  LF                                                                                    
+     A          R RMSSTO0                   PFILE(MSSTO0)                                           
+     A          K M1CIAS                                                                            
+     A          K M1ARTI                                                                            
+     A          K M1VARI                                                                            
+     A          K M1MODE                                                                            
+     A          K M1MAGA                                                                            
+     A          K M1CALI                                                                            

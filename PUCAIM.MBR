@@ -1,0 +1,63 @@
+      *                 DDS ADP 400.             02/06/98  16:49                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUCAIM    Fichero importes pedidos                                                    
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RPUCAIM                                                                           
+     A            CYCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            CYDLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            CYNPCO    R               TEXT('Número de pedido')                                
+     A                                      COLHDG('Número de pedido')                              
+     A                                      REFFLD(NPED)                                            
+     A            CYTPED    R               TEXT('Tipo de pedido')                                  
+     A                                      COLHDG('Tipo de pedido')                                
+     A                                      REFFLD(TPED)                                            
+     A            CYDATP    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            CYNOPL    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            CYTIVA    R               TEXT('Tipo de IVA')                                     
+     A                                      COLHDG('Tipo de IVA')                                   
+     A                                      REFFLD(TIVA)                                            
+     A            CYBIMP    R               TEXT('Base imponible')                                  
+     A                                      COLHDG('Base imponible')                                
+     A                                      REFFLD(IMPO)                                            
+     A            CYIIV1    R               TEXT('Importe IVA 1')                                   
+     A                                      COLHDG('Importe IVA 1')                                 
+     A                                      REFFLD(IMPO)                                            
+     A            CYIIV2    R               TEXT('Importe IVA 2')                                   
+     A                                      COLHDG('Importe IVA 2')                                 
+     A                                      REFFLD(IMPO)                                            
+     A            CYMONE    R               TEXT('Moneda')                                          
+     A                                      COLHDG('Moneda')                                        
+     A                                      REFFLD(MONE)                                            
+     A            CYDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            CYDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            CYUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            CYPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            CYHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K CYCIAS                                                                            
+     A          K CYDLGA                                                                            
+     A          K CYNPCO                                                                            
+     A          K CYTPED                                                                            
+     A          K CYDATP                                                                            
+     A          K CYNOPL                                                                            
+     A          K CYTIVA                                                                            

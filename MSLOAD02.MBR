@@ -1,0 +1,11 @@
+      *                 DDS ADP 400.             23/02/98  11:02                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSLOAD02  Detalle almacenes de logistica MSLOGI                                       
+      * Type  LF                                                                                    
+     A          R RMSLOAD                   PFILE(MSLOAD)                                           
+     A          K MICIAS                                                                            
+     A          K MIMAGA                                                                            
+     A          K MIDLGA                                                                            
+     A          K MILGCA                                                                            
+     A          K MIPRIO                                                                            

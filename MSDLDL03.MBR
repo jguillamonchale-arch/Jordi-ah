@@ -1,0 +1,11 @@
+      *                 DDS ADP 400.             23/11/98  17:36                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  ESPPAR01  Fichero presup./acumul. art-cliente                                         
+      * Type  LF                                                                                    
+     A          R RMSDLDL                   PFILE(MSDLDL)                                           
+     A          K XACIAS                                                                            
+     A          K XADLGA                                                                            
+     A          K XAPRIS                    DESCEND                                                 
+     A          K XATTRA                                                                            
+     A          K XADIST                                                                            

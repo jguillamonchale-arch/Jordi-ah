@@ -1,0 +1,16 @@
+      *                 DDS ADP 400.             01/07/99  18:59                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSPEDD11  Detalle pedidos entre almacenes                                             
+      * Type  LF                                                                                    
+     A          R RMSPEDD                   PFILE(MSPEDD)                                           
+     A          K NXCIAS                                                                            
+     A          K NXARTI                                                                            
+     A          K NXVARI                                                                            
+     A          K NXMODE                                                                            
+     A          K NXTCOJ                                                                            
+     A          K NXNPED                                                                            
+     A          K NXDATP                                                                            
+     A          K NXNOPL                                                                            
+     A          K NXLINE                                                                            
+  ex A          S NXSTUL                    COMP(LT '5')                                            

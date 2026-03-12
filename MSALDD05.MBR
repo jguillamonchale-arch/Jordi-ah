@@ -1,0 +1,12 @@
+      *                 DDS ADP 400.             28/12/98  16:57                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSALDC05  Fichero de albaranes.Cabeceras                                              
+      * Type  LF                                                                                    
+     A          R RMSALDD                   PFILE(MSALDD)                                           
+     A          K CECIAS                                                                            
+     A          K CEARTI                                                                            
+     A          K CEVARI                                                                            
+     A          K CEMODE                                                                            
+     A          K CETCOJ                                                                            
+     A          S CESTUL                    COMP(EQ '2')                                            

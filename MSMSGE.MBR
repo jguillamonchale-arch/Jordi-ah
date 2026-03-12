@@ -1,0 +1,47 @@
+      *                 DDS ADP 400.             29/09/97  16:23                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSMSGE    Fichero de mensajes predefinidos                                            
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RMSMSGE                                                                           
+     A            MXCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            MXIDIO    R               TEXT('Idioma')                                          
+     A                                      COLHDG('Idioma')                                        
+     A                                      REFFLD(IDIO)                                            
+     A            MXMSGE    R               TEXT('Código mensaje')                                  
+     A                                      COLHDG('Código mensaje')                                
+     A                                      REFFLD(MSGE)                                            
+     A            MXDE15    R               TEXT('Descripción abr. de 15')                          
+     A                                      COLHDG('Descripción abr. de')                           
+     A                                      REFFLD(DE15)                                            
+     A            MXDE30    R               TEXT('Descripción de 30 pos.')                          
+     A                                      COLHDG('Descripción de 30 po')                          
+     A                                      REFFLD(DE30)                                            
+     A            MXDE50    R               TEXT('Observación')                                     
+     A                                      COLHDG('Observación')                                   
+     A                                      REFFLD(OB50)                                            
+     A            MXDE70    R               TEXT('Descripción de 70')                               
+     A                                      COLHDG('Descripción de 70')                             
+     A                                      REFFLD(DE70)                                            
+     A            MXDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            MXDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            MXUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            MXPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            MXHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K MXCIAS                                                                            
+     A          K MXMSGE                                                                            
+     A          K MXIDIO                                                                            

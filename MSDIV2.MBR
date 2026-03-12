@@ -1,0 +1,64 @@
+      *                 DDS ADP 400.             27/01/98  20:50                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSDIV2    Fichero de cambios de divisas                                               
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RMSDIV2                                                                           
+     A            M6CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            M6MONE    R               TEXT('Moneda')                                          
+     A                                      COLHDG('Moneda')                                        
+     A                                      REFFLD(MONE)                                            
+     A            M6CMCO    R               TEXT('Cambio para compras')                             
+     A                                      COLHDG('Cambio para compras')                           
+     A                                      REFFLD(CAMB)                                            
+     A            M6CMCC    R               TEXT('Cambio para ventas')                              
+     A                                      COLHDG('Cambio para ventas ')                           
+     A                                      REFFLD(CAMB)                                            
+     A            M6CMPR    R               TEXT('Cdad.  para cambio ')                             
+     A                                      COLHDG('Cdad.  para cambio ')                           
+     A                                      REFFLD(CAMB)                                            
+     A            M6M601         1          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            M6M602         5          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            M6M620         1          TEXT('Libre empresa')                                   
+     A                                      COLHDG('Libre empresa')                                 
+     A            M6M621         5          TEXT('Libre empresa')                                   
+     A                                      COLHDG('Libre empresa')                                 
+     A            M6MONB    R               TEXT('Moneda referencia')                               
+     A                                      COLHDG('Moneda referencia')                             
+     A                                      REFFLD(MONE)                                            
+     A            M6DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            M6DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            M6PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            M6USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            M6HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            M6OPCI    R               TEXT('Opción')                                          
+     A                                      COLHDG('Opción')                                        
+     A                                      REFFLD(OPCI)                                            
+     A            M6DATM    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            M6HORM    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K M6CIAS                                                                            
+     A          K M6MONE                                                                            
+     A          K M6DAT8                                                                            
+     A          K M6HORA                                                                            
+     A          K M6DATM                                                                            
+     A          K M6HORM                                                                            

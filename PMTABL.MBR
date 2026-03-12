@@ -1,0 +1,52 @@
+      *                 DDS ADP 400.             26/08/97  18:03                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PMTABL    Maestro de tablas                                                           
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RPMTABL                                                                           
+     A            PDCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            PDCTAB    R               TEXT('Clase de tabla')                                  
+     A                                      COLHDG('Clase de tabla')                                
+     A                                      REFFLD(CTAB)                                            
+     A            PDDESC    R               TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A                                      REFFLD(DESC)                                            
+     A            PDBAJA    R               TEXT('Baja')                                            
+     A                                      COLHDG('Baja')                                          
+     A                                      REFFLD(BAJA)                                            
+     A            PDBL01         1          TEXT('Blanco 01')                                       
+     A                                      COLHDG('Blanco 01')                                     
+     A            PDBL02        10          TEXT('Blanco 02')                                       
+     A                                      COLHDG('Blanco 02')                                     
+     A            PDBL03         2          TEXT('Blanco 03')                                       
+     A                                      COLHDG('Libre')                                         
+     A            PDBL04         1          TEXT('Blanco 04')                                       
+     A                                      COLHDG('Blanco 04')                                     
+     A            PDBL05         5          TEXT('Blanco 05')                                       
+     A                                      COLHDG('Blanco 05')                                     
+     A            PDBL06        10          TEXT('Blanco')                                          
+     A                                      COLHDG('Blanco')                                        
+     A            PDTITB    R               TEXT('Tipo de tabla')                                   
+     A                                      COLHDG('Tipo de tabla')                                 
+     A                                      REFFLD(TITB)                                            
+     A            PDUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            PDPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            PDDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            PDDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            PDHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K PDCIAS                                                                            
+     A          K PDCTAB                                                                            

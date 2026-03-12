@@ -1,0 +1,51 @@
+      *                 DDS ADP 400.             26/02/99  15:38                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PMPROM    Fichero adicional para PROMP                                                
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RPMPROM                                                                           
+     A            PMPROG    R               TEXT('Programa')                                        
+     A                                      COLHDG('Programa')                                      
+     A                                      REFFLD(PROG)                                            
+     A            PMFMTO    R               TEXT('Formato registro')                                
+     A                                      COLHDG('Formato registro')                              
+     A                                      REFFLD(FRTO)                                            
+     A            PMFIEL    R               TEXT('Nombre de campo')                                 
+     A                                      COLHDG('Nombre de campo')                               
+     A                                      REFFLD(FIEL)                                            
+     A            PMOPCI    R               TEXT('Opción')                                          
+     A                                      COLHDG('Opción')                                        
+     A                                      REFFLD(OPCI)                                            
+     A            PMDESC    R               TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A                                      REFFLD(DESC)                                            
+     A            PMOBSE    R               TEXT('Observación')                                     
+     A                                      COLHDG('Observación')                                   
+     A                                      REFFLD(OBSE)                                            
+     A            PMNPGM    R               TEXT('Nivel de seguridad')                              
+     A                                      COLHDG('Nivel seguridad PGM')                           
+     A                                      REFFLD(NISE)                                            
+     A            PMNUSU    R               TEXT('Nivel segur.usuario')                             
+     A                                      COLHDG('Nivel segur.usuario')                           
+     A                                      REFFLD(NISE)                                            
+     A            PMPM01         1          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            PMPM02         1          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            PMPANT         1          TEXT('Código de pantalla')                              
+     A                                      COLHDG('Código de pantalla')                            
+     A            PMPM03         1          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            PMCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            PMTRAD    R               TEXT('TRADUCIDO SI O NO')                               
+     A                                      COLHDG('TRADUCIDO SI O NO')                             
+     A                                      REFFLD(TIPO)                                            
+     A          K PMCIAS                                                                            
+     A          K PMPROG                                                                            
+     A          K PMFMTO                                                                            
+     A          K PMFIEL                                                                            
+     A          K PMOPCI                                                                            

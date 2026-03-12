@@ -1,0 +1,62 @@
+      *                 DDS ADP 400.             27/04/98  11:49                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSSTO0    Fichero stocks por Alm.-artículo-calid.                                     
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RMSSTO0                                                                           
+     A            M1CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            M1MAGA    R               TEXT('Almacén')                                         
+     A                                      COLHDG('Almacén')                                       
+     A                                      REFFLD(MAGA)                                            
+     A            M1ARTI    R               TEXT('Articulo')                                        
+     A                                      COLHDG('Artículo')                                      
+     A                                      REFFLD(ARTI)                                            
+     A            M1VARI    R               TEXT('Variación')                                       
+     A                                      COLHDG('Variación')                                     
+     A                                      REFFLD(VARI)                                            
+     A            M1MODE    R               TEXT('Modelo')                                          
+     A                                      COLHDG('Modelo')                                        
+     A                                      REFFLD(MODE)                                            
+     A            M1CALI    R               TEXT('Calidad')                                         
+     A                                      COLHDG('Calidad')                                       
+     A                                      REFFLD(CALI)                                            
+     A            M1SACT    R               TEXT('Stk. fisico')                                     
+     A                                      COLHDG('Stk. fisico')                                   
+     A                                      REFFLD(CANT)                                            
+     A            M1SKRE    R               TEXT('Stk. reservado')                                  
+     A                                      COLHDG('Stk. reservado')                                
+     A                                      REFFLD(CANT)                                            
+     A            M1SKRP    R               TEXT('Stk.reser.prod.')                                 
+     A                                      COLHDG('Stk.reser.prod.')                               
+     A                                      REFFLD(CANT)                                            
+     A            M1SKR1    R               TEXT('Stk.proceso 1')                                   
+     A                                      COLHDG('Stk.proceso 1')                                 
+     A                                      REFFLD(CANT)                                            
+     A            M1SKR2    R               TEXT('Stk.proceso 2')                                   
+     A                                      COLHDG('Stk.proceso 2')                                 
+     A                                      REFFLD(CANT)                                            
+     A            M1DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            M1DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            M1PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            M1USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            M1HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K M1CIAS                                                                            
+     A          K M1MAGA                                                                            
+     A          K M1ARTI                                                                            
+     A          K M1VARI                                                                            
+     A          K M1MODE                                                                            
+     A          K M1CALI                                                                            

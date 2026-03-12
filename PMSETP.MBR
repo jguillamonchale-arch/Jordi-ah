@@ -1,0 +1,41 @@
+      *                 DDS ADP 400.             04/05/98  10:46                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PMSETP    Maestro parámetros de programa.                                             
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RPMSETP                                                                           
+     A            PICIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            PIPROG    R               TEXT('Programa')                                        
+     A                                      COLHDG('Programa')                                      
+     A                                      REFFLD(PROG)                                            
+     A            PIUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            PIVERS    R               TEXT('Versión')                                         
+     A                                      COLHDG('Versión')                                       
+     A                                      REFFLD(VERS)                                            
+     A            PIDATR    R               TEXT('Datos')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DATR)                                            
+     A            PIDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            PIPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            PIDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            PIHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            PIUSU1    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A          K PICIAS                                                                            
+     A          K PIPROG                                                                            
+     A          K PIUSU1                                                                            

@@ -1,0 +1,79 @@
+      *                 DDS ADP 400.             09/12/97  16:59                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSCOJD    Detalle de conjuntos                                                        
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RMSCOJD                                                                           
+     A            NDCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            NDARTI    R               TEXT('Artículo')                                        
+     A                                      COLHDG('Artículo')                                      
+     A                                      REFFLD(ARTI)                                            
+     A            NDVARI    R               TEXT('Variación')                                       
+     A                                      COLHDG('Variación')                                     
+     A                                      REFFLD(VARI)                                            
+     A            NDMODE    R               TEXT('Modelo ')                                         
+     A                                      COLHDG('Modelo ')                                       
+     A                                      REFFLD(MODE)                                            
+     A            NDTCOJ    R               TEXT('Tipo')                                            
+     A                                      COLHDG('Tipo')                                          
+     A                                      REFFLD(TIPO)                                            
+     A            NDCOMP    R               TEXT('Componente')                                      
+     A                                      COLHDG('Componente')                                    
+     A                                      REFFLD(ARTI)                                            
+     A            NDVAR2    R               TEXT('Variación NDCOMP')                                
+     A                                      COLHDG('Variación NDCOMP')                              
+     A                                      REFFLD(VARI)                                            
+     A            NDMOD2    R               TEXT('Modelo NDCOMP')                                   
+     A                                      COLHDG('Modelo NDCOMP')                                 
+     A                                      REFFLD(MODE)                                            
+     A            NDTCO2    R               TEXT('Tipo cjto NDCOMP')                                
+     A                                      COLHDG('Tipo cjto NDCOMP')                              
+     A                                      REFFLD(TIPO)                                            
+     A            NDCANT    R               TEXT('Cantidad')                                        
+     A                                      COLHDG('Cantidad')                                      
+     A                                      REFFLD(CANT)                                            
+     A            NDUNIM    R               TEXT('Unidad NDCANT')                                   
+     A                                      COLHDG('Unidad NDCANT')                                 
+     A                                      REFFLD(UNIM)                                            
+     A            NDDES1    R               TEXT('Descripción 1ª')                                  
+     A                                      COLHDG('Descripción 1ª')                                
+     A                                      REFFLD(DES1)                                            
+     A            NDND11         1          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            NDND12         5          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            NDND25         1          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            NDND26         5          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            NDDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            NDDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            NDUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            NDPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            NDHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            NDBAJA    R               TEXT('BAJA')                                            
+     A                                      COLHDG('BAJA')                                          
+     A                                      REFFLD(BAJA)                                            
+     A          K NDCIAS                                                                            
+     A          K NDARTI                                                                            
+     A          K NDVARI                                                                            
+     A          K NDMODE                                                                            
+     A          K NDTCOJ                                                                            
+     A          K NDCOMP                                                                            
+     A          K NDVAR2                                                                            
+     A          K NDMOD2                                                                            
+     A          K NDTCO2                                                                            

@@ -1,0 +1,62 @@
+     A                                      UNIQUE                                                  
+     A          R RPMTAB2                                                                           
+     A            PECIAS         3S 0       TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(PRDLIB/CIAS                                      
+     A                                             PRDLIB)                                          
+     A            PECTAB         4A         TEXT('Clase de tabla')                                  
+     A                                      COLHDG('Clase de tabla')                                
+     A                                      REFFLD(PRDLIB/CTAB                                      
+     A                                             PRDLIB)                                          
+     A            PECLTA        10A         TEXT('Clave de tabla')                                  
+     A                                      COLHDG('Clave de tabla')                                
+     A                                      REFFLD(PRDLIB/CLTA                                      
+     A                                             PRDLIB)                                          
+     A            PEDESC        30A         TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A                                      REFFLD(PRDLIB/DESC                                      
+     A                                             PRDLIB)                                          
+     A            PEBAJA         1A         TEXT('Baja')                                            
+     A                                      COLHDG('Baja')                                          
+     A                                      REFFLD(PRDLIB/BAJA                                      
+     A                                             PRDLIB)                                          
+     A            PEBL61         1A         TEXT('Blanco 61')                                       
+     A                                      COLHDG('Blanco 01')                                     
+     A            PEBL62        10A         TEXT('Blanco 62')                                       
+     A                                      COLHDG('Blanco 62')                                     
+     A            PEBL63        15A         TEXT('Blanco 63')                                       
+     A                                      COLHDG('Blanco 63')                                     
+     A            PEBL64        10A         TEXT('Blanco 64')                                       
+     A                                      COLHDG('Blanco 64')                                     
+     A            PEBL65         5A         TEXT('Blanco 65')                                       
+     A                                      COLHDG('Blanco 65')                                     
+     A            PEBL66         1A         TEXT('Blanco 66')                                       
+     A                                      COLHDG('Blanco 66')                                     
+     A            PETREG         2A         TEXT('Tipo de registro')                                
+     A                                      COLHDG('Tipo de registro')                              
+     A                                      REFFLD(PRDLIB/TREG                                      
+     A                                             PRDLIB)                                          
+     A            PEUSUA        10A         TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(PRDLIB/USUA                                      
+     A                                             PRDLIB)                                          
+     A            PEPANT        10A         TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PRDLIB/PANT                                      
+     A                                             PRDLIB)                                          
+     A            PEDAT8         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT8                                      
+     A                                             PRDLIB)                                          
+     A            PEDAT1         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT8                                      
+     A                                             PRDLIB)                                          
+     A            PEHORA         6S 0       TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(PRDLIB/HORA                                      
+     A                                             PRDLIB)                                          
+     A          K PECTAB                                                                            
+     A          K PECLTA                                                                            

@@ -1,0 +1,43 @@
+     A                                      UNIQUE                                                  
+     A          R RMSTRG1                                                                           
+     A            NZCTAB         4A         TEXT('CLASE TABLA')                                     
+     A                                      COLHDG('CLASE TABLA')                                   
+     A                                      REFFLD(PRDLIB/CTAB                                      
+     A                                             PRDLIB)                                          
+     A            NZCLTA        10A         TEXT('CLAVE TABLA')                                     
+     A                                      COLHDG('CLAVE TABLA')                                   
+     A                                      REFFLD(PRDLIB/CLTA                                      
+     A                                             PRDLIB)                                          
+     A            NZIDIO         1A         TEXT('IDIOMA')                                          
+     A                                      COLHDG('IDIOMA')                                        
+     A                                      REFFLD(PRDLIB/IDIO                                      
+     A                                             PRDLIB)                                          
+     A            NZDESC        30A         TEXT('DESCRIPCION')                                     
+     A                                      COLHDG('DESCRIPCION')                                   
+     A                                      REFFLD(PRDLIB/DESC                                      
+     A                                             PRDLIB)                                          
+     A            NZDAT1         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT1                                      
+     A                                             PRDLIB)                                          
+     A            NZUSUA        10A         TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(PRDLIB/USUA                                      
+     A                                             PRDLIB)                                          
+     A            NZPANT        10A         TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PRDLIB/PANT                                      
+     A                                             PRDLIB)                                          
+     A            NZDAT8         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT1                                      
+     A                                             PRDLIB)                                          
+     A            NZHORA         6S 0       TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(PRDLIB/HORA                                      
+     A                                             PRDLIB)                                          
+     A          K NZCTAB                                                                            
+     A          K NZCLTA                                                                            
+     A          K NZIDIO                                                                            

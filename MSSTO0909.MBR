@@ -1,0 +1,78 @@
+     A          R RMSSTO0                                                                           
+     A            M1CIAS         3S 0       TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(PRDLIB/CIAS                                      
+     A                                             PRDLIB)                                          
+     A            M1MAGA         5A         TEXT('Almacén')                                         
+     A                                      COLHDG('Almacén')                                       
+     A                                      REFFLD(PRDLIB/MAGA                                      
+     A                                             PRDLIB)                                          
+     A            M1ARTI        15A         TEXT('Articulo')                                        
+     A                                      COLHDG('Artículo')                                      
+     A                                      REFFLD(PRDLIB/ARTI                                      
+     A                                             PRDLIB)                                          
+     A            M1VARI         3A         TEXT('Variación')                                       
+     A                                      COLHDG('Variación')                                     
+     A                                      REFFLD(PRDLIB/VARI                                      
+     A                                             PRDLIB)                                          
+     A            M1MODE         3A         TEXT('Modelo')                                          
+     A                                      COLHDG('Modelo')                                        
+     A                                      REFFLD(PRDLIB/MODE                                      
+     A                                             PRDLIB)                                          
+     A            M1CALI         1A         TEXT('Calidad')                                         
+     A                                      COLHDG('Calidad')                                       
+     A                                      REFFLD(PRDLIB/CALI                                      
+     A                                             PRDLIB)                                          
+     A            M1SACT        15P 5       TEXT('Stk. fisico')                                     
+     A                                      COLHDG('Stk. fisico')                                   
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            M1SKRE        15P 5       TEXT('Stk. reservado')                                  
+     A                                      COLHDG('Stk. reservado')                                
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            M1SKRP        15P 5       TEXT('Stk.reser.prod.')                                 
+     A                                      COLHDG('Stk.reser.prod.')                               
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            M1SKR1        15P 5       TEXT('Stk.proceso 1')                                   
+     A                                      COLHDG('Stk.proceso 1')                                 
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            M1SKR2        15P 5       TEXT('Stk.proceso 2')                                   
+     A                                      COLHDG('Stk.proceso 2')                                 
+     A                                      EDTCDE(4)                                               
+     A                                      REFFLD(PRDLIB/CANT                                      
+     A                                             PRDLIB)                                          
+     A            M1DAT1         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT1                                      
+     A                                             PRDLIB)                                          
+     A            M1DAT8         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT8                                      
+     A                                             PRDLIB)                                          
+     A            M1PANT        10A         TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PRDLIB/PANT                                      
+     A                                             PRDLIB)                                          
+     A            M1USUA        10A         TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(PRDLIB/USUA                                      
+     A                                             PRDLIB)                                          
+     A            M1HORA         6S 0       TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(PRDLIB/HORA                                      
+     A                                             PRDLIB)                                          
+     A          K M1CIAS                                                                            
+     A          K M1ARTI                                                                            
+     A          K M1VARI                                                                            
+     A          K M1MODE                                                                            
+     A          K M1MAGA                                                                            
+     A          K M1CALI                                                                            

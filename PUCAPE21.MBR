@@ -1,0 +1,12 @@
+      *                 DDS ADP 400.             21/12/98  16:56                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUCAPE19  Maestro de cabeceras de pedidos                                             
+      * Type  LF                                                                                    
+     A          R RPUCAPE                   PFILE(PUCAPE)                                           
+     A          K C0CIAS                                                                            
+     A          K C0NPCO                                                                            
+     A          K C0TPED                                                                            
+     A          K C0DATP                                                                            
+     A          K C0NOPL                                                                            
+     A          K C0DLGA                                                                            

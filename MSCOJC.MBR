@@ -1,0 +1,65 @@
+      *                 DDS ADP 400.             09/12/97  09:00                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSCOJC    Fichero de conjuntos                                                        
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RMSCOJC                                                                           
+     A            NDCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            NDARTI    R               TEXT('Artículo')                                        
+     A                                      COLHDG('Artículo')                                      
+     A                                      REFFLD(ARTI)                                            
+     A            NDVARI    R               TEXT('Variación')                                       
+     A                                      COLHDG('Variación')                                     
+     A                                      REFFLD(VARI)                                            
+     A            NDMODE    R               TEXT('Modelo')                                          
+     A                                      COLHDG('Modelo')                                        
+     A                                      REFFLD(MODE)                                            
+     A            NDTCOJ    R               TEXT('Tipo')                                            
+     A                                      COLHDG('Tipo')                                          
+     A                                      REFFLD(TIPO)                                            
+     A            NDTCOM         1          TEXT('Tipo precio compra')                              
+     A                                      COLHDG('Tipo precio comp.')                             
+     A            NDTCVE         1          TEXT('Tipo coste ventas')                               
+     A                                      COLHDG('Tipo coste ventas')                             
+     A            NDDES1    R               TEXT('Descripción 1ª')                                  
+     A                                      COLHDG('Descripción 1ª')                                
+     A                                      REFFLD(DES1)                                            
+     A            NDTCTE         1          TEXT('Como afecta a costes')                            
+     A                                      COLHDG('Como afecta a costes')                          
+     A            NDTSTK         1          TEXT('Como afecta a stock')                             
+     A                                      COLHDG('Como afecta a stock')                           
+     A            NDND01         1          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            NDND02         5          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            NDND20         1          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            NDND21         5          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            NDDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            NDDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            NDUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            NDPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            NDHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            NDBAJA    R               TEXT('BAJA')                                            
+     A                                      COLHDG('BAJA')                                          
+     A                                      REFFLD(BAJA)                                            
+     A          K NDCIAS                                                                            
+     A          K NDARTI                                                                            
+     A          K NDVARI                                                                            
+     A          K NDMODE                                                                            
+     A          K NDTCOJ                                                                            

@@ -1,0 +1,61 @@
+      *                 DDS ADP 400.             20/11/97  20:15                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSTSC2    Maestro cantidades estándar artículo                                        
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RMSTSC2                                                                           
+     A            MOCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            MOARTI    R               TEXT('Artículo')                                        
+     A                                      COLHDG('Artículo')                                      
+     A                                      REFFLD(ARTI)                                            
+     A            MOTCST    R               TEXT('Tipo cdad. std.')                                 
+     A                                      COLHDG('Tipo cdad. std.')                               
+     A                                      REFFLD(TCST)                                            
+     A            MOTCS2    R               TEXT('Subestandar')                                     
+     A                                      COLHDG('Subestandar')                                   
+     A                                      REFFLD(TCST)                                            
+     A            MOCAN2    R               TEXT('Cdad Subest.')                                    
+     A                                      COLHDG('Cdad Subest.')                                  
+     A                                      REFFLD(CANT)                                            
+     A            MOTEMX    R               TEXT('Embalaje Subest.')                                
+     A                                      COLHDG('Embalaje Subest.')                              
+     A                                      REFFLD(TEMB)                                            
+     A            MOMO11         1          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            MOMO12         5          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            MOMO25         1          TEXT('Libre empresa')                                   
+     A                                      COLHDG('Libre empresa')                                 
+     A            MOMO26         5          TEXT('Libre empresa')                                   
+     A                                      COLHDG('Libre empresa')                                 
+     A            MODAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            MODAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            MOUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            MOPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            MOHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            MOVARI    R               TEXT('Variación')                                       
+     A                                      COLHDG('Variación')                                     
+     A                                      REFFLD(VARI)                                            
+     A            MOMODE    R               TEXT('Modelo artículo')                                 
+     A                                      COLHDG('Modelo artículo')                               
+     A                                      REFFLD(MODE)                                            
+     A          K MOCIAS                                                                            
+     A          K MOARTI                                                                            
+     A          K MOVARI                                                                            
+     A          K MOMODE                                                                            
+     A          K MOTCST                                                                            
+     A          K MOTCS2                                                                            

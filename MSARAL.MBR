@@ -1,0 +1,38 @@
+     A                                      CCSID(13488)                                            
+     A          R RMSARAL                                                                           
+     A            I0ARES        25G         TEXT('ARTÍCULO')                                        
+     A                                      COLHDG('ARTÍCULO')                                      
+     A            I0ARAL        25G         TEXT('ART.ALTERNATIVO')                                 
+     A                                      COLHDG('ART.ALTERNATIVO')                               
+     A            I0TROL         1P 0       TEXT('0=ALT/1=SUST')                                    
+     A                                      COLHDG('0=ALT/1=SUST')                                  
+     A            I0DTIN         8P 0       TEXT('FECHA INICIO')                                    
+     A                                      COLHDG('FECHA INICIO')                                  
+     A            I0DTFI         8P 0       TEXT('FECHA FIN')                                       
+     A                                      COLHDG('FECHA FIN')                                     
+     A            I0TX40        40G         TEXT('TEXTO')                                           
+     A                                      COLHDG('TEXTO')                                         
+     A            I0BAJA         1P 0       TEXT('BAJA')                                            
+     A                                      COLHDG('BAJA')                                          
+     A            I0WRUS        10G         TEXT('USUARIO ALTA')                                    
+     A                                      COLHDG('USUARIO ALTA')                                  
+     A            I0WRJO        10G         TEXT('DATOS ALTA')                                      
+     A                                      COLHDG('DATOS ALTA')                                    
+     A            I0WRDT         8P 0       TEXT('FECHA ALTA')                                      
+     A                                      COLHDG('FECHA ALTA')                                    
+     A            I0WRTM         6P 0       TEXT('HORA ALTA')                                       
+     A                                      COLHDG('HORA ALTA')                                     
+     A            I0UPUS        10G         TEXT('USUARIO MODI')                                    
+     A                                      COLHDG('USUARIO MODI')                                  
+     A            I0UPJO        10G         TEXT('DATOS MODI')                                      
+     A                                      COLHDG('DATOS MODI')                                    
+     A            I0UPDT         8P 0       TEXT('FECHA MODI')                                      
+     A                                      COLHDG('FECHA MODI')                                    
+     A            I0UPTM         6P 0       TEXT('HORA MODI')                                       
+     A                                      COLHDG('HORA MODI')                                     
+      *                                                                                             
+     A          K I0ARES                                                                            
+     A          K I0ARAL                                                                            
+     A          K I0TROL                                                                            
+     A          K I0DTIN                                                                            
+     A          K I0DTFI                                                                            

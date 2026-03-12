@@ -1,0 +1,57 @@
+      *                 DDS ADP 400.             08/04/98  10:31                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSARID    Datos de artículos en otros idiomas                                         
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RMSARID                                                                           
+     A            M5CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            M5ARTI    R               TEXT('Código de artículo')                              
+     A                                      COLHDG('Artículo ampliado')                             
+     A                                      REFFLD(ARTI)                                            
+     A            M5VARI    R               TEXT('Variación')                                       
+     A                                      COLHDG('Variación')                                     
+     A                                      REFFLD(VARI)                                            
+     A            M5MODE    R               TEXT('Modelo artículo')                                 
+     A                                      COLHDG('Modelo artículo')                               
+     A                                      REFFLD(MODE)                                            
+     A            M5TCOJ    R               TEXT('Tipo Conjunto')                                   
+     A                                      COLHDG('Tipo Conjunto')                                 
+     A                                      REFFLD(TIPO)                                            
+     A            M5IDIO    R               TEXT('Idioma')                                          
+     A                                      COLHDG('Idioma')                                        
+     A                                      REFFLD(IDIO)                                            
+     A            M5DEI1    R               TEXT('Descripción 1ª')                                  
+     A                                      COLHDG('Descripción 1ª')                                
+     A                                      REFFLD(DES1)                                            
+     A            M5DEI2    R               TEXT('Descripción 1ª')                                  
+     A                                      COLHDG('Descripción 1ª')                                
+     A                                      REFFLD(DES1)                                            
+     A            M5M517         5          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            M5M527         5          TEXT('Blancos')                                         
+     A                                      COLHDG('Blancos')                                       
+     A            M5USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            M5PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            M5DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            M5DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            M5HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K M5CIAS                                                                            
+     A          K M5ARTI                                                                            
+     A          K M5VARI                                                                            
+     A          K M5MODE                                                                            
+     A          K M5TCOJ                                                                            
+     A          K M5IDIO                                                                            

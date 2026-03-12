@@ -1,0 +1,58 @@
+      *                 DDS ADP 400.             05/11/97  11:14                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSECOP    Fichero de tipos de ECOPARTICIPATION                                        
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RMSECOP                                                                           
+     A            ECCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            ECECOP    R               TEXT('Code Ecotaxe')                                    
+     A                                      COLHDG('Code Ecotaxe')                                  
+     A                                      REFFLD(SINO)                                            
+     A            ECDESC    R               TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A                                      REFFLD(DESC)                                            
+     A            ECFLCD    R               TEXT('Fecha límite')                                    
+     A                                      COLHDG('Fecha límite')                                  
+     A                                      REFFLD(FLCD)                                            
+     A            ECTAXE    R               TEXT('Precio')                                          
+     A                                      COLHDG('Precio')                                        
+     A                                      REFFLD(PREC)                                            
+     A            ECREVE    R               TEXT('Revers{')                                         
+     A                                      COLHDG('Revers{')                                       
+     A                                      REFFLD(AL01)                                            
+     A            ECMV01         1          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            ECMV02         5          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            ECMV20         1          TEXT('Libre empresa')                                   
+     A                                      COLHDG('Libre empresa')                                 
+     A            ECMV21         5          TEXT('Libre empresa')                                   
+     A                                      COLHDG('Libre empresa')                                 
+     A            ECDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            ECDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            ECUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            ECPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            ECHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+25028A            ECDES1    R               TEXT('Descripción')                                     
+25028A                                      COLHDG('Descripción')                                   
+25028A                                      REFFLD(DES1)                                            
+25028A            ECDES2    R               TEXT('Descripción')                                     
+25028A                                      COLHDG('Descripción')                                   
+25028A                                      REFFLD(DES2)                                            
+     A          K ECCIAS                                                                            
+     A          K ECECOP                                                                            
+     A          K ECFLCD                                                                            

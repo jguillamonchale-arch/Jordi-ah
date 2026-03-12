@@ -1,0 +1,9 @@
+      *                 DDS ADP 400.             02/02/99  14:07                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PMEMPR00                                                                              
+      * Type  LF                                                                                    
+     A          R RPMTABD                   PFILE(PMTABD)                                           
+     A          K PECIAS                                                                            
+     A          K PECTAB                                                                            
+     A          K PEDESC                                                                            

@@ -1,0 +1,10 @@
+      *                 DDS ADP 400.             28/08/97  14:25                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSZPAI01  Fichero de zonas de países                                                  
+      * Type  LF                                                                                    
+     A          R RMSZPAI                   PFILE(MSZPAI)                                           
+     A          K N4CIAS                                                                            
+     A          K N4DLGA                                                                            
+     A          K N4PAIS                                                                            
+     A          K N4ZOPA                                                                            

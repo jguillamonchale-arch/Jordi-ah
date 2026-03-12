@@ -1,0 +1,13 @@
+      *                 DDS ADP 400.             28/11/97  14:45                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSUBIC06  Maestro de ubicaciones                                                      
+      * Type  LF                                                                                    
+     A          R RMSUBIC                   PFILE(MSUBIC)                                           
+     A          K M3CIAS                                                                            
+     A          K M3MAGA                                                                            
+     A          K M3ZUBC                                                                            
+     A          K M3FILA                                                                            
+     A          K M3COLU                                                                            
+     A          K M3NIVE                                                                            
+     A          K M3LADO                                                                            

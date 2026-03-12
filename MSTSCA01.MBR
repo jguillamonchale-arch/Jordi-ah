@@ -1,0 +1,12 @@
+      *                 DDS ADP 400.             01/12/97  20:23                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  MSTSCA01  Maestro cantidades estándar artículo                                        
+      * Type  LF                                                                                    
+     A          R RMSTSCA                   PFILE(MSTSCA)                                           
+     A          K MOCIAS                                                                            
+     A          K MOARTI                                                                            
+     A          K MOVARI                                                                            
+     A          K MOMODE                                                                            
+     A          K MOCAST                    DESCEND                                                 
+     A          K MOTPAL                    DESCEND                                                 
