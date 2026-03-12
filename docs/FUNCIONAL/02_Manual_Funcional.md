@@ -810,33 +810,52 @@ Campos adicionales respecto a TR0026:
 
 ## 6. Configuración y Módulos Auxiliares
 
-### 6.1 Módulo de Inventario y Balance (MI*)
+### 6.1 Módulo de Balance Movex (MI*) — Integración ERP
 
-Los programas con prefijo `MI` gestionan **inventarios físicos y balances de stock**:
+> **Nota arquitectural:** Los programas `MI*` no son un módulo autónomo de inventario. Son la **interfaz de lectura del stock del ERP Movex/M3** replicado en IBM i. AMS lee este stock igual que cualquier fichero propio.
+
+`MITBAL` es la réplica local del fichero de stock de Movex. Sus campos siguen el esquema nativo Movex:
+
+| Campo | Descripción |
+|-------|-------------|
+| `MBCONO` | Código empresa Movex |
+| `MBWHLO` | Almacén Movex (Warehouse Location) |
+| `MBITNO` | Artículo Movex (Item Number) |
+| `MBSTQT` | Stock aprobado disponible (on-hand approved) |
+| `MBQUQT` | Cantidad en cuarentena/inspección |
+| `MBAVAL` | Cantidad asignable (allocatable) |
+| `MBORQT` | Cantidad pedida a proveedor (on order) |
 
 | Programa | Función |
 |----------|---------|
-| `MITBAL` | Proceso de balance de inventario |
-| `MITBAL00` | Variante de balance |
-| `MITBAL10` | Balance por tramos |
-| `MITMAS` | Maestro de inventario |
-| `MITMAS00` | Lógico del maestro |
+| `MITBAL` | Fichero físico de balance de stock Movex (fuente de datos para DOM) |
+| `MITBAL00` | Índice alternativo por almacén |
+| `MITBAL10` | Índice por tramos/rangos |
+| `MITMAS` | Maestro de artículos Movex (información complementaria) |
+| `MITMAS00` | Lógico del maestro de artículos |
 | `MITFAC` | Facturación de inventario |
 | `MITFAC00` | Lógico de facturación |
 
-### 6.2 Gateway / Exchange Logístico (GX*)
+### 6.2 Gateway de Equivalencias Movex (GX*) — Traducción de Códigos
 
-Los programas `GX*` actúan como **puertas de enlace** con sistemas logísticos externos o internos de Fluidra:
+> **Nota arquitectural:** Los programas `GX*` no son gateways logísticos genéricos. Son el **motor de traducción bidireccional** entre los códigos internos de AMS (Aquaria/ASTRAL) y los códigos del ERP Movex/M3 (ITNO, WHLO, CONO). Sin ellos, AMS no puede comunicarse con Movex.
+
+**Mecanismo de búsqueda (3 niveles):**
+1. Equivalencia específica `CIAS + DLGA + CódigoAquaria`
+2. Equivalencia a nivel empresa `CIAS + CódigoAquaria`
+3. Equivalencia genérica del sistema `'*' + CódigoAquaria`
 
 | Programa | Función |
 |----------|---------|
-| `GX0150` | Gateway para intercambio de datos a nivel 150 (formato específico Fluidra) |
-| `GX2500` | Gateway nivel 2500 |
-| `GXEQAR` | Equipos de artículos — exchange |
-| `GXEQAR03` | Variante de equipos |
-| `GXEQPR` | Equipos proceso — exchange |
-| `GXSTO0` | Gateway de stock |
-| `GXSTO02` | Variante de stock gateway |
+| `GX0150` | Traducción de códigos AMS↔Movex (nivel empresa/delegación) |
+| `GX2500` | Traducción de códigos AMS↔Movex (nivel avanzado / artículo) |
+| `EQTABL00` | Fichero físico de tablas de equivalencias |
+| `EQTABL10` | Índice lógico de equivalencias por tipo |
+| `GXEQAR` | Equivalencia de artículos (equipos) |
+| `GXEQAR03` | Variante de equivalencia de equipos |
+| `GXEQPR` | Equivalencia de procesos de equipos |
+| `GXSTO0` | Gateway de stock — consulta MITBAL con traducción de códigos |
+| `GXSTO02` | Variante de consulta de stock Movex |
 
 ### 6.3 Gestión de Riesgos (ZQ*/ZA*)
 
@@ -897,12 +916,14 @@ Los programas `GX*` actúan como **puertas de enlace** con sistemas logísticos 
 
 ### 6.9 Configuración del sistema (CM* / CF* / CC*)
 
+> **Nota arquitectural:** `CMNCMP` y `CMNDIV` son los **maestros organizativos en formato Movex**. Sus campos (CONO, DIVI, WHLO, ITNO, FACI, PLNT) siguen el esquema del ERP Movex/M3 y son la fuente de verdad para las claves de acceso al ERP externo.
+
 | Programa | Función |
 |----------|---------|
 | `CM0085CL` | CL wrapper para entrada al módulo de compras |
 | `CMA040` | Datos adicionales de pedido |
-| `CMNCMP` | Mantenimiento de empresas |
-| `CMNDIV` | Mantenimiento de divisiones |
+| `CMNCMP` | Maestro de empresas en formato Movex (campos: CONO, FACI, WHLO) |
+| `CMNDIV` | Maestro de divisiones en formato Movex (campos: CONO, DIVI, PLNT, ITNO) |
 | `CMNUSR` | Mantenimiento de usuarios |
 | `CFACIL` | Configuración de facilidades/instalaciones |
 | `CCUDIV` | Configuración de divisiones de cliente |
@@ -914,6 +935,11 @@ Los programas `GX*` actúan como **puertas de enlace** con sistemas logísticos 
 | Término | Definición |
 |---------|-----------|
 | **AMS** | Application Maintenance and Support — nombre del sistema/proyecto |
+| **Movex / M3** | ERP Infor M3 (anteriormente Lawson M3) sobre el que AMS opera como capa operacional. Los módulos CM/GX/MI son el puente de integración |
+| **CONO** | Company Number — código de empresa en nomenclatura Movex/M3 |
+| **DIVI** | Division — división organizativa en nomenclatura Movex/M3 |
+| **WHLO** | Warehouse Location — almacén en nomenclatura Movex/M3 |
+| **ITNO** | Item Number — código de artículo en nomenclatura Movex/M3 |
 | **CIAS** | Código de empresa (3 dígitos) — el sistema es multiempresa |
 | **DLGA** | Delegación (5 caracteres alfanuméricos) — unidad organizativa de ventas/compras |
 | **LOGE** | Almacén lógico — vista de negocio de un almacén (empresa + delegación) |

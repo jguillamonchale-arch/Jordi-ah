@@ -63,6 +63,7 @@ La lista de librerías (`PMLIBL`) se recupera dinámicamente por empresa/delegac
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                          SISTEMA AMS — FLUIDRA                          │
+│                     (Capa operacional sobre Movex/M3)                   │
 │                                                                         │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────────┐  │
 │  │  PEDIDOS DE  │    │   COMPRAS    │    │   MOTOR DOM / DOOM       │  │
@@ -81,12 +82,31 @@ La lista de librerías (`PMLIBL`) se recupera dinámicamente por empresa/delegac
 │                             │                                           │
 │         ┌───────────────────┴────────────────────┐                    │
 │         ▼                                         ▼                    │
-│  ┌─────────────────┐                   ┌──────────────────────────┐   │
-│  │  EDI / INTERCAM.│                   │  CONFIG. Y AUXILIARES    │   │
-│  │  (TR/WR/COCEDI) │                   │  (CM/GX/CF/MI/ZQ/UT)     │   │
-│  │    ~20 pgms     │                   │    ~101 pgms             │   │
-│  └─────────────────┘                   └──────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────┘
+│  ┌─────────────────┐     ┌───────────────────────────────────────┐    │
+│  │  EDI / INTERCAM.│     │  CAPA DE INTEGRACIÓN MOVEX/M3         │    │
+│  │  (TR/WR/COCEDI) │     │  ┌─────────────────────────────────┐  │    │
+│  │    ~20 pgms     │     │  │ CM* — Maestros empresa/división  │  │    │
+│  └─────────────────┘     │  │       (CMNCMP, CMNDIV — formato  │  │    │
+│                           │  │        campos Movex: CONO/DIVI)  │  │    │
+│  ┌─────────────────┐     │  ├─────────────────────────────────┤  │    │
+│  │  CONFIG. Y      │     │  │ GX* — Equivalencias de códigos   │  │    │
+│  │  AUXILIARES     │     │  │       Aquaria/ASTRAL ↔ Movex     │  │    │
+│  │  (CF/ZQ/UT/DP)  │     │  │       (GX0150, GX2500, EQTABL)   │  │    │
+│  │    ~60 pgms     │     │  ├─────────────────────────────────┤  │    │
+│  └─────────────────┘     │  │ MI* — Balance/Stock Movex        │  │    │
+│                           │  │       (MITBAL — campos MBSTQT/   │  │    │
+│                           │  │        MBAVAL/MBORQT/MBQUQT)     │  │    │
+│                           │  └─────────────────────────────────┘  │    │
+│                           │               ~41 pgms                 │    │
+│                           └───────────────────┬───────────────────┘    │
+└───────────────────────────────────────────────┼─────────────────────────┘
+                                                 │
+                                                 ▼
+                         ┌───────────────────────────────────────┐
+                         │         ERP MOVEX / M3                │
+                         │  (Infor M3 / antiguo Lawson M3)       │
+                         │  Stock · Empresas · Artículos (ITNO)  │
+                         └───────────────────────────────────────┘
 ```
 
 ### 2.2 Dependencias entre módulos
@@ -102,6 +122,9 @@ La lista de librerías (`PMLIBL`) se recupera dinámicamente por empresa/delegac
 | PU (Compras) | MS (Maestros) | Lee artículos, proveedores, almacenes |
 | TR/WR (EDI) | COCEDI/PUCEDI | Lee configuración EDI del cliente/proveedor |
 | CM/GX/CF | PM (Parámetros) | Mantiene tablas de configuración |
+| GX* (Gateway) | Movex/M3 (ERP) | Mapea códigos Aquaria/ASTRAL ↔ Movex vía EQTABL |
+| MI* (Balance) | Movex/M3 (ERP) | Lee stock Movex vía fichero MITBAL (MBSTQT, MBAVAL…) |
+| CM* (Config.) | Movex/M3 (ERP) | Mantiene maestros empresa/división en formato Movex (CONO, DIVI, WHLO, ITNO) |
 
 ---
 
@@ -583,11 +606,97 @@ ED0060 (generación mensajes)
 - **Detección:** Programa `RTVTIJ` retorna `@PTIPJ='0'` (batch) → programas no abren pantalla
 - **Programa afectado:** `CO2593` (modificación `B0251`, jun-2020, autor: Lluís Albert Grau)
 
-### 8.3 M3 / Movex
+### 8.3 Movex / M3 (Infor M3 ERP) — Capa de Integración Nativa
 
-- **Tipo:** Integración de coenvíos y albaranes a terceros
-- **Programas afectados:** `CO2519`, `CO0120` (modificación `MOVEX`, ago-2006)
-- **Estado:** Parte del código comentado (`MOVEXF*`) indica que algunas funcionalidades han sido desactivadas
+El sistema AMS opera como **capa operacional sobre el ERP Movex/M3** (Infor M3, anteriormente Lawson M3). La integración no es un conector puntual: tres submódulos completos del sistema (CM, GX, MI) actúan como puente permanente entre el mundo AMS y el mundo Movex.
+
+#### Arquitectura de integración
+
+```
+  AMS (RPG / IBM i)                     ERP Movex / M3
+  ─────────────────                     ───────────────
+  CO / PU / ED / DOM
+         │
+         │  lee stock       ┌──────────────────────────────┐
+         ├─────────────────▶│  MITBAL  (fichero Movex       │
+         │  vía MITBAL      │  replicado en IBM i)          │
+         │                  │  MBCONO · MBWHLO · MBITNO     │
+         │                  │  MBSTQT · MBAVAL · MBORQT     │
+         │                  └──────────────────────────────┘
+         │
+         │  traduce códigos  ┌──────────────────────────────┐
+         ├─────────────────▶│  GX0150 / GX2500              │
+         │  Aquaria↔Movex   │  EQTABL00 · EQTABL10          │
+         │                  │  3 niveles de búsqueda:        │
+         │                  │  1. CIAS+DLGA+AquariaCod       │
+         │                  │  2. CIAS+AquariaCod            │
+         │                  │  3. genérico                   │
+         │                  └──────────────────────────────┘
+         │
+         │  maestros empresa ┌──────────────────────────────┐
+         └─────────────────▶│  CMNCMP / CMNDIV              │
+           en formato Movex  │  Campos: CONO · DIVI · WHLO  │
+                             │          ITNO · FACI · PLNT   │
+                             └──────────────────────────────┘
+```
+
+#### Componente 1 — Fichero de balance Movex: `MITBAL`
+
+`MITBAL` es la **réplica del stock Movex** sincronizada en IBM i. Los programas AMS lo leen con CHAIN/READE igual que cualquier otro fichero propio.
+
+| Campo Movex | Tipo | Descripción |
+|-------------|------|-------------|
+| `MBCONO` | 3N | Código de empresa Movex |
+| `MBWHLO` | 4A | Almacén Movex (Warehouse Location) |
+| `MBITNO` | 15A | Artículo Movex (Item Number) |
+| `MBSTQT` | P | Stock aprobado disponible (on-hand approved) |
+| `MBQUQT` | P | Cantidad en cuarentena/inspección |
+| `MBAVAL` | P | Cantidad asignable (allocatable) |
+| `MBORQT` | P | Cantidad pedida a proveedor (on order) |
+| `MBLOCA` | A | Ubicación física dentro del almacén |
+
+Programas AMS que lo leen: `DOOM01`, `ED3025`, `GXSTO0`, `GXSTO02`.
+
+#### Componente 2 — Programas de equivalencia de códigos: `GX0150` / `GX2500`
+
+Los sistemas Aquaria y ASTRAL (marcas de Fluidra) usan códigos propios para artículos, empresas y almacenes. Movex usa su propio esquema (`ITNO`, `WHLO`, `CONO`). Los programas GX realizan la **traducción bidireccional** mediante tablas de equivalencia.
+
+Tablas de datos usadas:
+- `EQTABL00` — Tabla principal de equivalencias (PF)
+- `EQTABL10` — Índice por tipo de equivalencia (LF)
+
+**Algoritmo de búsqueda (3 niveles):**
+
+```
+  1. CHAIN CIAS + DLGA + CodAquaria → EQTABL  (equivalencia específica empresa+delegación)
+  2. Si no encontrado:
+     CHAIN CIAS + CodAquaria         → EQTABL  (equivalencia a nivel empresa)
+  3. Si no encontrado:
+     CHAIN '*' + CodAquaria          → EQTABL  (equivalencia genérica del sistema)
+  4. Si no encontrado: retorna error / código sin mapear
+```
+
+`GX0150` es llamado siempre que AMS necesita enviar o recibir un identificador en el formato esperado por Movex.
+
+#### Componente 3 — Maestros de empresa y división: `CMNCMP` / `CMNDIV`
+
+`CMNCMP` y `CMNDIV` definen la estructura organizativa de Fluidra en formato Movex. Los campos siguen exactamente el esquema de Movex/M3:
+
+| Fichero | Campo | Descripción |
+|---------|-------|-------------|
+| `CMNCMP` | `CONO` | Company Number (código empresa Movex) |
+| `CMNCMP` | `FACI` | Facility (planta/instalación) |
+| `CMNCMP` | `WHLO` | Warehouse Location por defecto |
+| `CMNDIV` | `CONO` | Empresa |
+| `CMNDIV` | `DIVI` | Division (división Movex) |
+| `CMNDIV` | `PLNT` | Plant (código de planta) |
+| `CMNDIV` | `ITNO` | Item Number scheme (formato artículos) |
+
+Estos maestros son leídos por todos los módulos AMS que necesiten contexto organizativo y son la fuente de verdad para las claves de acceso al ERP Movex.
+
+#### Nota histórica
+
+El historial de modificaciones del código registra una modificación `MOVEX` (Carlos del Valle, agosto 2006) en `CO2519` y `CO0120`. Parte de ese código aparece comentado (`MOVEXF*`), lo que indica que determinadas funcionalidades de la integración fueron **desactivadas o reformuladas** en esa época. Sin embargo, la capa MI/GX/CM es **activa y en uso continuo** en la versión actual del sistema.
 
 ### 8.4 Motor KORE
 
