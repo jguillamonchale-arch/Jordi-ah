@@ -1,0 +1,48 @@
+      *                 DDS ADP 400.             17/11/98  14:54                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COPRMC    Promociones por Cliente-artículo                                            
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOPRMC                                                                           
+     A            SXCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            SXCUST    R               TEXT('Código cliente')                                  
+     A                                      COLHDG('Código cliente')                                
+     A                                      REFFLD(CUST)                                            
+     A            SXPRMO    R               TEXT('Promoción')                                       
+     A                                      COLHDG('Promoción')                                     
+     A                                      REFFLD(DOC3)                                            
+     A            SXDES1    R               TEXT('Descripción 1ª')                                  
+     A                                      COLHDG('Descripción 1ª')                                
+     A                                      REFFLD(DES1)                                            
+     A            SXTIPO    R               TEXT('Tipo')                                            
+     A                                      COLHDG('Tipo')                                          
+     A                                      REFFLD(TIPO)                                            
+     A            SXFDES    R               TEXT('Fecha Desde')                                     
+     A                                      COLHDG('Fecha Desde')                                   
+     A                                      REFFLD(DAT8)                                            
+     A            SXFHAS    R               TEXT('Fecha Hasta')                                     
+     A                                      COLHDG('Fecha Hasta')                                   
+     A                                      REFFLD(DAT8)                                            
+     A            SXDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            SXDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            SXPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            SXUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            SXHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K SXCIAS                                                                            
+     A          K SXCUST                                                                            
+     A          K SXPRMO                                                                            
+     A          K SXFDES                                                                            

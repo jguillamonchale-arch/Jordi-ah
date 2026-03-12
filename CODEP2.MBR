@@ -1,0 +1,67 @@
+      *                 DDS ADP 400.             26/04/99  19:49                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  CODEPE    Fichero detalle de pedidos                                                  
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCODEP2                                                                           
+     A            S5DLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            S5CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            S5DATP    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            S5NOPL    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            S5NPCO    R               TEXT('Número de pedido')                                
+     A                                      COLHDG('Número de pedido')                              
+     A                                      REFFLD(NPED)                                            
+     A            S5TPED    R               TEXT('Tipo de pedido')                                  
+     A                                      COLHDG('Tipo de pedido')                                
+     A                                      REFFLD(TPED)                                            
+     A            S5LINE    R               TEXT('Línea de pedido')                                 
+     A                                      COLHDG('Línea de pedido')                               
+     A                                      REFFLD(LINE)                                            
+     A            S5LIN3    R               TEXT('Línea 2  pedido')                                 
+     A                                      COLHDG('Línea 2  pedido')                               
+     A                                      REFFLD(LINE)                                            
+     A            S5CA01    R               TEXT('Cantidad pedido')                                 
+     A                                      COLHDG('Cantidad pedido')                               
+     A                                      REFFLD(CANT)                                            
+     A            S5UNIM    R               TEXT('Unidad de S5CANT')                                
+     A                                      COLHDG('Unidad de S5CANT')                              
+     A                                      REFFLD(UNIM)                                            
+     A            S5CA02    R               TEXT('Cantidad servida')                                
+     A                                      COLHDG('Cantidad servida')                              
+     A                                      REFFLD(CANT)                                            
+     A            S5CA03    R               TEXT('Cantidad reserva')                                
+     A                                      COLHDG('Cantidad reserva')                              
+     A                                      REFFLD(CANT)                                            
+     A            S5CA04    R               TEXT('Cantidad libre')                                  
+     A                                      COLHDG('Cantidad libre')                                
+     A                                      REFFLD(CANT)                                            
+     A            S5COMP    R               TEXT('Componente')                                      
+     A                                      COLHDG('Componente')                                    
+     A                                      REFFLD(ARTI)                                            
+     A            S5VAR2    R               TEXT('Variación NDCOMP')                                
+     A                                      COLHDG('Variación NDCOMP')                              
+     A                                      REFFLD(VARI)                                            
+     A            S5MOD2    R               TEXT('Modelo NDCOMP')                                   
+     A                                      COLHDG('Modelo NDCOMP')                                 
+     A                                      REFFLD(MODE)                                            
+     A            S5NCOM    R   -5          TEXT('Nº Componentes')                                  
+     A                                      COLHDG('Nº Componentes')                                
+     A                                      REFFLD(AL10)                                            
+     A          K S5CIAS                                                                            
+     A          K S5DLGA                                                                            
+     A          K S5NPCO                                                                            
+     A          K S5TPED                                                                            
+     A          K S5DATP                                                                            
+     A          K S5NOPL                                                                            
+     A          K S5LINE                                                                            
+     A          K S5LIN3                                                                            

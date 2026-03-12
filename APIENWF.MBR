@@ -1,0 +1,15 @@
+      * COPYRIGHT (C)   ASTRAL GRUP. ALL RIGHTS RESERVED.                                           
+      * FILE  MIAPIWF   FICH.Alteración entorno llamadas APIs M3                                    
+      * TYPE  PF                                                                                    
+     A          R RAPIEN                                                                            
+     A            WFCIAS         3S 0       TEXT('COMPAÑIA')                                        
+     A                                      COLHDG('CIA')                                           
+     A            WFPROG        10          TEXT('PROGRAMA')                                        
+     A                                      COLHDG('PROGRAMA')                                      
+     A            WFUSUA        10          TEXT('USUARIO')                                         
+     A                                      COLHDG('USUARIO')                                       
+     A            WFENTO         3          TEXT('Entorno API')                                     
+     A                                      COLHDG('Entorno API')                                   
+     A          K WFCIAS                                                                            
+     A          K WFPROG                                                                            
+     A          K WFUSUA                                                                            

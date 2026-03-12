@@ -1,0 +1,14 @@
+      *                 DDS ADP 400.             30/11/98  13:11                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  CODEPE21  Fichero detalle de pedidos                                                  
+      * Type  LF                                                                                    
+      *****************************************************************                             
+     A          R RCODEPE                   PFILE(CODEPE)                                           
+     A          K S5CI02                                                                            
+     A          K S5DL02                                                                            
+     A          K S5NP02                                                                            
+     A          K S5TP02                                                                            
+     A          K S5DA02                                                                            
+     A          K S5NO02                                                                            
+     A          K S5LI02                                                                            

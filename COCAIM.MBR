@@ -1,0 +1,69 @@
+      *                 DDS ADP 400.             30/11/98  09:13                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COCAIM    Fichero importes pedidos                                                    
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOCAIM                                                                           
+     A            SYCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            SYDLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            SYNPCO    R               TEXT('Número de pedido')                                
+     A                                      COLHDG('Número de pedido')                              
+     A                                      REFFLD(NPED)                                            
+     A            SYTPED    R               TEXT('Tipo de pedido')                                  
+     A                                      COLHDG('Tipo de pedido')                                
+     A                                      REFFLD(TPED)                                            
+     A            SYDATP    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            SYNOPL    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            SYTIVA    R               TEXT('Tipo de IVA')                                     
+     A                                      COLHDG('Tipo de IVA')                                   
+     A                                      REFFLD(TIVA)                                            
+     A            SYBIMP    R               TEXT('Base Imponible')                                  
+     A                                      COLHDG('Base Imponible')                                
+     A                                      REFFLD(IMPO)                                            
+     A            SYIIV1    R               TEXT('Importe IVA 1')                                   
+     A                                      COLHDG('Importe IVA 1')                                 
+     A                                      REFFLD(IMPO)                                            
+     A            SYIIV2    R               TEXT('Importe IVA 2')                                   
+     A                                      COLHDG('Importe IVA 2')                                 
+     A                                      REFFLD(IMPO)                                            
+     A            SYMONE    R               TEXT('Moneda')                                          
+     A                                      COLHDG('Moneda')                                        
+     A                                      REFFLD(MONE)                                            
+     A            SYDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            SYDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            SYUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            SYPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            SYHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            SYCOST    R               TEXT('Coste')                                           
+     A                                      COLHDG('Coste')                                         
+     A                                      REFFLD(COST)                                            
+     A            SYCOMO    R               TEXT('Moneda coste')                                    
+     A                                      COLHDG('Moneda coste')                                  
+     A                                      REFFLD(MONE)                                            
+     A          K SYCIAS                                                                            
+     A          K SYDLGA                                                                            
+     A          K SYNPCO                                                                            
+     A          K SYTPED                                                                            
+     A          K SYDATP                                                                            
+     A          K SYNOPL                                                                            
+     A          K SYTIVA                                                                            

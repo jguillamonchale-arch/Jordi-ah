@@ -1,0 +1,66 @@
+      *                 DDS ADP 400.             23/12/98  12:11                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COFAIM    Fichero importes facturas                                                   
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOFAIM                                                                           
+     A            VXCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            VXCUST    R               TEXT('Código cliente')                                  
+     A                                      COLHDG('Código cliente')                                
+     A                                      REFFLD(CUST)                                            
+     A            VXNPRF    R               TEXT('Nº prefactura')                                   
+     A                                      COLHDG('Nº prefactura     ')                            
+     A                                      REFFLD(NUVE)                                            
+     A            VXTIVA    R               TEXT('Tipo de IVA')                                     
+     A                                      COLHDG('Tipo de IVA')                                   
+     A                                      REFFLD(TIVA)                                            
+     A            VXBIMP    R               TEXT('Base imponible')                                  
+     A                                      COLHDG('Base imponible')                                
+     A                                      REFFLD(IMPO)                                            
+     A            VXIIV1    R               TEXT('Importe IVA 1')                                   
+     A                                      COLHDG('Importe IVA 1')                                 
+     A                                      REFFLD(IMPO)                                            
+     A            VXIIV2    R               TEXT('Importe IVA 2')                                   
+     A                                      COLHDG('Importe IVA 2')                                 
+     A                                      REFFLD(IMPO)                                            
+     A            VXMONE    R               TEXT('Moneda')                                          
+     A                                      COLHDG('Moneda')                                        
+     A                                      REFFLD(MONE)                                            
+     A            VXMONB    R               TEXT('Moneda cambio')                                   
+     A                                      COLHDG('Moneda cambio')                                 
+     A                                      REFFLD(MONE)                                            
+     A            VXCAMC    R               TEXT('Cambio para divisas')                             
+     A                                      COLHDG('Cambio para divisas')                           
+     A                                      REFFLD(CAMB)                                            
+     A            VXCMPC    R               TEXT('Cdad. cambio')                                    
+     A                                      COLHDG('Cdad. cambio       ')                           
+     A                                      REFFLD(CAMB)                                            
+     A            VXTCAM    R               TEXT('Tipo de cambio')                                  
+     A                                      COLHDG('Tipo de cambio')                                
+     A                                      REFFLD(TREG)                                            
+     A            VXDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            VXDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            VXUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            VXPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            VXHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K VXCIAS                                                                            
+     A          K VXCUST                                                                            
+     A          K VXNPRF                                                                            
+     A          K VXDAT1                                                                            
+     A          K VXMONE                                                                            
+     A          K VXTIVA                                                                            
+     A          K VXTCAM                                                                            

@@ -1,0 +1,8 @@
+      *                 DDS ADP 400.             23/04/99  13:06                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COCEDI02  Maestro de clientes                                                         
+      * Type  LF                                                                                    
+     A          R RCOCEDI                   PFILE(COCEDI)                                           
+     A          K S0CIAS                                                                            
+     A          K S0COMP                                                                            

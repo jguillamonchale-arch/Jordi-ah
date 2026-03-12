@@ -1,0 +1,14 @@
+      *                 DDS ADP 400.             21/12/98  11:34                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  CODEP201  Maestro de cabeceras de DETALLE CJTOS CODEPE                                
+      * Type  LF                                                                                    
+     A          R RCODEP2                   PFILE(CODEP2)                                           
+     A          K S5CIAS                                                                            
+     A          K S5DLGA                                                                            
+     A          K S5NPCO                                                                            
+     A          K S5TPED                                                                            
+     A          K S5DATP                                                                            
+     A          K S5NOPL                                                                            
+     A          K S5LIN3                                                                            
+     A          K S5LINE                                                                            

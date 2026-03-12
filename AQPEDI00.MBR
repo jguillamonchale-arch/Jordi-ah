@@ -1,0 +1,122 @@
+     A                                      UNIQUE                                                  
+     A          R AQPEDI                                                                            
+     A                                      PFILE(AQPEDI)                                           
+     A            Z1CONO         3P 0                                                               
+     A            Z1DIVI         6                                                                  
+     A            Z1CIAS         3P 0                                                               
+     A            Z1TAOR         2                                                                  
+     A            Z1TAAL         2                                                                  
+     A            Z1TACN         2                                                                  
+     A            Z1TAOM         2                                                                  
+     A            Z1TAOV         2                                                                  
+     A            Z1TAOC         2                                                                  
+     A            Z1RAOR         2                                                                  
+     A            Z1RAAL         2                                                                  
+     A            Z1RACN         2                                                                  
+     A            Z1RAOV         2                                                                  
+     A            Z1RAOC         2                                                                  
+     A            Z1RAOM         2                                                                  
+     A            Z1XDOL         2                                                                  
+     A            Z1CAOR         2                                                                  
+     A            Z1OLTR         2                                                                  
+     A            Z1WHLO         6                                                                  
+     A            Z1WHSS        20                                                                  
+     A            Z1WHSX        20                                                                  
+     A            Z1ORTP         6                                                                  
+     A            Z1ORTD         6                                                                  
+     A            Z1TRTP         6                                                                  
+     A            Z1TRTN         6                                                                  
+     A            Z1FL01         2                                                                  
+     A            Z1FL02         2                                                                  
+     A            Z1FL03         2                                                                  
+     A            Z1FL04         2                                                                  
+     A            Z1FL05         2                                                                  
+     A            Z1FL06         2                                                                  
+     A            Z1FL07         2                                                                  
+     A            Z1FL08         2                                                                  
+     A            Z1FL09         2                                                                  
+     A            Z1FL10         2                                                                  
+     A            Z1FL11         6                                                                  
+     A            Z1FL12         6                                                                  
+     A            Z1FL13        10                                                                  
+     A            Z1FL14        10                                                                  
+     A            Z1FL15        20                                                                  
+     A            Z1FL16        20                                                                  
+     A            Z1BIBL        20                                                                  
+     A            Z1ITNO        30                                                                  
+     A            Z1CXDO         6                                                                  
+     A            Z1RGDT         8P 0                                                               
+     A            Z1RGTM         6P 0                                                               
+     A            Z1LMDT         8P 0                                                               
+     A            Z1CHNO         3P 0                                                               
+     A            Z1CHID        20                                                                  
+     A            Z1FDMU        20                                                                  
+     A            Z1FDPC         2                                                                  
+     A            Z1FDDR         3P 0                                                               
+     A            Z1PNDR         3P 0                                                               
+     A            Z1FDDA         3P 0                                                               
+     A            Z1L100         2                                                                  
+     A            Z1L101         2                                                                  
+     A            Z1L102         2                                                                  
+     A            Z1L103         2                                                                  
+     A            Z1L104         2                                                                  
+     A            Z1L105         2                                                                  
+     A            Z1L106         2                                                                  
+     A            Z1L107         2                                                                  
+     A            Z1L108         2                                                                  
+     A            Z1L109         2                                                                  
+     A            Z1L110         4                                                                  
+     A            Z1L111         4                                                                  
+     A            Z1L112         4                                                                  
+     A            Z1L113         4                                                                  
+     A            Z1L114         4                                                                  
+     A            Z1L115         4                                                                  
+     A            Z1L116         4                                                                  
+     A            Z1L117         4                                                                  
+     A            Z1L118         4                                                                  
+     A            Z1L119         4                                                                  
+     A            Z1L120         6                                                                  
+     A            Z1L121         6                                                                  
+     A            Z1L122         6                                                                  
+     A            Z1L123         6                                                                  
+     A            Z1L124         6                                                                  
+     A            Z1L125         6                                                                  
+     A            Z1L126        10                                                                  
+     A            Z1L127        10                                                                  
+     A            Z1L128        10                                                                  
+     A            Z1L129        10                                                                  
+     A            Z1L130        20                                                                  
+     A            Z1L131        20                                                                  
+     A            Z1L132        20                                                                  
+     A            Z1L133        20                                                                  
+     A            Z1L134        20                                                                  
+     A            Z1L135        40                                                                  
+     A            Z1L136        40                                                                  
+     A            Z1L137        40                                                                  
+     A            Z1L138        60                                                                  
+     A            Z1L139        60                                                                  
+     A            Z1L140       100                                                                  
+     A            Z1L141         2P 0                                                               
+     A            Z1L142         2P 0                                                               
+     A            Z1L143         2P 0                                                               
+     A            Z1L144         3P 0                                                               
+     A            Z1L145         3P 0                                                               
+     A            Z1L146         3P 0                                                               
+     A            Z1L147         5P 0                                                               
+     A            Z1L148         5P 0                                                               
+     A            Z1L149         5P 0                                                               
+     A            Z1L150        10P 0                                                               
+     A            Z1L151        10P 0                                                               
+     A            Z1L152        10P 0                                                               
+     A            Z1L153        11P 0                                                               
+     A            Z1L154        11P 0                                                               
+     A            Z1L155        15P 5                                                               
+     A            Z1L156        15P 5                                                               
+     A            Z1L157        15P 5                                                               
+     A            Z1L158         5P 2                                                               
+     A            Z1L159         5P 2                                                               
+     A            Z1L160         5P 2                                                               
+     A            Z1DMFN         3P 0                                                               
+     A                                      DFT(0)                                                  
+     A          K Z1CONO                                                                            
+     A          K Z1DIVI                                                                            

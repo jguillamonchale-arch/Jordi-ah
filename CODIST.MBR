@@ -1,0 +1,102 @@
+     A                                      UNIQUE                                                  
+     A          R RCODIST                                                                           
+     A            S2CIAS         3S 0       TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(PRDLIB/CIAS                                      
+     A                                             PRDLIB)                                          
+     A            S2CSTO        10A         TEXT('Código cliente')                                  
+     A                                      COLHDG('Código cliente')                                
+     A                                      REFFLD(PRDLIB/CUST                                      
+     A                                             PRDLIB)                                          
+     A            S2RAOS        40A         TEXT('Razón social')                                    
+     A                                      COLHDG('Razón social')                                  
+     A                                      REFFLD(PRDLIB/RAOS                                      
+     A                                             PRDLIB)                                          
+     A            S2RAO2        40A         TEXT('Razón social')                                    
+     A                                      COLHDG('Razón social')                                  
+     A                                      REFFLD(PRDLIB/RAOS                                      
+     A                                             PRDLIB)                                          
+     A            S2DIRE        40A         TEXT('Dirección')                                       
+     A                                      COLHDG('Dirección 1')                                   
+     A                                      REFFLD(PRDLIB/DIRE                                      
+     A                                             PRDLIB)                                          
+     A            S2DIR2        40A         TEXT('Dirección 2')                                     
+     A                                      COLHDG('Dirección 2')                                   
+     A                                      REFFLD(PRDLIB/DIR2                                      
+     A                                             PRDLIB)                                          
+     A            S2POBL        40A         TEXT('Población')                                       
+     A                                      COLHDG('Población')                                     
+     A                                      REFFLD(PRDLIB/POBL                                      
+     A                                             PRDLIB)                                          
+     A            S2POST        10A         TEXT('Código postal')                                   
+     A                                      COLHDG('Código postal')                                 
+     A                                      REFFLD(PRDLIB/POST                                      
+     A                                             PRDLIB)                                          
+     A            S2TELE        18A         TEXT('Número de teléfono')                              
+     A                                      COLHDG('Número de teléfono')                            
+     A                                      REFFLD(PRDLIB/TELE                                      
+     A                                             PRDLIB)                                          
+     A            S2TEL2        18A         TEXT('2º teléfono')                                     
+     A                                      COLHDG('2º teléfono')                                   
+     A                                      REFFLD(PRDLIB/TEL2                                      
+     A                                             PRDLIB)                                          
+     A            S2TLEX        18A         TEXT('Número de telex')                                 
+     A                                      COLHDG('Número de telex')                               
+     A                                      REFFLD(PRDLIB/TLEX                                      
+     A                                             PRDLIB)                                          
+     A            S2TFAX        18A         TEXT('Número de fax')                                   
+     A                                      COLHDG('Número de fax')                                 
+     A                                      REFFLD(PRDLIB/TFAX                                      
+     A                                             PRDLIB)                                          
+     A            S2EMAI        50A         TEXT('Dirección E-Mail')                                
+     A                                      COLHDG('Dirección E-Mail')                              
+     A            S2AGEN         8A         TEXT('Código agencia')                                  
+     A                                      COLHDG('Código agencia')                                
+     A                                      REFFLD(PRDLIB/AGEN                                      
+     A                                             PRDLIB)                                          
+     A            S2PAIS         3A         TEXT('País direccion')                                  
+     A                                      COLHDG('País direccion')                                
+     A                                      REFFLD(PRDLIB/PAIS                                      
+     A                                             PRDLIB)                                          
+     A            S2PEGE        30A         TEXT('Persona de contacto')                             
+     A                                      COLHDG('Persona de contacto')                           
+     A                                      REFFLD(PRDLIB/PEGE                                      
+     A                                             PRDLIB)                                          
+     A            S2OB50        50A         TEXT('Observación')                                     
+     A                                      COLHDG('Observación')                                   
+     A                                      REFFLD(PRDLIB/OB50                                      
+     A                                             PRDLIB)                                          
+     A            S2OB51        50A         TEXT('Observación')                                     
+     A                                      COLHDG('Observación')                                   
+     A                                      REFFLD(PRDLIB/OB50                                      
+     A                                             PRDLIB)                                          
+     A            S2HTTP        50A         TEXT('Pagina Web')                                      
+     A                                      COLHDG('Pagina Web')                                    
+     A                                      REFFLD(PRDLIB/OB50                                      
+     A                                             PRDLIB)                                          
+     A            S2AMPL       100A         TEXT('AMPLIACIÓN FICHEROS')                             
+     A                                      COLHDG('AMPLIACIÓN FICHEROS')                           
+     A            S2DAT1         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT1                                      
+     A                                             PRDLIB)                                          
+     A            S2DAT8         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT8                                      
+     A                                             PRDLIB)                                          
+     A            S2PANT        10A         TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PRDLIB/PANT                                      
+     A                                             PRDLIB)                                          
+     A            S2USUA        10A         TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(PRDLIB/USUA                                      
+     A                                             PRDLIB)                                          
+     A            S2HORA         6S 0       TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(PRDLIB/HORA                                      
+     A                                             PRDLIB)                                          
+     A          K S2CIAS                                                                            
+     A          K S2CSTO                                                                            

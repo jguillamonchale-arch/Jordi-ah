@@ -1,0 +1,47 @@
+      *                 DDS ADP 400.             16/11/98  12:47                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COOBCL    Fichero observaciones de clientes                                           
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCONOCL                                                                           
+     A            S0CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            S0CUST    R               TEXT('Codigo')                                          
+     A                                      COLHDG('Codigo')                                        
+     A                                      REFFLD(CUST)                                            
+     A            S0PRCL         1          TEXT('Cliente/Provee')                                  
+     A                                      COLHDG('Cliente/Provee')                                
+     A            S0LINE    R   +1          TEXT('Línea observac.')                                 
+     A                                      COLHDG('Línea observac.')                               
+     A                                      REFFLD(LINE)                                            
+     A            S0OB69    R  +19          TEXT('Observación')                                     
+     A                                      COLHDG('Observación')                                   
+     A                                      REFFLD(OB50)                                            
+     A            S0DATE    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            S0DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            S0DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            S0USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            S0PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            S0HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            S0TNOT         2          TEXT('Tipo Notepad')                                    
+     A                                      COLHDG('Tipo')                                          
+     A          K S0CIAS                                                                            
+     A          K S0CUST                                                                            
+     A          K S0PRCL                                                                            
+     A          K S0TNOT                                                                            
+     A          K S0LINE                                                                            

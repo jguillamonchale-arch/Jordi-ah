@@ -1,0 +1,11 @@
+*************** PRINCIPIO DE DATOS ************************************                             
+      *                 DDS ADP 400.             23/12/98  13:21                                    
+      * COPYRIGHT (C)   ASTRAL GRUP. ALL RIGHTS RESERVED.                                           
+      * APLIC PUR       ASTRAL GRUP, S.A. COMPRAS                                                   
+      * FILE  COFACC12  FICHERO DE PREFACTURACIÓN.CABECERA                                          
+      * TYPE  LF                                                                                    
+     A          R RCOFACC                   PFILE(COFACC)                                           
+     A          K VWCIAS                                                                            
+     A          K VWCUST                                                                            
+     A          K VWNFAC                                                                            
+     A          K VWFFAC                                                                            

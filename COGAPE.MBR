@@ -1,0 +1,72 @@
+      *                 DDS ADP 400.             03/05/99  17:03                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COGAPE    Costes adicionales de pedido                                                
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOGAPE                                                                           
+     A            VBCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            VBDLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            VBNPCO    R               TEXT('Número de pedido')                                
+     A                                      COLHDG('Número de pedido')                              
+     A                                      REFFLD(NPED)                                            
+     A            VBTPED    R               TEXT('Tipo de pedido')                                  
+     A                                      COLHDG('Tipo de pedido')                                
+     A                                      REFFLD(TPED)                                            
+     A            VBDATP    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            VBNOPL    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            VBLINE    R               TEXT('Línea de pedido')                                 
+     A                                      COLHDG('Línea de pedido')                               
+     A                                      REFFLD(LINE)                                            
+     A            VBCLTA    R               TEXT('Clave de coste')                                  
+     A                                      COLHDG('Clave de coste')                                
+     A                                      REFFLD(CLTA)                                            
+     A            VBCOSP    R               TEXT('Coste previsto')                                  
+     A                                      COLHDG('Coste previsto')                                
+     A                                      REFFLD(COSP)                                            
+     A            VBCOS1    R               TEXT('Coste')                                           
+     A                                      COLHDG('Coste')                                         
+     A                                      REFFLD(COST)                                            
+     A            VBVB01         1          TEXT('Libre 01')                                        
+     A                                      COLHDG('Libre 01')                                      
+     A            VBVB02         5          TEXT('Libre 02')                                        
+     A                                      COLHDG('Libre 02')                                      
+     A            VBVB21         1          TEXT('Libre 01 empresa')                                
+     A                                      COLHDG('Libre 02 empresa')                              
+     A            VBVB22         5          TEXT('Libre 02 empresa')                                
+     A                                      COLHDG('Libre 02 empresa')                              
+     A            VBDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            VBUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            VBPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            VBDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            VBHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            VBTIVA    R               TEXT('Tipo de IVA')                                     
+     A                                      COLHDG('Tipo de IVA')                                   
+     A                                      REFFLD(TIVA)                                            
+     A          K VBCIAS                                                                            
+     A          K VBDLGA                                                                            
+     A          K VBNPCO                                                                            
+     A          K VBTPED                                                                            
+     A          K VBDATP                                                                            
+     A          K VBNOPL                                                                            
+     A          K VBLINE                                                                            
+     A          K VBCLTA                                                                            

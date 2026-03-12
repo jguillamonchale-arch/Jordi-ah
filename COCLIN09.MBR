@@ -1,0 +1,9 @@
+      *                 DDS ADP 400.             23/04/99  13:06                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COCLIN09  Maestro de clientes                                                         
+      * Type  LF                                                                                    
+     A          R RCOCLIN                   PFILE(COCLIN)                                           
+     A          K S0CIAS                                                                            
+     A          K S0GRP2                                                                            
+     A          K S0CUST                                                                            

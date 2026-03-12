@@ -1,0 +1,12 @@
+      *                 DDS ADP 400.             22/03/10  11:33                                    
+      * Copyright (c)   FLUIDRA SERVICES                                                            
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  CODEPE40  Fichero detalle de pedidos                                                  
+      * Type  LF                                                                                    
+     A          R RCODEPE                   PFILE(CODEPE)                                           
+     A          K S5CIAS                                                                            
+     A          K S5NPCO                                                                            
+     A          K S5TPED                                                                            
+     A          K S5DATP                                                                            
+     A          K S5NOPL                                                                            
+     A          K S5LINE                                                                            

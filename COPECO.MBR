@@ -1,0 +1,67 @@
+      *                 DDS ADP 400.             30/11/98  11:25                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COPECO    Cuentas contables pedidos ventas.                                           
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RCOPECO                                                                           
+     A            SUCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            SUDLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            SUNPCO    R               TEXT('Número de pedido')                                
+     A                                      COLHDG('Número de pedido')                              
+     A                                      REFFLD(NPED)                                            
+     A            SUTPED    R               TEXT('Tipo de pedido')                                  
+     A                                      COLHDG('Tipo de pedido')                                
+     A                                      REFFLD(TPED)                                            
+     A            SUDATP    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            SUNOPL    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            SULINP    R               TEXT('Línea de pedido')                                 
+     A                                      COLHDG('Línea de pedido')                               
+     A                                      REFFLD(LINE)                                            
+     A            SUCCON    R               TEXT('Conceptos contables')                             
+     A                                      COLHDG('Conceptos contables')                           
+     A                                      REFFLD(CCON)                                            
+     A            SUCTAA    R               TEXT('Cuenta contable exist.')                          
+     A                                      COLHDG('Cuenta contable exis')                          
+     A                                      REFFLD(CTA1)                                            
+     A            SUCTAB    R               TEXT('Cuenta contable exist.')                          
+     A                                      COLHDG('Cuenta contable exis')                          
+     A                                      REFFLD(CTA1)                                            
+     A            SUCTAC    R               TEXT('Cuenta contable exist.')                          
+     A                                      COLHDG('Cuenta contable exis')                          
+     A                                      REFFLD(CTA1)                                            
+     A            SUFMCO    R               TEXT('Tipo')                                            
+     A                                      COLHDG('Tipo')                                          
+     A                                      REFFLD(TIPO)                                            
+     A            SUDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            SUDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            SUPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            SUUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            SUHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K SUCIAS                                                                            
+     A          K SUDLGA                                                                            
+     A          K SUNPCO                                                                            
+     A          K SUTPED                                                                            
+     A          K SUDATP                                                                            
+     A          K SUNOPL                                                                            
+     A          K SULINP                                                                            
+     A          K SUCCON                                                                            

@@ -1,0 +1,14 @@
+      *                 DDS ADP 400.             18/03/99  10:35                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COCAPE09  Maestro de cabeceras de pedidos                                             
+      * Type  LF                                                                                    
+     A          R RCOCAPE                   PFILE(COCAPE)                                           
+     A          K S0CIAS                                                                            
+     A          K S0DLGA                                                                            
+     A          K S0NPCO                                                                            
+     A          K S0TPED                                                                            
+     A          K S0DATP                                                                            
+     A          K S0NOPL                                                                            
+     A          S S0STCO                    COMP(GT '19')                                           
+     A            S0STCO                    COMP(LT '90')                                           

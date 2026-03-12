@@ -1,0 +1,20 @@
+      *                 DDS ADP 400.             31/12/98  11:14                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COA25501  Fichero de trabajo temporal                                                 
+      * Type  LF                                                                                    
+     A          R RCOAPRP                   PFILE(COAPRP)                                           
+     A          K SACIAS                                                                            
+     A          K SATNPE                                                                            
+     A          K SADLGA                                                                            
+     A          K SANPCO                                                                            
+     A          K SATPED                                                                            
+     A          K SADATP                                                                            
+     A          K SANOPL                                                                            
+     A          K SALINE                                                                            
+     A          K SANPRP                                                                            
+     A          K SARUTA                                                                            
+     A          K SACUST                                                                            
+     A          K SATDI1                                                                            
+     A          K SANUM0                                                                            
+     A          K SANUME                                                                            

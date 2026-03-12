@@ -1,0 +1,11 @@
+      *                 DDS ADP 400.             16/11/98  18:51                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COCLP007  Fichero de artículos por proveedor.                                         
+      * Type  LF                                                                                    
+     A          R RCOCLP0                   PFILE(COCLP0)                                           
+     A          K S3CIAS                                                                            
+     A          K S3ARVM                                                                            
+     A          K S3TCOJ                                                                            
+     A          K S3ARVP                                                                            
+     A          K S3CUST                                                                            

@@ -1,0 +1,14 @@
+      *                 DDS ADP 400.             29/06/99  16:34                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COCPPR01  Fichero de artículos por proveedor.                                         
+      * Type  LF                                                                                    
+     A          R RCOCPPR                   PFILE(COCPPR)                                           
+     A          K L3CIAS                                                                            
+     A          K L3CUST                                                                            
+     A          K L3TPLI                                                                            
+     A          K L3ARVM                                                                            
+     A          K L3TCOJ                                                                            
+     A          K L3TPTA                                                                            
+     A          K L3FHAS                                                                            
+     A          K L3HORA                                                                            

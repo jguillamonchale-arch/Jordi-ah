@@ -1,0 +1,12 @@
+      *                 DDS ADP 400.             17/11/98  14:52                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COPRMD02  Fichero promociones prov-art. detalle                                       
+      * Type  LF                                                                                    
+     A          R RCOPRMD                   PFILE(COPRMD)                                           
+     A          K SXCIAS                                                                            
+     A          K SXCUST                                                                            
+     A          K SXARVM                                                                            
+     A          K SXTCOJ                                                                            
+     A          K SXFHAS                                                                            
+     A          K SXCHAS                                                                            

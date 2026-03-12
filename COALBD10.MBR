@@ -1,0 +1,15 @@
+      *                 DDS ADP 400.             29/12/98  16:31                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  COALBD10  Fichero de albaranes. Detalle                                               
+      * Type  LF                                                                                    
+     A          R RCOALBD                   PFILE(COALBD)                                           
+     A          K CECIAS                                                                            
+     A          K CECUST                                                                            
+     A          K CENPCO                                                                            
+     A          K CETPED                                                                            
+     A          K CEDATP                                                                            
+     A          K CENOPL                                                                            
+     A          K CELINE                                                                            
+     A          K CEALBA                                                                            
+     A          K CELIN2                                                                            
