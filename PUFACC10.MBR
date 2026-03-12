@@ -1,0 +1,10 @@
+      *                 DDS ADP 400.             02/12/98  13:14                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUFACC06  Fichero de Prefacturación.Cabecera                                          
+      * Type  LF                                                                                    
+     A          R RPUFACC                   PFILE(PUFACC)                                           
+     A          K NWCIAS                                                                            
+     A          K NWNFAC                                                                            
+     A          K NWPRVR                                                                            
+     A          K NWFFAC                                                                            

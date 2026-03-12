@@ -1,0 +1,67 @@
+      *                 DDS ADP 400.             17/02/98  08:54                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUPECO    Cuentas contables pedidos compras.                                          
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RPUPECO                                                                           
+     A            CUCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            CUDLGA    R               TEXT('Delegación')                                      
+     A                                      COLHDG('Delegación')                                    
+     A                                      REFFLD(DLGA)                                            
+     A            CUNPCO    R               TEXT('Número de pedido')                                
+     A                                      COLHDG('Número de pedido')                              
+     A                                      REFFLD(NPED)                                            
+     A            CUTPED    R               TEXT('Tipo de pedido')                                  
+     A                                      COLHDG('Tipo de pedido')                                
+     A                                      REFFLD(TPED)                                            
+     A            CUDATP    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            CUNOPL    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A            CULINP    R               TEXT('Línea de pedido')                                 
+     A                                      COLHDG('Línea de pedido')                               
+     A                                      REFFLD(LINE)                                            
+     A            CUCCON    R               TEXT('Conceptos contables')                             
+     A                                      COLHDG('Conceptos contables')                           
+     A                                      REFFLD(CCON)                                            
+     A            CUCTAA    R               TEXT('Cuenta contable exist.')                          
+     A                                      COLHDG('Cuenta contable exis')                          
+     A                                      REFFLD(CTA1)                                            
+     A            CUCTAB    R               TEXT('Cuenta contable exist.')                          
+     A                                      COLHDG('Cuenta contable exis')                          
+     A                                      REFFLD(CTA1)                                            
+     A            CUCTAC    R               TEXT('Cuenta contable exist.')                          
+     A                                      COLHDG('Cuenta contable exis')                          
+     A                                      REFFLD(CTA1)                                            
+     A            CUFMCO    R               TEXT('Tipo')                                            
+     A                                      COLHDG('Tipo')                                          
+     A                                      REFFLD(TIPO)                                            
+     A            CUDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            CUDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            CUPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            CUUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            CUHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K CUCIAS                                                                            
+     A          K CUDLGA                                                                            
+     A          K CUNPCO                                                                            
+     A          K CUTPED                                                                            
+     A          K CUDATP                                                                            
+     A          K CUNOPL                                                                            
+     A          K CULINP                                                                            
+     A          K CUCCON                                                                            

@@ -1,0 +1,12 @@
+      *                 DDS ADP 400.             05/05/98  15:48                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUPRMD02  Fichero promociones prov-art. detalle                                       
+      * Type  LF                                                                                    
+     A          R RPUPRMD                   PFILE(PUPRMD)                                           
+     A          K CXCIAS                                                                            
+     A          K CXPRVR                                                                            
+     A          K CXARVM                                                                            
+     A          K CXTCOJ                                                                            
+     A          K CXFHAS                                                                            
+     A          K CXCHAS                                                                            

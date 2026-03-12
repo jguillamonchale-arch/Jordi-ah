@@ -1,0 +1,13 @@
+      *                 DDS ADP 400.             13/05/98  16:43                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUDTO101  Subpolíticas de dtos.                                                       
+      * Type  LF                                                                                    
+     A          R RPUDTO1                   PFILE(PUDTO1)                                           
+     A          K CPCIAS                                                                            
+     A          K CPPRVR                                                                            
+     A          K CPTPLI                                                                            
+     A          K CPCLAB                                                                            
+     A          K CPTPTA                                                                            
+     A          K CPFHAS                                                                            
+     A          K CPHORA                                                                            

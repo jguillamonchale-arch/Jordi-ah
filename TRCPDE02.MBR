@@ -1,0 +1,16 @@
+      *                 DDS ADP 400.             30/11/98  13:11                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  TRCPDE01  Fichero detalle de pedidos                                                  
+      * Type  LF                                                                                    
+      *****************************************************************                             
+     A          R RTRCPDE                   PFILE(TRCPDE)                                           
+     A          K S5CIAS                                                                            
+     A          K S5DLGA                                                                            
+     A          K S5NPCO                                                                            
+     A          K S5TPED                                                                            
+     A          K S5DATP                                                                            
+     A          K S5NOPL                                                                            
+     A          K S5NCOE                                                                            
+     A          K S5NCOI                                                                            
+     A          K S5NCOF                                                                            

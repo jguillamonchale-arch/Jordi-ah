@@ -1,0 +1,48 @@
+      *                 DDS ADP 400.             26/04/95  17:52                                    
+      * COpyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic UTI       Utilidades ASTRAL                                                           
+      * File  UTDEST    Fichero de comunicaciones                                                   
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RUTDEST                                                                           
+     A            U1DEST    R               TEXT('Código destino')                                  
+     A                                      COLHDG('Código destino')                                
+     A                                      REFFLD(CLTA)                                            
+     A            U1DES1    R               TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A                                      REFFLD(DESA)                                            
+     A            U1RTCP    R               TEXT('Dir. TCP remota')                                 
+     A                                      COLHDG('Dir. TCP remota')                               
+     A                                      REFFLD(DESA)                                            
+     A            U1RMTL    R               TEXT('Dir. SNADS remota')                               
+     A                                      COLHDG('Dir. SNADS remota')                             
+     A                                      REFFLD(DESA)                                            
+     A            U1ETCS    R               TEXT('<0-TCP 1-SNADS')                                  
+     A                                      COLHDG('<0-TCP 1-SNADS')                                
+     A                                      REFFLD(TIPO)                                            
+     A            U1USED    R               TEXT('Usuario dest.SNADS')                              
+     A                                      COLHDG('Usuario dest.SNAD')                             
+     A                                      REFFLD(USUA)                                            
+     A            U1PWRD    R               TEXT('Usuario dest.SNADS')                              
+     A                                      COLHDG('Usuario dest.SNAD')                             
+     A                                      REFFLD(USUA)                                            
+     A            U1BIBD    R               TEXT('Bib.destino FTP')                                 
+     A                                      COLHDG('Bib.destino FTP')                               
+     A                                      REFFLD(PROG)                                            
+     A            U1USEF    R               TEXT('Usuario destino FTP')                             
+     A                                      COLHDG('Usuario dest.FTP')                              
+     A                                      REFFLD(USUA)                                            
+     A            U1PWRF    R               TEXT('Usuario dest.FTP')                                
+     A                                      COLHDG('Usuario dest.FTP')                              
+     A                                      REFFLD(USUA)                                            
+     A            U1DSGA    R               TEXT('Destino SGA')                                     
+     A                                      COLHDG('Destino SGA')                                   
+     A                                      REFFLD(TIPO)                                            
+     A            U1DOLS    R               TEXT('Destino O.L')                                     
+     A                                      COLHDG('Destino O.L')                                   
+     A                                      REFFLD(TIPO)                                            
+     A            U1ACTI    R               TEXT('ACTIVA EMPRESA')                                  
+     A                                      COLHDG('<0-NO 1-SI')                                    
+     A                                      REFFLD(TIPO)                                            
+     A          K U1DEST                                                                            

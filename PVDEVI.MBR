@@ -1,0 +1,81 @@
+     A                                      UNIQUE                                                  
+     A          R RPVDEVI                                                                           
+     A            V7CIAS         3S 0       TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(PRDLIB/CIAS                                      
+     A                                             PRDLIB)                                          
+     A            V7NDE2        20          TEXT('Nº Reclamación')                                  
+     A                                      COLHDG('Nº Reclamación')                                
+     A            V7LIN2         3S 0       TEXT('Línea reclamación')                               
+     A                                      COLHDG('Línea reclamación')                             
+     A                                      EDTCDE(Z)                                               
+     A                                      REFFLD(PRDLIB/LINE                                      
+     A                                             PRDLIB)                                          
+     A            V7LINI         3S 0       TEXT('Orden actuación ciruito')                         
+     A                                      COLHDG('orden actuación')                               
+     A                                      EDTCDE(Z)                                               
+     A                                      REFFLD(PRDLIB/LINE                                      
+     A                                             PRDLIB)                                          
+     A            V7GICA        10          TEXT('Código actuación')                                
+     A                                      COLHDG('Código actuación')                              
+     A            V7DOCR        20          TEXT('Nº Docu.resolución')                              
+     A                                      COLHDG('N.Docu.resolución')                             
+     A            V7LDOC         3S 0       TEXT('LIN. DOCUMENTO')                                  
+     A                                      COLHDG('LIN. DOCUMENTO')                                
+     A                                      EDTCDE(Z)                                               
+     A                                      REFFLD(PRDLIB/LINE                                      
+     A                                             PRDLIB)                                          
+     A            V7TDOC         2          TEXT('Tipo de documento')                               
+     A                                      COLHDG('Tipo de documento')                             
+     A            V7STUL         2          TEXT('Estatus línea devol.')                            
+     A                                      COLHDG('Estatus línea devol.'                           
+     A            V7USER        20          TEXT('Usuario CREA')                                    
+     A                                      COLHDG('Usuario CREA')                                  
+     A            V7DES1        80          TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A            V7DLG2        10          TEXT('Deleg. V7USER')                                   
+     A                                      COLHDG('Deleg. V7USER')                                 
+     A            V7FINI         8S 0       TEXT('Fec.Inic.Inc.')                                   
+     A                                      COLHDG('Fec.Inic.Inc.')                                 
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT1                                      
+     A                                             PRDLIB)                                          
+     A            V7FFIN         8S 0       TEXT('Fec.Fin.Inc.')                                    
+     A                                      COLHDG('Fec.Fin.Inc.')                                  
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT1                                      
+     A                                             PRDLIB)                                          
+     A            V7DAT1         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT1                                      
+     A                                             PRDLIB)                                          
+     A            V7DAT8         8S 0       TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      EDTWRD('  .  .    ')                                    
+     A                                      REFFLD(PRDLIB/DAT8                                      
+     A                                             PRDLIB)                                          
+     A            V7USUA        20          TEXT('Usuario MODIFICA')                                
+     A                                      COLHDG('Usuario MODIFICA')                              
+     A            V7PANT        20          TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A            V7HORA         6S 0       TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(PRDLIB/HORA                                      
+     A                                             PRDLIB)                                          
+     A            V7UTIL         4          TEXT('empresa que lo utiliza')                          
+     A                                      COLHDG('empresa que utiliza')                           
+     A            V7FINC         2          TEXT('FINAL CLIENTE')                                   
+     A                                      COLHDG('FINAL CLIENTE')                                 
+     A            V7FINP         2          TEXT('FINAL PROVEDOR')                                  
+     A                                      COLHDG('FINAL PROVEDOR')                                
+     A            V7OP27         2          TEXT('Opción 27')                                       
+     A                                      COLHDG('Opción 27')                                     
+     A            V7TRZD       100          TEXT('Trazabilidad documento')                          
+     A                                      COLHDG('Trazabili. documento'                           
+     A            V7AMPL       200          TEXT('Ampliación Fichero')                              
+     A                                      COLHDG('Ampliación Fichero')                            
+     A          K V7CIAS                                                                            
+     A          K V7NDE2                                                                            
+     A          K V7LIN2                                                                            
+     A          K V7LINI                                                                            

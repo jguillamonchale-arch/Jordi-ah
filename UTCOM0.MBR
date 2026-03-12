@@ -1,0 +1,48 @@
+      *                 DDS ADP 400.             26/04/95  17:52                                    
+      * COpyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic UTI       Utilidades ASTRAL                                                           
+      * File  MSCOMU    Fichero de comunicaciones                                                   
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RUTCOM0                                                                           
+     A            U0CIAS    R               TEXT('CIAS origen')                                     
+     A                                      COLHDG('CIAS origen')                                   
+     A                                      REFFLD(CIAS)                                            
+     A            U0TENV    R               TEXT('Tipo registro')                                   
+     A                                      COLHDG('Tipo registro')                                 
+     A                                      REFFLD(TIPO)                                            
+     A            U0CLP0    R               TEXT('Ente origen')                                     
+     A                                      COLHDG('Ente origen')                                   
+     A                                      REFFLD(PRVR)                                            
+     A            U0DEST    R               TEXT('Código destino')                                  
+     A                                      COLHDG('Código destino')                                
+     A                                      REFFLD(CLTA)                                            
+     A            U0DESC    R               TEXT('Descripción')                                     
+     A                                      COLHDG('Descripción')                                   
+     A                                      REFFLD(DESC)                                            
+     A            U0CIA1    R               TEXT('CIA Destino')                                     
+     A                                      COLHDG('CIA Destino')                                   
+     A                                      REFFLD(CUST)                                            
+     A            U0CLP1    R               TEXT('Ente destino')                                    
+     A                                      COLHDG('Ente destino')                                  
+     A                                      REFFLD(CUST)                                            
+     A            U0ACTI    R               TEXT('ACTIVA')                                          
+     A                                      COLHDG('ACTIVA')                                        
+     A                                      REFFLD(TIPO)                                            
+     A            U0BAJA    R               TEXT('BAJA')                                            
+     A                                      COLHDG('BAJA')                                          
+     A                                      REFFLD(BAJA)                                            
+     A            U0EPP1    R               TEXT('Env.automático')                                  
+     A                                      COLHDG('Env.automático    ')                            
+     A                                      REFFLD(TIPO)                                            
+     A            U0TDES    R               TEXT('Tipo destino')                                    
+     A                                      COLHDG('Tipo destino')                                  
+     A                                      REFFLD(TIPO)                                            
+     A            U0CLP2    R               TEXT('Ente relacionado')                                
+     A                                      COLHDG('Ente relacionado')                              
+     A                                      REFFLD(PRVR)                                            
+     A          K U0CIAS                                                                            
+     A          K U0TENV                                                                            
+     A          K U0CLP0                                                                            
+     A          K U0CLP2                                                                            

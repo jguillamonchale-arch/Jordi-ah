@@ -1,0 +1,15 @@
+      *                 DDS ADP 400.             16/03/10  09:03                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  WR003602                                                                              
+      * Type  LF                                                                                    
+     A          R RWR0036                   PFILE(WR0036)                                           
+     A          K C5CIAS                                                                            
+     A          K C5DLGA                                                                            
+     A          K C5NPCO                                                                            
+     A          K C5TPED                                                                            
+     A          K C5DATP                                                                            
+     A          K C5NOPL                                                                            
+     A          K C5LINE                                                                            
+     A          K C5DAT0                                                                            
+     A          K C5HOR0                                                                            

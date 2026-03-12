@@ -1,0 +1,56 @@
+     A          R ZAQBAL                                                                            
+     A            MBCONO         3P 0                                                               
+     A            MBWHLO         6                                                                  
+     A            MBITNO        30                                                                  
+     A            MBTCON         1P 0                                                               
+     A            MBL011         1P 0                                                               
+     A            MBL012         1P 0                                                               
+     A            MBL013         1P 0                                                               
+     A            MBL021         4                                                                  
+     A            MBL022         4                                                                  
+     A            MBL023         4                                                                  
+     A            MBL031         6                                                                  
+     A            MBL032         6                                                                  
+     A            MBL033         6                                                                  
+     A            MBL051        10                                                                  
+     A            MBL052        10                                                                  
+     A            MBL053        10                                                                  
+     A            MBL501       100                                                                  
+     A            MBL551       100                                                                  
+     A            MBL101       200                                                                  
+     A            MBLN01        20P 5                                                               
+     A            MBLN02        20P 5                                                               
+     A            MBLN03        20P 5                                                               
+     A            MBLN04        10P 2                                                               
+     A            MBLN05        10P 2                                                               
+     A            MBLN06        10P 2                                                               
+     A            MBRGDT         8P 0                                                               
+     A            MBRGTM         6P 0                                                               
+     A            MBLMDT         8P 0                                                               
+     A            MBCHNO         3P 0                                                               
+     A            MBCHID        20                                                                  
+     A            MBLMTS        18P 0                                                               
+     A            MBZSTO         1P 0                                                               
+     A                                      DFT(0)                                                  
+     A            MBMTSO         6                                                                  
+     A                                      DFT('')                                                 
+     A            MBTCLA         2                                                                  
+     A                                      DFT('')                                                 
+     A            MBCSCM         2                                                                  
+     A                                      DFT('')                                                 
+     A            MBMNSV         5P 2                                                               
+     A                                      DFT(0)                                                  
+     A            MBMSSD         4P 0                                                               
+     A                                      DFT(0)                                                  
+     A            MBMSSU         7P 0                                                               
+     A                                      DFT(0)                                                  
+     A            MBPFTM         3P 0                                                               
+     A                                      DFT(0)                                                  
+     A            MBYEQT        15P 6                                                               
+     A                                      DFT(0)                                                  
+     A            MBPFT1         3P 0                                                               
+     A                                      DFT(0)                                                  
+     A            MBORQT        15P 6                                                               
+     A                                      DFT(0)                                                  
+     A            MBSIOL         1P 0                                                               
+     A                                      DFT(0)                                                  

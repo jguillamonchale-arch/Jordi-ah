@@ -1,0 +1,50 @@
+      *****************************************************************                             
+      * Copyright (c)   AQUARIA. All Rights Reserved.                                               
+      * Aplic PUR       Astral Grup, S.A.                                                           
+      * File  SVUSER    Seguridad: Usuarios-Grupo                                                   
+      * Type  PF                                                                                    
+      *****************************************************************                             
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RSVUSER                                                                           
+      *                                                                                             
+     A            K4USER        10          TEXT('Usuario')                                         
+     A            K4TEXT        50          TEXT('Descripción')                                     
+     A            K4GRUP        10          TEXT('Grupo')                                           
+      *                                                                                             
+      * AUDITORÍA                                                                                   
+      *                                                                                             
+     A            K4BAJA    R               TEXT('BAJA')                                            
+     A                                      COLHDG('BAJA')                                          
+     A                                      REFFLD(BAJA)                                            
+     A            K4DAT1    R               REFFLD(DAT8)                                            
+     A                                      COLHDG('Fecha Alta')                                    
+     A                                      TEXT('Fecha Alta')                                      
+     A            K4HOR1    R               REFFLD(HORA)                                            
+     A                                      COLHDG('Hora Alta')                                     
+     A                                      TEXT('Hora Alta')                                       
+     A            K4USU1    R               REFFLD(USUA)                                            
+     A                                      COLHDG('Usuario Alta')                                  
+     A                                      TEXT('Usuario Alta')                                    
+     A            K4PAN1    R               REFFLD(PANT)                                            
+     A                                      COLHDG('Pantalla Alta')                                 
+     A                                      TEXT('Pantalla Alta')                                   
+     A            K4DAT8    R               REFFLD(DAT8)                                            
+     A                                      COLHDG('Fecha Modi')                                    
+     A                                      TEXT('Fecha Modi')                                      
+     A            K4HOR8    R               REFFLD(HORA)                                            
+     A                                      COLHDG('Hora Modi')                                     
+     A                                      TEXT('Hora Modi')                                       
+     A            K4USU8    R               REFFLD(USUA)                                            
+     A                                      COLHDG('Usuario Modi')                                  
+     A                                      TEXT('Usuario Modi')                                    
+     A            K4PAN8    R               REFFLD(PANT)                                            
+     A                                      COLHDG('Pantalla Modi')                                 
+     A                                      TEXT('Pantalla Modi')                                   
+     A            K4TUSR         1          TEXT('TIPO')                                            
+     A            K4AMP4       100          COLHDG('AMPLIACIÓN FICHEROS')                           
+     A                                      TEXT('AMPLIACIÓN FICHEROS')                             
+      *                                                                                             
+      * CLAVES                                                                                      
+      *                                                                                             
+     A          K K4USER                                                                            

@@ -1,0 +1,5 @@
+PGM                                                                                                 
+             DCL        VAR(&CUST) TYPE(*CHAR) LEN(10)                                              
+             DCL        VAR(&PEERR) TYPE(*CHAR) LEN(1)                                              
+             CALL       PGM(CM0085) PARM(&CUST &PEERR)                                              
+ENDPGM                                                                                              

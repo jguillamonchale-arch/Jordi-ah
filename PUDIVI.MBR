@@ -1,0 +1,63 @@
+      *                 DDS ADP 400.             15/01/98  17:40                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUDIVI    Fichero de cambios por proveedor                                            
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RPUDIVI                                                                           
+     A            CDCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            CDPRVR    R               TEXT('Código proveedor')                                
+     A                                      COLHDG('Proveedor')                                     
+     A                                      REFFLD(PRVR)                                            
+     A            CDMONE    R               TEXT('Moneda')                                          
+     A                                      COLHDG('Moneda')                                        
+     A                                      REFFLD(MONE)                                            
+     A            CDDE30    R               TEXT('Descripción de 30 pos.')                          
+     A                                      COLHDG('Descripción de 30 po')                          
+     A                                      REFFLD(DE30)                                            
+     A            CDFDES    R               TEXT('Fec.Aplic. desde')                                
+     A                                      COLHDG('Fec.aplic. desde')                              
+     A                                      REFFLD(DAT8)                                            
+     A            CDFHAS    R               TEXT('Fec.Aplic. hasta')                                
+     A                                      COLHDG('Fec.Aplic. hasta')                              
+     A                                      REFFLD(DAT8)                                            
+     A            CDCAMB    R               TEXT('Cambio para divisas')                             
+     A                                      COLHDG('Cambio para divisas')                           
+     A                                      REFFLD(CAMB)                                            
+     A            CDCMPR    R               TEXT('Cdad. para cambio')                               
+     A                                      COLHDG('Cdad. para cambio')                             
+     A                                      REFFLD(CAMB)                                            
+     A            CDCD01         1          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            CDCD02         5          TEXT('Libre')                                           
+     A                                      COLHDG('Libre')                                         
+     A            CDCD20         1          TEXT('Libre empresa')                                   
+     A                                      COLHDG('Libre empresa')                                 
+     A            CDCD21         5          TEXT('Libre empresa')                                   
+     A                                      COLHDG('Libre empresa')                                 
+     A            CDMONB    R               TEXT('Moneda de cdad.')                                 
+     A                                      COLHDG('Moneda de cdad.')                               
+     A                                      REFFLD(MONE)                                            
+     A            CDDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            CDDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            CDPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            CDUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            CDHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K CDCIAS                                                                            
+     A          K CDPRVR                                                                            
+     A          K CDMONE                                                                            
+     A          K CDFDES                                                                            
+     A          K CDHORA                                                                            

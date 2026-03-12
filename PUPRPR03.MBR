@@ -1,0 +1,14 @@
+      *                 DDS ADP 400.             29/06/99  16:34                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUPRPR03  Fichero de artículos por proveedor.                                         
+      * Type  LF                                                                                    
+     A          R RPUPRPR                   PFILE(PUPRPR)                                           
+     A          K C3CIAS                                                                            
+     A          K C3PRVR                                                                            
+     A          K C3ARVM                                                                            
+     A          K C3TCOJ                                                                            
+     A          K C3TCST                                                                            
+     A          K C3TPTA                                                                            
+     A          K C3FHAS                                                                            
+     A          K C3HORA                                                                            

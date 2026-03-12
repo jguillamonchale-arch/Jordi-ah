@@ -1,0 +1,11 @@
+      *                 DDS ADP 400.             27/05/99  18:10                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUHALD17  Fichero de albaranes. Detalle                                               
+      * Type  LF                                                                                    
+     A          R RPUHALD                   PFILE(PUHALD)                                           
+     A          K CECIAS                                                                            
+     A          K CEPRVR                                                                            
+     A          K CEALBA                                                                            
+     A          K CELIN2                                                                            
+     A          K CEDAT1                                                                            

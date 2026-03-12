@@ -1,0 +1,51 @@
+      *                 DDS ADP 400.             01/06/98  17:50                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUPRCJ    Fichero de asignación de conjuntos a proveedor                              
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RPUPRCJ                                                                           
+     A            C3CIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            C3PRVR    R               TEXT('Código proveedor')                                
+     A                                      COLHDG('Código Proveedor')                              
+     A                                      REFFLD(PRVR)                                            
+     A            C3ARVM    R               TEXT('Artículo-variac.-mode.')                          
+     A                                      COLHDG('Artículo-variac.-mod')                          
+     A                                      REFFLD(ARVM)                                            
+     A            C3TCOJ    R               TEXT('Tipo Conjunto')                                   
+     A                                      COLHDG('Tipo conjunto')                                 
+     A                                      REFFLD(TIPO)                                            
+     A            C3DES1    R               TEXT('Descripción 1ª')                                  
+     A                                      COLHDG('Descripción 1ª')                                
+     A                                      REFFLD(DES1)                                            
+     A            C3DEAP    R               TEXT('Descrip.proveedor')                               
+     A                                      COLHDG('Descrip.proveedor')                             
+     A                                      REFFLD(DES1)                                            
+     A            C3ARAL    R               TEXT('Cód. art. alternativo')                           
+     A                                      COLHDG('Cód. art. alternativ')                          
+     A                                      REFFLD(ARAL)                                            
+     A            C3ARVP    R               TEXT('Artículo para proveed.')                          
+     A                                      COLHDG('Artículo para prove.')                          
+     A                                      REFFLD(ARVM)                                            
+     A            C3DAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            C3DAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            C3USUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            C3PANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            C3HORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K C3CIAS                                                                            
+     A          K C3ARVM                                                                            
+     A          K C3TCOJ                                                                            
+     A          K C3PRVR                                                                            

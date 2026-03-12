@@ -1,0 +1,78 @@
+      *                 DDS ADP 400.             12/05/98  08:22                                    
+      * Copyright (c)   ASTRAL GRUP. All Rights Reserved.                                           
+      * Aplic PUR       astral Grup, S.A. COMPRAS                                                   
+      * File  PUPRMD    Fichero promociones prov-art. detalle                                       
+      * Type  PF                                                                                    
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      UNIQUE                                                  
+     A          R RPUPRMD                                                                           
+     A            CXCIAS    R               TEXT('Código de empresa')                               
+     A                                      COLHDG('Código de empresa')                             
+     A                                      REFFLD(CIAS)                                            
+     A            CXPRVR    R               TEXT('Código proveedor')                                
+     A                                      COLHDG('Proveedor')                                     
+     A                                      REFFLD(PRVR)                                            
+     A            CXPRMO    R               TEXT('Promoción')                                       
+     A                                      COLHDG('Promoción')                                     
+     A                                      REFFLD(DOC3)                                            
+     A            CXFDES    R               TEXT('Fecha desde')                                     
+     A                                      COLHDG('Fecha desde')                                   
+     A                                      REFFLD(DAT8)                                            
+     A            CXFHAS    R               TEXT('Fecha hasta')                                     
+     A                                      COLHDG('Fecha hasta')                                   
+     A                                      REFFLD(DAT8)                                            
+     A            CXARVM    R               TEXT('Artículo-variac.-mode.')                          
+     A                                      COLHDG('Artículo-variac.-mod')                          
+     A                                      REFFLD(ARVM)                                            
+     A            CXCDES    R               TEXT('Cantidad desde')                                  
+     A                                      COLHDG('Cantidad desde')                                
+     A                                      REFFLD(CANT)                                            
+     A            CXCHAS    R               TEXT('Cantidad hasta')                                  
+     A                                      COLHDG('Cantidad hasta')                                
+     A                                      REFFLD(CANT)                                            
+     A            CXUNIM    R               TEXT('Unidad de medida')                                
+     A                                      COLHDG('Unidad de medida')                              
+     A                                      REFFLD(UNIM)                                            
+     A            CXCAGR    R               TEXT('Cantidad')                                        
+     A                                      COLHDG('Cantidad')                                      
+     A                                      REFFLD(CANT)                                            
+     A            CXMONE    R               TEXT('Moneda')                                          
+     A                                      COLHDG('Moneda')                                        
+     A                                      REFFLD(MONE)                                            
+     A            CXPREC    R               TEXT('Precio')                                          
+     A                                      COLHDG('Precio')                                        
+     A                                      REFFLD(PREC)                                            
+     A            CXCADP    R               TEXT('Cantidad para precio')                            
+     A                                      COLHDG('Cantidad para precio')                          
+     A                                      REFFLD(CADP)                                            
+     A            CXUNDP    R               TEXT('Unidad de medida')                                
+     A                                      COLHDG('Unidad de medida')                              
+     A                                      REFFLD(UNIM)                                            
+     A            CXTCST    R               TEXT('Tipo cantidad estándar')                          
+     A                                      COLHDG('Tipo cantidad estánd')                          
+     A                                      REFFLD(TCST)                                            
+     A            CXTCOJ    R               TEXT('Tipo conjunto')                                   
+     A                                      COLHDG('Tipo conjunto')                                 
+     A                                      REFFLD(TIPO)                                            
+     A            CXDAT1    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Datos')                                         
+     A                                      REFFLD(DAT1)                                            
+     A            CXDAT8    R               TEXT('Fecha')                                           
+     A                                      COLHDG('Fecha')                                         
+     A                                      REFFLD(DAT8)                                            
+     A            CXPANT    R               TEXT('Pantalla')                                        
+     A                                      COLHDG('Pantalla')                                      
+     A                                      REFFLD(PANT)                                            
+     A            CXUSUA    R               TEXT('Usuario')                                         
+     A                                      COLHDG('Usuario')                                       
+     A                                      REFFLD(USUA)                                            
+     A            CXHORA    R               TEXT('Hora')                                            
+     A                                      COLHDG('Hora')                                          
+     A                                      REFFLD(HORA)                                            
+     A          K CXCIAS                                                                            
+     A          K CXPRVR                                                                            
+     A          K CXPRMO                                                                            
+     A          K CXARVM                                                                            
+     A          K CXTCOJ                                                                            
+     A          K CXFDES                                                                            
+     A          K CXCDES                                                                            

@@ -1,0 +1,120 @@
+   /*                                    */                                                         
+   /* PROGRAMA GESTION CONFIRMACION  FD  */                                                         
+   /*                                    */                                                         
+                                                                                                    
+             PGM        PARM(&FDORIG &PCIAS &PDLGA &PNPCO &PTPED &PDATP +                           
+                          &PNOPL &ERROR)                                                            
+             DCL        VAR(&FDORIG) TYPE(*CHAR) LEN(1)                                             
+             DCL        VAR(&PCIAS) TYPE(*DEC) LEN(3 0)                                             
+             DCL        VAR(&PNPCO) TYPE(*CHAR) LEN(10)                                             
+             DCL        VAR(&PTPED) TYPE(*CHAR) LEN(2)                                              
+             DCL        VAR(&PDLGA) TYPE(*CHAR) LEN(5)                                              
+             DCL        VAR(&PDATP) TYPE(*DEC) LEN(8 0)                                             
+             DCL        VAR(&PNOPL) TYPE(*DEC) LEN(6 0)                                             
+             DCL        VAR(&ERROR) TYPE(*CHAR) LEN(1)                                              
+                                                                                                    
+             RMVLIBLE   QTEMP                                                                       
+             MONMSG     MSGID(CPF0000)                                                              
+             ADDLIBLE   QTEMP                                                                       
+             MONMSG     MSGID(CPF0000)                                                              
+                                                                                                    
+   /*                                                                */                             
+ INICIO:     CHGVAR     VAR(&ERROR) VALUE(' ')                                                      
+             DLTF       FILE(QTEMP/COHFEN )                                                         
+             MONMSG     MSGID(CPF0000)                                                              
+             DLTF       FILE(QTEMP/ED0050W)                                                         
+             MONMSG     MSGID(CPF0000)                                                              
+             DLTF       FILE(QTEMP/COCAPE)                                                          
+             MONMSG     MSGID(CPF0000)                                                              
+             DLTF       FILE(QTEMP/CODEPE20)                                                        
+             MONMSG     MSGID(CPF0000)                                                              
+             DLTF       FILE(QTEMP/CODEPE26)                                                        
+             MONMSG     MSGID(CPF0000)                                                              
+             DLTF       FILE(QTEMP/CODEPE)                                                          
+             MONMSG     MSGID(CPF0000)                                                              
+                                                                                                    
+             CRTDUPOBJ  OBJ(COHFEN) FROMLIB(*LIBL) OBJTYPE(*FILE) +                                 
+                          TOLIB(QTEMP) NEWOBJ(COHFEN) /*C1078*/                                     
+             MONMSG     MSGID(CPF0000) EXEC(DO)                                                     
+             CHGVAR     VAR(&ERROR) VALUE('1')                                                      
+             GOTO FIN                                                                               
+             ENDDO                                                                                  
+   /*                                                                */                             
+             CRTDUPOBJ  OBJ(COCAPE) FROMLIB(*LIBL) OBJTYPE(*FILE) +                                 
+                          TOLIB(QTEMP) CST(*NO) TRG(*NO)                                            
+             MONMSG     MSGID(CPF0000) EXEC(DO)                                                     
+             CHGVAR     VAR(&ERROR) VALUE('1')                                                      
+             GOTO FIN                                                                               
+             ENDDO                                                                                  
+   /*                                                                */                             
+             CRTDUPOBJ  OBJ(CODEPE) FROMLIB(*LIBL) OBJTYPE(*FILE) +                                 
+                          TOLIB(QTEMP) CST(*NO) TRG(*NO)                                            
+             MONMSG     MSGID(CPF0000) EXEC(DO)                                                     
+             CHGVAR     VAR(&ERROR) VALUE('1')                                                      
+             GOTO FIN                                                                               
+             ENDDO                                                                                  
+   /*                                                                */                             
+             CRTDUPOBJ  OBJ(CODEPE20) FROMLIB(*LIBL) OBJTYPE(*FILE) +                               
+                          TOLIB(QTEMP) CST(*NO) TRG(*NO)                                            
+             MONMSG     MSGID(CPF0000) EXEC(DO)                                                     
+             CHGVAR     VAR(&ERROR) VALUE('1')                                                      
+             GOTO FIN                                                                               
+             ENDDO                                                                                  
+   /*                                                                */                             
+             CRTDUPOBJ  OBJ(CODEPE26) FROMLIB(*LIBL) OBJTYPE(*FILE) +                               
+                          TOLIB(QTEMP) CST(*NO) TRG(*NO)                                            
+             MONMSG     MSGID(CPF0000) EXEC(DO)                                                     
+             CHGVAR     VAR(&ERROR) VALUE('1')                                                      
+             GOTO FIN                                                                               
+             ENDDO                                                                                  
+   /*                                                                */                             
+   /*  Qtemp sempre està per davant de PURLIBFxxx                    */                             
+   /*  Per tant NO necessitem els OVR d'aquests fitxers ja que       */                             
+   /*  tenen el mateix nom i els hem creat amb CRTDUPOBJ             */                             
+   /*                                                                */                             
+   /*        OVRDBF     FILE(COCAPE) TOFILE(QTEMP/COCAPE) +          */                             
+   /*                     OVRSCOPE(*CALLLVL)                         */                             
+   /*        MONMSG     MSGID(CPF0000) EXEC(DO)                      */                             
+   /*        CHGVAR     VAR(&ERROR) VALUE('1')                       */                             
+   /*        GOTO FIN                                                */                             
+   /*        ENDDO                                                   */                             
+   /*        OVRDBF     FILE(CODEPE) TOFILE(QTEMP/CODEPE) +          */                             
+   /*                     OVRSCOPE(*CALLLVL)                         */                             
+   /*        MONMSG     MSGID(CPF0000) EXEC(DO)                      */                             
+   /*        CHGVAR     VAR(&ERROR) VALUE('1')                       */                             
+   /*        GOTO FIN                                                */                             
+   /*        ENDDO                                                   */                             
+   /*        OVRDBF     FILE(CODEPE20) TOFILE(QTEMP/CODEPE20) +      */                             
+   /*                     OVRSCOPE(*CALLLVL)                         */                             
+   /*        MONMSG     MSGID(CPF0000) EXEC(DO)                      */                             
+   /*        CHGVAR     VAR(&ERROR) VALUE('1')                       */                             
+   /*        GOTO FIN                                                */                             
+   /*        ENDDO                                                   */                             
+   /*                                                                */                             
+   /*        OVRDBF     FILE(CODEPE26) TOFILE(QTEMP/CODEPE26) +      */                             
+   /*                     OVRSCOPE(*CALLLVL)                         */                             
+   /*        MONMSG     MSGID(CPF0000) EXEC(DO)                      */                             
+   /*        CHGVAR     VAR(&ERROR) VALUE('1')                       */                             
+   /*        GOTO FIN                                                */                             
+   /*        ENDDO                                                   */                             
+   /*                                                                */                             
+             CALL       PGM(ED3025) PARM(&FDORIG &PCIAS &PDLGA +                                    
+                          &PNPCO &PTPED &PDATP &PNOPL &ERROR)                                       
+             MONMSG     MSGID(CPF0000) EXEC(DO)                                                     
+             CHGVAR     VAR(&ERROR) VALUE('1')                                                      
+             GOTO FIN                                                                               
+             ENDDO                                                                                  
+             IF         COND(&ERROR *EQ '@') THEN(GOTO INICIO)                                      
+   /*                                                                */                             
+FIN:                                                                                                
+             DLTF       FILE(QTEMP/COHFEN )                                                         
+             MONMSG     MSGID(CPF0000)                                                              
+             DLTF       FILE(QTEMP/COCAPE)                                                          
+             MONMSG     MSGID(CPF0000)                                                              
+             DLTF       FILE(QTEMP/CODEPE20)                                                        
+             MONMSG     MSGID(CPF0000)                                                              
+             DLTF       FILE(QTEMP/CODEPE26)                                                        
+             MONMSG     MSGID(CPF0000)                                                              
+             DLTF       FILE(QTEMP/CODEPE)                                                          
+             MONMSG     MSGID(CPF0000)                                                              
+ENDPGM                                                                                              

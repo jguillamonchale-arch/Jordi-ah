@@ -1,0 +1,65 @@
+     A                                      UNIQUE                                                  
+     A          R ZAQITN                                                                            
+     A                                      PFILE(ZAQITN)                                           
+     A            MMCONO         3P 0                                                               
+     A            MMITNO        30                                                                  
+     A            MMCIAS         6                                                                  
+     A            MMPROP         6                                                                  
+     A            MMFUOL         8P 0                                                               
+     A            MMSIOL         1P 0                                                               
+     A            MMAPOL         1P 0                                                               
+     A            MMFL01         2                                                                  
+     A            MMFL02         2                                                                  
+     A            MMFL03         2                                                                  
+     A            MMFL04         2                                                                  
+     A            MMFL05         2                                                                  
+     A            MMFL06         4                                                                  
+     A            MMFL07         4                                                                  
+     A            MMFL08         4                                                                  
+     A            MMFL09         4                                                                  
+     A            MMFL10         4                                                                  
+     A            MMFL11         6                                                                  
+     A            MMFL12         6                                                                  
+     A            MMFL13         6                                                                  
+     A            MMFL14         6                                                                  
+     A            MMFL15         6                                                                  
+     A            MMFL16        20                                                                  
+     A            MMFL17        20                                                                  
+     A            MMFL18        20                                                                  
+     A            MMFL19        20                                                                  
+     A            MMFL20        20                                                                  
+     A            MMFL21        80                                                                  
+     A            MMFL22        80                                                                  
+     A            MMFL23         8P 0                                                               
+     A            MMFL24         8P 0                                                               
+     A            MMFL25         8P 0                                                               
+     A            MMFL26         8P 0                                                               
+     A            MMFL27         8P 0                                                               
+     A            MMFL28        11P 3                                                               
+     A            MMFL29        11P 3                                                               
+     A            MMFL30        11P 3                                                               
+     A            MMFL31        11P 3                                                               
+     A            MMFL32        11P 3                                                               
+     A            MMFL33        15P 6                                                               
+     A            MMFL34        15P 6                                                               
+     A            MMFL35        15P 6                                                               
+     A            MMFL36        15P 6                                                               
+     A            MMFL37        15P 6                                                               
+     A            MMFADR         8P 0                                                               
+     A            MMRGDT         8P 0                                                               
+     A            MMRGTM         6P 0                                                               
+     A            MMLMDT         8P 0                                                               
+     A            MMCHNO         3P 0                                                               
+     A            MMCHID        20                                                                  
+     A            MMMARC        10                                                                  
+     A                                      DFT('')                                                 
+     A            MMORIM         6                                                                  
+     A                                      DFT('')                                                 
+     A            MMAREC         2                                                                  
+     A                                      DFT('')                                                 
+     A            MMAREP         2                                                                  
+     A                                      DFT('')                                                 
+     A            MMOFAC        10                                                                  
+     A                                      DFT('')                                                 
+     A          K MMCONO                                                                            
+     A          K MMITNO                                                                            
