@@ -1,0 +1,90 @@
+TQM  A* T Q M   4 0 0          08/11/22  Sowre Consulting,sl                                        
+     A*%%TS  SD  20220616  113639  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3)                                      
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      PRINT                                                   
+     A          R SUFD                      SFL                                                     
+     A*%%TS  SD  20220614  091126  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A                                      KEEP                                                    
+     A  78                                  SFLNXTCHG                                               
+     A            SUFLINE   R        O  9  2REFFLD(RCODEPE/S5LINE *LIBL/CODEPE)                     
+     A                                      EDTCDE(1)                                               
+     A            SUFARTI   R        O  9  6REFFLD(RCODEPE/S5ARTI *LIBL/CODEPE)                     
+     A            SUFVARI        3A  O  9 22                                                        
+     A            SUFMODE        3A  O  9 26                                                        
+     A            SUFCANT        9A  O  9 30                                                        
+     A            SUFUNIM   R        O  9 40REFFLD(RCODEPE/S5UNIM *LIBL/CODEPE)                     
+     A            SUFNETO       11A  O  9 43                                                        
+     A            SUFMARG       10A  O  9 55                                                        
+     A            SUFVOLU        6A  O  9 66                                                        
+     A            SUFMVOL        8A  O  9 73                                                        
+     A            SUFDESC   R        O 10  6REFFLD(RMSARTI/M5DES1 *LIBL/MSARTI)                     
+     A          R SUFC                      SFLCTL(SUFD)                                            
+     A*%%TS  SD  20220616  113639  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A                                      SFLSIZ(0007)                                            
+     A                                      SFLPAG(0006)                                            
+     A                                      CF12(12)                                                
+     A                                      VLDCMDKEY(74)                                           
+     A N71                                  ROLLUP(76)                                              
+     A                                      ROLLDOWN(77)                                            
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A                                      OVERLAY                                                 
+     A                                      PUTRETAIN                                               
+     A  73                                  SFLDSP                                                  
+     A  72                                  SFLDSPCTL                                               
+     A  70                                  SFLCLR                                                  
+     A  71                                  SFLEND(*MORE)                                           
+     A                                      SFLDROP(CF07)                                           
+     A            SUFRCDN        4S 0H      SFLRCDNBR                                               
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            SUFOPC1        7A  H                                                              
+     A            SUFHED1        7A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        45A  O  2 14DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+TQM  A            @@_001     00019   O  4  2   MSGID(CMM507F CMMMSGF)                               
+TQM  A*                                 4  2'Origen Expedición.:'                                   
+     A            SUCLGCA   R        O  4 22REFFLD(RMSLOGI/MILGCA *LIBL/MSLOGI)                     
+     A                                      COLOR(RED)                                              
+     A            SUCDESC   R        O  4 26REFFLD(RMSLOGI/MIDESC *LIBL/MSLOGI)                     
+     A                                      COLOR(RED)                                              
+TQM  A            @@_002     00019   O  5  2   MSGID(CMM508A CMMMSGF)                               
+TQM  A*                                 5  2'Cliente...........:'                                   
+     A            SUCCUST   R        O  5 22REFFLD(RCOCLIN/S0CUST *LIBL/COCLIN)                     
+     A                                      COLOR(RED)                                              
+     A            SUCDES1   R        O  5 33REFFLD(RCOCLIN/S0DES1 *LIBL/COCLIN)                     
+     A                                      TEXT('Descripción 1ª')                                  
+     A                                      COLOR(RED)                                              
+TQM  A            @@_003     00019   O  6  2   MSGID(CMM508B CMMMSGF)                               
+TQM  A*                                 6  2'Pedido............:'                                   
+     A            SUCNPCO   R        O  6 22REFFLD(RCOCAPE/S0NPCO *LIBL/COCAPE)                     
+     A                                      COLOR(RED)                                              
+TQM  A            @@_004     00003   O  6 33   MSGID(CMM184E CMMMSGF)                               
+TQM  A*                                 6 33'UV:'                                                   
+     A            SUCUVOL        2A  O  6 37COLOR(RED)                                              
+     A            SUFHEAD       79A  O  8  2DSPATR(HI)                                              
+     A                                      MSGID(&SUFHED1 ASGMSG)                                  
+     A                                      DSPATR(UL)                                              
+     A          R SUFP                                                                              
+     A*%%TS  SD  20220531  083152  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              

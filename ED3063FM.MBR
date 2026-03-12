@@ -1,0 +1,126 @@
+TQM  A* T Q M   4 0 0          08/11/22  Sowre Consulting,sl                                        
+     A*%%TS  SD  20220630  111704  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3)                                      
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      PRINT                                                   
+     A          R SUFD                      SFL                                                     
+     A*%%TS  SD  20220622  114237  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A                                      KEEP                                                    
+     A  78                                  SFLNXTCHG                                               
+     A            SUFLINE   R        H      REFFLD(RCODEPE/S5LINE *LIBL/CODEPE)                     
+     A            SUFIN52        1A  H                                                              
+     A            SUFOPCI        1A  B 11  4                                                        
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A  41                                                                                          
+     AON75                                  DSPATR(PC)                                              
+     A            SUFDATA       53A  O 11  6                                                        
+     A            SUFNLOG   R        B 11 72REFFLD(RCODEPE/S5LOGE *LIBL/CODEPE)                     
+     A N52                                  DSPATR(PR)                                              
+     A N52                                  DSPATR(ND)                                              
+     A  52N43                               DSPATR(HI)                                              
+     A  52 43                               DSPATR(RI)                                              
+     A  52 43                               DSPATR(PC)                                              
+     A          R SUFC                      SFLCTL(SUFD)                                            
+     A*%%TS  SD  20220630  111704  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A                                      SFLSIZ(0011)                                            
+     A                                      SFLPAG(0010)                                            
+     A                                      CF03(03)                                                
+     A                                      CF04(04)                                                
+     A  50                                  CF10(10)                                                
+     A                                      CF12(12)                                                
+     A                                      VLDCMDKEY(74)                                           
+     A N71                                  ROLLUP(76)                                              
+     A                                      ROLLDOWN(77)                                            
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A                                      OVERLAY                                                 
+     A                                      PUTRETAIN                                               
+     A  73                                  SFLDSP                                                  
+     A  72                                  SFLDSPCTL                                               
+     A  70                                  SFLCLR                                                  
+     A  71                                  SFLEND(*MORE)                                           
+     A            SUFRCDN        4S 0H      SFLRCDNBR                                               
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            SUFOPC1        7A  H                                                              
+     A            SUFHED1        7A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+TQM  A            @@_001     00008   O  4  2   MSGID(CMM491A CMMMSGF)                               
+TQM  A*                                 4  2'Cliente:'                                              
+     A            SUCCUST   R        O  4 11REFFLD(RCOCAPE/S0CUST *LIBL/COCAPE)                     
+     A                                      DSPATR(HI)                                              
+     A            SUCDES1   R        O  4 22REFFLD(RCOCAPE/S0DES1 *LIBL/COCAPE)                     
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_002     00007   O  4 63   MSGID(CMM6281 CMMMSGF)                               
+TQM  A*                                 4 63'Pedido:'                                               
+     A            SUCNPCO   R        O  4 71REFFLD(RCOCAPE/S0NPCO *LIBL/COCAPE)                     
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_003     00008   O  5  2   MSGID(CMM508C CMMMSGF)                               
+TQM  A*                                 5  2'Envío..:'                                              
+     A            SUCRAOS   R        O  5 11REFFLD(RCODIPE/S2RAOS *LIBL/CODIPE)                     
+     A                                      DSPATR(HI)                                              
+     A            SUCDIRE   R        O  6 11REFFLD(RCODIPE/S2DIRE *LIBL/CODIPE)                     
+     A                                      DSPATR(HI)                                              
+     A            SUCDIR2       29A  O  6 52TEXT('Dirección 2')                                     
+     A                                      DSPATR(HI)                                              
+     A            SUCPOST   R        O  7 11REFFLD(RCODIPE/S2POST *LIBL/CODIPE)                     
+     A                                      DSPATR(HI)                                              
+     A            SUCPOBL       40A  O  7 22TEXT('Población')                                       
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_004     00012   O  8  2   MSGID(CMM17C0 CMMMSGF)                               
+TQM  A*                                 8  2'Situarse en:'                                          
+     A  51        PSULINE   R        B  8 15REFFLD(RCODEPE/S5LINE *LIBL/CODEPE)                     
+     A                                      DSPATR(HI)                                              
+     A N51                                  DSPATR(PR)                                              
+     A N51        PSUARTI   R        B  8 15REFFLD(RCODEPE/S5ARTI *LIBL/CODEPE)                     
+     A                                      DSPATR(HI)                                              
+     A  51                                  DSPATR(PR)                                              
+     A N51        PSUVARI   R        B  8 31REFFLD(RCODEPE/S5VARI *LIBL/CODEPE)                     
+     A                                      DSPATR(HI)                                              
+     A  51                                  DSPATR(PR)                                              
+     A N51        PSUMODE   R        B  8 35REFFLD(RCODEPE/S5MODE *LIBL/CODEPE)                     
+     A                                      DSPATR(HI)                                              
+     A  51                                  DSPATR(PR)                                              
+     A            SUFOPT1       50A  O  9  2MSGID(&SUFOPC1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+TQM  A  50        @@_005     00018   O  9 53   MSGID(CMM508D CMMMSGF)                               
+TQM  A* 50                              9 53'Nueva Logística..:'                                    
+     A                                      COLOR(BLU)                                              
+     A  50        SUCNLOG   R        B  9 72REFFLD(RCODEPE/S5LOGE *LIBL/CODEPE)                     
+     A N42                                  DSPATR(HI)                                              
+     A  42                                  DSPATR(RI)                                              
+     A  42                                  DSPATR(PC)                                              
+     A N50                                  DSPATR(PR)                                              
+     A            CCCFMT         1A  B 10  2CHECK(ER)                                               
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A                                      DSPATR(MDT)                                             
+     A                                      CHECK(MF)                                               
+     A            SUFHEAD       77A  O 10  4DSPATR(HI)                                              
+     A                                      MSGID(&SUFHED1 ASGMSG)                                  
+     A                                      DSPATR(UL)                                              
+     A          R SUFP                                                                              
+     A*%%TS  SD  20220627  144326  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A            PPPCMD        78   O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              

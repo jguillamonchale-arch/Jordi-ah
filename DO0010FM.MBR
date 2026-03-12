@@ -1,0 +1,128 @@
+TQM  A* T Q M   4 0 0          08/08/14  Sowre Consulting,sl                                        
+     A*%%TS  SD  20110303  150540  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3)                                      
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      PRINT                                                   
+     A          R PA0                                                                               
+     A*%%TS  SD  20051107  112201  CARLOSDV    REL-V5R1M0  5722-WDS                                 
+     A                                      CF03(03 'FI')                                           
+     A                                      CF09(09 'CMD')                                          
+     A                                      CF04(04)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+TQM  A            @@_001     00022   O  4  2   MSGID(CMM0002 CMMMSGF)                               
+TQM  A*                                 4  2'Clase de Subarchivo...'                                
+     A            PA0S001   R        B  4 25REFFLD(AL01)                                            
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+TQM  A            @@_002     00022   O  6  2   MSGID(CMM08B5 CMMMSGF)                               
+TQM  A*                                 6  2'Mostrar Desactivadas..'                                
+     A            PA0SBAJ   R        B  6 25REFFLD(BAJA)                                            
+     A N42                                  DSPATR(HI)                                              
+     A  42                                  DSPATR(RI)                                              
+     A  42                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+     A          R SUFD                      SFL                                                     
+     A*%%TS  SD  20110303  150540  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      KEEP                                                    
+     A  78                                  SFLNXTCHG                                               
+     A            SUFCIAS   R        H      REFFLD(CIAS)                                            
+     A            SUFDLGA        5A  H                                                              
+     A            SUFGRUP   R        H      REFFLD(AL10)                                            
+     A            SUFDEVS        3A  H                                                              
+     A            SUFDEVP        6A  H                                                              
+     A            SUFOPCI        2A  B  9  4                                                        
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A N75                                  DSPATR(PC)                                              
+     A            SUFDATA       74A  O  9  7                                                        
+     A            SUFBAJA        1   O  9  2                                                        
+     A            SUFRECC        4S 0H                                                              
+     A          R SUFC                      SFLCTL(SUFD)                                            
+     A*%%TS  SD  20110303  150540  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      SFLSIZ(0013)                                            
+     A                                      SFLPAG(0012)                                            
+     A                                      CF03(03 'FI')                                           
+     A                                      CF09(09 'CMD')                                          
+     A                                      CF04(04)                                                
+     A                                      CF05(05)                                                
+     A                                      CF06(06)                                                
+     A                                      CF13(13)                                                
+     A                                      VLDCMDKEY(74)                                           
+     A N71                                  ROLLUP(76)                                              
+     A                                      ROLLDOWN(77)                                            
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A                                      OVERLAY                                                 
+     A                                      PUTRETAIN                                               
+     A  73                                  SFLDSP                                                  
+     A  72                                  SFLDSPCTL                                               
+     A  70                                  SFLCLR                                                  
+     A  71                                  SFLEND(*MORE)                                           
+     A            SUFRCDN        4S 0H      SFLRCDNBR                                               
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            SUFOPC1        7A  H                                                              
+     A            SUFOPC2        7A  H                                                              
+     A            SUFHED1        7A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            SUFSETL       12A  O  4  2MSGID(SET 0001 ASGMSG)                                  
+     A  91        PSUDLGA   R        B  4 15REFFLD(DLGA)                                            
+     A                                      DSPATR(HI)                                              
+     A            SUFOPT1       79A  O  6  2MSGID(&SUFOPC1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            SUFOPT2       79A  O  7  2MSGID(&SUFOPC2 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            CCCFMT         1A  B  8  2CHECK(ER)                                               
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A            SUFHEAD       77A  O  8  4DSPATR(HI)                                              
+     A                                      MSGID(&SUFHED1 ASGMSG)                                  
+     A          R SUFP                                                                              
+     A*%%TS  SD  20050405  155937  CDELVALLE   REL-V5R1M0  5722-WDS                                 
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              

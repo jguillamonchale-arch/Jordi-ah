@@ -1,0 +1,826 @@
+TQM  A* T Q M   4 0 0          20/01/22  Sowre Consulting,sl                                        
+     A*%%TS  SD  20140514  172152  JLMARTIN    REL-V6R1M0  5761-WDS                                 
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3)                                      
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      PRINT                                                   
+     A          R PA0                                                                               
+     A*%%TS  SD  20140514  172152  JLMARTIN    REL-V6R1M0  5761-WDS                                 
+     A                                      CF03(03 'FI')                                           
+     A                                      CF04(04)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+TQM  A            @@_081     00022   O  3  2   MSGID(CMM0002 CMMMSGF)                               
+TQM  A*                                 3  2'Clase de Subarchivo...'                                
+     A            PA0S001   R        B  3 25REFFLD(AL01)                                            
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+TQM  A            @@_082     00022   O  3 46   MSGID(CMM3846 CMMMSGF)                               
+TQM  A*                                 3 46'Solo delegación propia'                                
+     A            PA0VPDL   R        B  3 69REFFLD(AL01)                                            
+2007AA N34                                  DSPATR(HI)                                              
+2007AA  34                                  DSPATR(RI)                                              
+2007AA  34                                  DSPATR(PC)                                              
+2007AA*N32                                  DSPATR(HI)                                              
+2007AA* 32                                  DSPATR(RI)                                              
+2007AA* 32                                  DSPATR(PC)                                              
+TQM  A            @@_083     00022   O  4  2   MSGID(CMM0003 CMMMSGF)                               
+TQM  A*                                 4  2'Pantallas.............'                                
+     A            PA0SE01   R        B  4 25REFFLD(AL01)                                            
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A  41                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0SE02   R        B  4 27REFFLD(AL01)                                            
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A  41                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0SE03   R        B  4 29REFFLD(AL01)                                            
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A  41                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0SE04   R        B  4 31REFFLD(AL01)                                            
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A  41                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0SE05   R        B  4 33REFFLD(AL01)                                            
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A  41                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0SE06   R        B  4 35REFFLD(AL01)                                            
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A  41                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_084     00022   O  4 46   MSGID(CMM7859 CMMMSGF)                               
+TQM  A*                                 4 46'Mostrar Raz.Soc.Envío.'                                
+     A            PA0VRAZ   R        B  4 69REFFLD(AL01)                                            
+     A N33                                  DSPATR(HI)                                              
+     A  33                                  DSPATR(RI)                                              
+     A  33                                  DSPATR(PC)                                              
+TQM  A            @@_085     00022   O  5  2   MSGID(CMM0033 CMMMSGF)                               
+TQM  A*                                 5  2'Vistas................'                                
+     A            PA0SV01   R        B  5 25REFFLD(PRDLIB/TIPO *LIBL/PRDLIB)                        
+     A N47                                  DSPATR(HI)                                              
+     A  47                                  DSPATR(RI)                                              
+TQM  A            @@_086     00029   O  6 46   MSGID(CMM0001 CMMMSGF)                               
+TQM  A*                                 6 46'Opc.6:'                                                
+     A                                      DSPATR(HI)                                              
+TQM  A*           @@_087     00022   O  6 53   MSGID(CMM0106 CMMMSGF)                               
+TQM  A*                                 6 53'Ventana valores Impr..'                                
+     A            PA0WO06   R        B  6 76REFFLD(TIPO)                                            
+     A N37                                  DSPATR(HI)                                              
+     A  37                                  DSPATR(RI)                                              
+     A  37                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_088     00022   O  6  2   MSGID(CMM0067 CMMMSGF)                               
+TQM  A*                                 6  2'Truncar subarchivo....'                                
+     A            PA0DROP   R        B  6 25REFFLD(AL01)                                            
+     A N42                                  DSPATR(HI)                                              
+     A  42                                  DSPATR(RI)                                              
+     A  42                                  DSPATR(PC)                                              
+TQM  A            @@_089     00029   O  7 46   MSGID(CMM3899 CMMMSGF)                               
+TQM  A*                                 7 46'Opc.6:'                                                
+     A                                      DSPATR(HI)                                              
+TQM  A*           @@_090     00022   O  7 53   MSGID(CMM3903 CMMMSGF)                               
+TQM  A*                                 7 53'Moneda de impresión...'                                
+     A            PA0MONI   R        B  7 76REFFLD(MONE)                                            
+     A N57                                  DSPATR(HI)                                              
+     A  57                                  DSPATR(RI)                                              
+     A                                      DSPATR(UL)                                              
+     A  57                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_091     00022   O  7  2   MSGID(CMM0068 CMMMSGF)                               
+TQM  A*                                 7  2'Visualizar historia...'                                
+     A            PA0SH01   R        B  7 25REFFLD(AL01)                                            
+     A N43                                  DSPATR(HI)                                              
+     A  43                                  DSPATR(RI)                                              
+     A  43                                  DSPATR(PC)                                              
+TQM  A            @@_092     00029   O  8 46   MSGID(CMM6323 CMMMSGF)                               
+TQM  A*                                 8 46'Op.6O:'                                                
+     A                                      DSPATR(HI)                                              
+TQM  A*           @@_093     00022   O  8 53   MSGID(CMM6322 CMMMSGF)                               
+TQM  A*                                 8 53'Fmto.orden preparación'                                
+     A            PA0FMOP   R        B  8 76REFFLD(FMPP)                                            
+     A N55                                  DSPATR(HI)                                              
+     A  55                                  DSPATR(RI)                                              
+     A                                      DSPATR(UL)                                              
+     A  55                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_094     00022   O  8  2   MSGID(CMM0035 CMMMSGF)                               
+TQM  A*                                 8  2'Moneda secundaria.....'                                
+     A            PA0MON2   R        B  8 25REFFLD(MONE)                                            
+     A N51                                  DSPATR(HI)                                              
+     A  51                                  DSPATR(RI)                                              
+     A  51                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_095     00029   O  9 46   MSGID(CMM0543 CMMMSGF)                               
+TQM  A*                                 9 46'Opc.4:'                                                
+     A                                      DSPATR(HI)                                              
+TQM  A*           @@_096     00022   O  9 53   MSGID(CMM0540 CMMMSGF)                               
+TQM  A*                                 9 53'Eliminar pedido.......'                                
+     A            PA0BPCO   R        B  9 76REFFLD(TIPO)                                            
+     A N58                                  DSPATR(HI)                                              
+     A  58                                  DSPATR(RI)                                              
+     A  58                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_097     00022   O  9  2   MSGID(CMM0036 CMMMSGF)                               
+TQM  A*                                 9  2'Cambio moneda secunda.'                                
+     A            PA0TCHI   R        B  9 25REFFLD(TIPO)                                            
+     A N52                                  DSPATR(HI)                                              
+     A  52                                  DSPATR(RI)                                              
+     A  52                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_098     00022   O 10 53   MSGID(CMM2310 CMMMSGF)                               
+TQM  A*                                10 53'Listar pedido si opc.4'                                
+     A            PA0LPBO   R        B 10 76REFFLD(TIPO)                                            
+     A N59                                  DSPATR(HI)                                              
+     A  59                                  DSPATR(RI)                                              
+     A  59                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_099     00022   O 10  2   MSGID(CMM0246 CMMMSGF)                               
+TQM  A*                                10  2'Pedidos entrados por..'                                
+     A            PA0TRAB   R        B 10 25REFFLD(CLTA)                                            
+     A N39                                  DSPATR(HI)                                              
+     A  39                                  DSPATR(RI)                                              
+     A  39                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_100     00029   O 11 46   MSGID(CMM2311 CMMMSGF)                               
+TQM  A*                                11 46'Op.22:'                                                
+     A                                      DSPATR(HI)                                              
+TQM  A*           @@_101     00022   O 11 53   MSGID(CMM2309 CMMMSGF)                               
+TQM  A*                                11 53'Programa de reserva...'                                
+     A            PA0RES2   R        B 11 76REFFLD(TIPO)                                            
+     A N57                                  DSPATR(HI)                                              
+     A  57                                  DSPATR(RI)                                              
+     A  57                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_102     00029   O 12 46   MSGID(CMM0544 CMMMSGF)                               
+TQM  A*                                12 46'Op.23:'                                                
+     A                                      DSPATR(HI)                                              
+TQM  A*           @@_103     00022   O 12 53   MSGID(CMM0541 CMMMSGF)                               
+TQM  A*                                12 53'Reserva Total.........'                                
+     A            PA0RESE   R        B 12 76REFFLD(TIPO)                                            
+     A N56                                  DSPATR(HI)                                              
+     A  56                                  DSPATR(RI)                                              
+     A  56                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_104     00022   O 12  2   MSGID(CMM0031 CMMMSGF)                               
+TQM  A*                                12  2'Moneda visualización..'                                
+     A            PA0MONV   R        B 12 25REFFLD(MONE)                                            
+     A N48                                  DSPATR(HI)                                              
+     A  48                                  DSPATR(RI)                                              
+     A                                      DSPATR(UL)                                              
+     A  48                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_105     00022   O 13 53   MSGID(CMM08F9 CMMMSGF)                               
+TQM  A*                                13 53'Validar Nº Dossier dup'                                
+     A            PA0CDDA   R        B 13 76REFFLD(TIPO)                                            
+     A N63                                  DSPATR(HI)                                              
+     A  63                                  DSPATR(RI)                                              
+     A  63                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_106     00022   O 13  2   MSGID(CMM0032 CMMMSGF)                               
+TQM  A*                                13  2'Cambio moneda visuali.'                                
+     A            PA0TFHV   R        B 13 25REFFLD(TIPO)                                            
+     A N49                                  DSPATR(HI)                                              
+     A  49                                  DSPATR(RI)                                              
+     A                                      DSPATR(UL)                                              
+     A  49                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_107     00022   O 14 53   MSGID(CMM7868 CMMMSGF)                               
+TQM  A*                                14 53'Diferenciar Reservas..'                                
+     A            PA0DIFR   R        B 14 76REFFLD(TIPO)                                            
+     A N50                                  DSPATR(HI)                                              
+     A  50                                  DSPATR(RI)                                              
+     A  50                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_108     00022   O 14  2   MSGID(CMM0538 CMMMSGF)                               
+TQM  A*                                14  2'Sobre pedidos impresos'                                
+     A            PA0TMIM   R        B 14 25REFFLD(TIPO)                                            
+     A N36                                  DSPATR(HI)                                              
+     A  36                                  DSPATR(RI)                                              
+     A                                      DSPATR(UL)                                              
+     A  36                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_109     00029   O 15 46   MSGID(CMM7869 CMMMSGF)                               
+TQM  A*                                15 46'Pedidos en color............:'                         
+     A            PA0COULEUR     1A  B 15 76COLOR(WHT)                                              
+     A N62                                  DSPATR(HI)                                              
+     A  62                                  DSPATR(RI)                                              
+     A  62                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_110     00005   O 16 25   MSGID(CMM0079 CMMMSGF)                               
+TQM  A*                                16 25'Desde'                                                 
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_111     00005   O 16 46   MSGID(CMM0080 CMMMSGF)                               
+TQM  A*                                16 46'Hasta'                                                 
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_112     00005   O 16 57   MSGID(CMM0082 CMMMSGF)                               
+TQM  A*                                16 57'F.ac.'                                                 
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_113     00022   O 17  2   MSGID(CMM0266 CMMMSGF)                               
+TQM  A*                                17  2'Estatus...............'                                
+     A            PA0STC1   R        B 17 25REFFLD(STCO)                                            
+     A N51                                  DSPATR(HI)                                              
+     A  51                                  DSPATR(RI)                                              
+     A  51                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0STC2   R        B 17 46REFFLD(STCO)                                            
+     A N52                                  DSPATR(HI)                                              
+     A  52                                  DSPATR(RI)                                              
+     A  52                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_114     00022   O 18  2   MSGID(CMM0492 CMMMSGF)                               
+TQM  A*                                18  2'Fecha de pedido.......'                                
+     A            PA0FPE1   R        B 18 25REFFLD(AL10)                                            
+     A N44                                  DSPATR(HI)                                              
+     A  44                                  DSPATR(RI)                                              
+     A  44                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0FPE2   R        B 18 46REFFLD(AL10)                                            
+     A N45                                  DSPATR(HI)                                              
+     A  45                                  DSPATR(RI)                                              
+     A  45                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0TFC3   R        B 18 59REFFLD(TIPO)                                            
+     A N46                                  DSPATR(HI)                                              
+     A  46                                  DSPATR(RI)                                              
+     A  46                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_115     00022   O 19  2   MSGID(CMM0537 CMMMSGF)                               
+TQM  A*                                19  2'Fecha envío...........'                                
+     A            PA0FRE1   R        B 19 25REFFLD(AL10)                                            
+     A N53                                  DSPATR(HI)                                              
+     A  53                                  DSPATR(RI)                                              
+     A  53                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0FRE2   R        B 19 46REFFLD(AL10)                                            
+     A N54                                  DSPATR(HI)                                              
+     A  54                                  DSPATR(RI)                                              
+     A  54                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0TFC1   R        B 19 59REFFLD(TIPO)                                            
+     A N57                                  DSPATR(HI)                                              
+     A  57                                  DSPATR(RI)                                              
+     A  57                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_116     00022   O 20  2   MSGID(CMM3089 CMMMSGF)                               
+TQM  A*                                20  2'Lógistica.............'                                
+     A            PA0LOGD   R        B 20 25REFFLD(LOGE)                                            
+     A N60                                  DSPATR(HI)                                              
+     A  60                                  DSPATR(RI)                                              
+     A  60                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0LOGH   R        B 20 46REFFLD(LOGE)                                            
+     A N61                                  DSPATR(HI)                                              
+     A  61                                  DSPATR(RI)                                              
+     A  61                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_117     00022   O 21  2   MSGID(CMM0602 CMMMSGF)                               
+TQM  A*                                21  2'Dirección entrega.....'                                
+     A            PA0TD01   R        B 21 25REFFLD(TDIR)                                            
+     A N33                                  DSPATR(HI)                                              
+     A  33                                  DSPATR(RI)                                              
+     A  33                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0TD02   R        B 21 46REFFLD(TDIR)                                            
+     A N33                                  DSPATR(HI)                                              
+     A  33                                  DSPATR(RI)                                              
+     A  33                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_118     00022   O 22  2   MSGID(CMM1AB0 CMMMSGF)                               
+TQM  A*                                22  2'Procedencia de Pedido.'                                
+     A            PA0PPDE   R        B 22 25REFFLD(CLAS)                                            
+     A N66                                  DSPATR(HI)                                              
+     A  66                                  DSPATR(RI)                                              
+     A  66                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PA0PPHA   R        B 22 46REFFLD(CLAS)                                            
+     A N67                                  DSPATR(HI)                                              
+     A  67                                  DSPATR(RI)                                              
+     A  67                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+TQM  A            @@_119     00022   O 11  2   MSGID(CMM8651 CMMMSGF)                               
+TQM  A*                                11  2'Clase de Pedido.......'                                
+     A            PA0FTP4   R        B 11 25REFFLD(FMPP)                                            
+     A N64                                  DSPATR(HI)                                              
+     A  64                                  DSPATR(RI)                                              
+     A                                      DSPATR(UL)                                              
+     A  64                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_120     00022   O 15  2   MSGID(CMM1AB1 CMMMSGF)                               
+TQM  A*                                15  2'Añadir C.A. a Coste ..'                                
+14066A            PA0ACOS   R        B 15 25REFFLD(SINO)                                            
+14066A N38                                  DSPATR(HI)                                              
+14066A  38                                  DSPATR(RI)                                              
+14066A  38                                  DSPATR(PC)                                              
+14066A                                      DSPATR(UL)                                              
+FQ937A            PA0SFEC   R        B  5 69REFFLD(TIPO)                                            
+FQ937A N34                                  DSPATR(HI)                                              
+FQ937A  34                                  DSPATR(RI)                                              
+FQ937A  34                                  DSPATR(PC)                                              
+FQ937A                                      DSPATR(UL)                                              
+TQM  A            @@_121     00022   O  5 46   MSGID(CMM28A7 CMMMSGF)                               
+TQM  A*                                 5 46'Sobre Fecha de Envío..'                                
+TQM  A            @@_122     00013   O 16  2   MSGID(CMM39D7 CMMMSGF)                               
+TQM  A*                                16  2'Ped.Consolid.'                                         
+C1544A            PA0PCON   R        B 16 16REFFLD(AL01)                                            
+C1544A N35                                  DSPATR(HI)                                              
+C1544A  35                                  DSPATR(RI)                                              
+C1544A  35                                  DSPATR(PC)                                              
+C1544A                                      TEXT('Pedido consolidado')                              
+C1544A            PA0PCER   R        B 16 18REFFLD(AL01)                                            
+C1544A N35                                  DSPATR(HI)                                              
+C1544A  35                                  DSPATR(RI)                                              
+C1544A  35                                  DSPATR(PC)                                              
+C1544A                                      TEXT('Pedido consolidado')                              
+TQM  A            @@_123     00017   O 22 53   MSGID(CMM4D3F CMMMSGF)                               
+TQM  A*                                22 53'Pedido AfterSales'                                     
+IT141A            PA0AFOT        3   B 22 71                                                        
+IT141A N35                                  DSPATR(HI)                                              
+IT141A  35                                  DSPATR(RI)                                              
+IT141A  35                                  DSPATR(PC)                                              
+IT141A                                      DSPATR(UL)                                              
+     A          R SUFD                      SFL                                                     
+     A*%%TS  SD  19990120  171623  JESUS       REL-V3R2M0  5763-PW1                                 
+     A                                      KEEP                                                    
+     A  78                                  SFLNXTCHG                                               
+     A            SUFDATA       69A  O  9  7                                                        
+     A  33                                  DSPATR(RI)                                              
+     A  30                                  COLOR(RED)                                              
+     A  32                                  COLOR(TRQ)                                              
+     A  31                                  COLOR(YLW)                                              
+FQ842A  34                                  COLOR(PNK)                                              
+     ****                                                                                           
+     A            SUFDAT2       71A  O 10  7                                                        
+      *RENED    GESTION DES COULEURS                                                                
+     A  30                                  COLOR(RED)                                              
+     A  32                                  COLOR(TRQ)                                              
+     A  31                                  COLOR(YLW)                                              
+     A  33                                  DSPATR(RI)                                              
+FQ842A  34                                  COLOR(PNK)                                              
+     ****                                                                                           
+CR645A*           SUFDAT4        1A  O 10 79DSPATR(HI)                                              
+CR645A            SUFDAT4        2A  O 10 79DSPATR(HI)                                              
+     A            SUFOPCI        2A  B  9  4                                                        
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A  41                                                                                          
+     AON75                                  DSPATR(PC)                                              
+     A            SUFCIAS   R        H      REFFLD(CIAS)                                            
+     A            SUFDLGA   R        H      REFFLD(DLGA)                                            
+     A            SUFNPCO   R        H      REFFLD(NPED)                                            
+     A            SUFTPED   R        H      REFFLD(TPED)                                            
+     A            SUFDATP   R        H      REFFLD(DAT1)                                            
+     A            SUFNOPL   R        H      REFFLD(HORA)                                            
+     A            SUFIDIO   R        H      REFFLD(IDIO)                                            
+     A            SUFDAT3        4A  O  9 77DSPATR(HI)                                              
+     A            SUFRETE        1A  O  9  2DSPATR(HI)                                              
+FQ842A            SUFEDLG        1A  H                                                              
+     A          R SUFC                      SFLCTL(SUFD)                                            
+     A*%%TS  SD  19980206  145630  JESUS       REL-V3R1M0  5763-PW1                                 
+     A                                      SFLSIZ(0007)                                            
+     A                                      SFLPAG(0006)                                            
+     A                                      CF03(03 'FI')                                           
+     A                                      CF04(04)                                                
+     A                                      CF05(05)                                                
+     A                                      CF13(13)                                                
+     A                                      CF14(14)                                                
+     A                                      CF16(16)                                                
+     A                                      CF22(22)                                                
+     A                                      CF23(23)                                                
+     A                                      CF20(20 'Vistas')                                       
+     A N71                                  ROLLUP(76)                                              
+     A                                      ROLLDOWN(77)                                            
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A                                      OVERLAY                                                 
+     A                                      VLDCMDKEY(74)                                           
+     A                                      PUTRETAIN                                               
+     A  73                                  SFLDSP                                                  
+     A  72                                  SFLDSPCTL                                               
+     A  70                                  SFLCLR                                                  
+     A  71                                  SFLEND(*MORE)                                           
+     A N89                                  SFLDROP(CF07)                                           
+     A  89                                  SFLFOLD(CF07)                                           
+     A            SUFRCDN        4S 0H      SFLRCDNBR                                               
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+24115A*           PSUDLG1   R        B  4 15REFFLD(DLGA)                                            
+24115A N67        PSUDLG1   R        B  4 15REFFLD(DLGA)                                            
+     A                                      DSPATR(HI)                                              
+     A  85                                  DSPATR(PR)                                              
+     A N85                                  DSPATR(UL)                                              
+     A  91        PSUNPCO   R        B  4 21REFFLD(NPED)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+     A  91        PSUTPE1   R        B  4 32REFFLD(TPED)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+     A  92        PSUCUS2   R        B  4 21REFFLD(CUST)                                            
+     A                                      DSPATR(HI)                                              
+     A  87                                  DSPATR(PR)                                              
+     A N87                                  DSPATR(UL)                                              
+     A  92        PSUFRE2   R        B  4 32REFFLD(AL10)                                            
+     A N45                                  DSPATR(HI)                                              
+     A  45                                  DSPATR(RI)                                              
+     A  45                                  DSPATR(PC)                                              
+     A  92        PSUTPE2   R        B  4 43REFFLD(TPED)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+24115A  67                                                                                          
+24115AO 93        PSUDES1   R        B  4 21REFFLD(DES1)                                            
+24115A* 93        PSUDES1   R        B  4 21REFFLD(DES1)                                            
+     A                                      DSPATR(HI)                                              
+     A****                                  CHECK(LC)                                               
+     A  87                                  DSPATR(PR)                                              
+     A N87                                  DSPATR(UL)                                              
+24115A  93N67     PSUTPE3   R        B  4 73REFFLD(TPED)                                            
+24115A* 93        PSUTPE3   R        B  4 73REFFLD(TPED)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+24115A  93N67     PSUFRE3   R        B  4 62REFFLD(AL10)                                            
+24115A* 93        PSUFRE3   R        B  4 62REFFLD(AL10)                                            
+     A N45                                  DSPATR(HI)                                              
+     A  45                                  DSPATR(RI)                                              
+     A  45                                  DSPATR(PC)                                              
+     A  94        PSUCLAB   R        B  4 21REFFLD(CLAB)                                            
+     A                                      DSPATR(HI)                                              
+     A                                      CHECK(LC)                                               
+     A  87                                  DSPATR(PR)                                              
+     A N87                                  DSPATR(UL)                                              
+     A  94        PSUTPE4   R        B  4 48REFFLD(TPED)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+     A  94        PSUFRE4   R        B  4 37REFFLD(AL10)                                            
+     A N45                                  DSPATR(HI)                                              
+     A  45                                  DSPATR(RI)                                              
+     A  45                                  DSPATR(PC)                                              
+     A  95        PSUFRE8   R        B  4 21REFFLD(AL10)                                            
+     A N45                                  DSPATR(HI)                                              
+     A  45                                  DSPATR(RI)                                              
+     A  45                                  DSPATR(PC)                                              
+     A  95        PSUCUS8   R        B  4 32REFFLD(CUST)                                            
+     A                                      DSPATR(HI)                                              
+     A  87                                  DSPATR(PR)                                              
+     A N87                                  DSPATR(UL)                                              
+     A  95        PSUTPE8   R        B  4 44REFFLD(TPED)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+     A  96        PSUCUS4   R        B  4 21REFFLD(CUST)                                            
+     A                                      DSPATR(HI)                                              
+     A  87                                  DSPATR(PR)                                              
+     A N87                                  DSPATR(UL)                                              
+     A  96        PSUREFE   R        B  4 32REFFLD(DESA)                                            
+     A                                      DSPATR(HI)                                              
+     A  97        PSUCUS6   R        B  4 21REFFLD(CUST)                                            
+     A                                      DSPATR(HI)                                              
+     A  87                                  DSPATR(PR)                                              
+     A N87                                  DSPATR(UL)                                              
+     A  97        PSUTDI1   R        B  4 32REFFLD(TDIR)                                            
+     A                                      DSPATR(HI)                                              
+     *RENED    Tri par date de commande                                                           
+     A  98        PSUFPE8   R        B  4 32REFFLD(AL10)                                            
+     A N45                                  DSPATR(HI)                                              
+     A  45                                  DSPATR(RI)                                              
+     A  45                                  DSPATR(PC)                                              
+      ****                                                                                          
+     A  68        PSUNP02   R        B  4 21REFFLD(NPED)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+     A  68        PSUCI02   R        B  4 32REFFLD(AL10)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+     A  69        PSUNP01   R        B  4 21REFFLD(NPED)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+     A  69        PSUCI01   R        B  4 32REFFLD(AL10)                                            
+     A                                      DSPATR(HI)                                              
+     A  88                                  DSPATR(PR)                                              
+     A N88                                  DSPATR(UL)                                              
+     A            PSUDLGA   R        H      REFFLD(DLGA)                                            
+     A            PSUCUST   R        H      REFFLD(CUST)                                            
+     A            PSUTPED   R        H      REFFLD(TPED)                                            
+     A            PSUFRRR   R        H      REFFLD(AL10)                                            
+     *RENED    Tri par date de commande                                                           
+     A            PSUFPED   R        H      REFFLD(AL10)                                            
+      ***                                                                                           
+     A            CCCJOB        10A  O  2  2                                                        
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  2 71USER                                                    
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            SUFOPT1       79A  O  6  2MSGID(&SUFOPC1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            SUFOPT2       79A  O  7  2MSGID(&SUFOPC2 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            SUFHEAD       77A  O  8  4DSPATR(HI)                                              
+     A                                      MSGID(&SUFHED1 ASGMSG)                                  
+     A            SUFSETL       12A  O  4  2MSGID(SET 0001 ASGMSG)                                  
+     A            CCCFMT         1A  B  8  2CHECK(ER)                                               
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A                                      DSPATR(MDT)                                             
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            SUFOPC1        7A  H                                                              
+     A            SUFOPC2        7A  H                                                              
+     A            SUFHED1        7A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A          R SUFP                                                                              
+     A*%%TS  SD  19970711  181235  JESUS       REL-V3R1M0  5763-PW1                                 
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A          R PK0                                                                               
+     A*%%TS  SD  19981130  181136  JESUS       REL-V3R2M0  5763-PW1                                 
+     A                                      CF03(03 'FI')                                           
+     A                                      CF04(04)                                                
+     A                                      CF05(05)                                                
+     A                                      CF13(13)                                                
+     A                                      CF14(14)                                                
+     A                                      CF16(16)                                                
+     A                                      CF22(22)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A            CCCJOB        10A  O  2  2                                                        
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  2 71USER                                                    
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+TQM  A            @@_124     00022   O  4  2   MSGID(CMM0005 CMMMSGF)                               
+TQM  A*                                 4  2'Opción................'                                
+TQM  A            @@_125     00022   O  6  2   MSGID(CMM0051 CMMMSGF)                               
+TQM  A*                                 6  2'Cliente...............'                                
+     A            PK0OPCI   R        B  4 25REFFLD(OPCI)                                            
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A                                      DSPATR(PC)                                              
+     A            PK0NPCO   R        B  6 25REFFLD(NPED)                                            
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A  41                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PK0TPED   R        B  6 36REFFLD(TPED)                                            
+     A N42                                  DSPATR(HI)                                              
+     A  42                                  DSPATR(RI)                                              
+     A  42                                  DSPATR(PC)                                              
+     A                                      DSPATR(UL)                                              
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A          R RBLANK                                                                            
+     A*%%TS  SD  19970923  171915  EDUARD      REL-V3R1M0  5763-PW1                                 
+     A                                      ASSUME                                                  
+TQM  A                                 24  1'@'                                                     
+     A                                      DSPATR(ND)                                              
+     A          R W23                                                                               
+     A*%%TS  SD  19971008  190835  JESUS       REL-V3R1M0  5763-PW1                                 
+     A                                      WINDOW(15 45 7 27)                                      
+     A                                      CF12(12 'REVISAR')                                      
+     A                                      OVERLAY                                                 
+TQM  A            @@_126     00024   O  1  2   MSGID(CMM4152 CMMMSGF)                               
+TQM  A*                                 1  2'Se va a proceder a      '                              
+TQM  A            @@_127     00024   O  2  2   MSGID(CMM4153 CMMMSGF)                               
+TQM  A*                                 2  2'realizar la  reserva    '                              
+TQM  A            @@_128     00024   O  3  2   MSGID(CMM4154 CMMMSGF)                               
+TQM  A*                                 3  2'de la orden de venta.   '                              
+     A            W23CUST   R        O  4  2REFFLD(CUST)                                            
+     A                                      DSPATR(HI)                                              
+     A            W23NPCO   R        O  4 13REFFLD(NPED)                                            
+     A                                      DSPATR(HI)                                              
+     A            W23ARTI   R        O  5  2REFFLD(ARTI)                                            
+     A                                      DSPATR(HI)                                              
+     A            W23VARI   R        O  5 18REFFLD(VARI)                                            
+     A                                      DSPATR(HI)                                              
+     A            W23MODE   R        O  5 22REFFLD(MODE)                                            
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_129     00026   O  6  2   MSGID(CMM39EF CMMMSGF)                               
+TQM  A*                                 6  2'F12=repasar o Intro=seguir'                            
+     A                                      COLOR(BLU)                                              
+     A          R W31                                                                               
+     A*%%TS  SD  19980526  145407  JESUS       REL-V3R1M0  5763-PW1                                 
+     A                                      WINDOW(18 45 4 27)                                      
+     A                                      CF12(12 'REVISAR')                                      
+     A                                      OVERLAY                                                 
+TQM  A            @@_130     00024   O  1  2   MSGID(CMM6515 CMMMSGF)                               
+TQM  A*                                 1  2'Desea enviar el pedido  '                              
+TQM  A            @@_131     00020   O  2  2   MSGID(CMM6516 CMMMSGF)                               
+TQM  A*                                 2  2'al O.L.?            '                                  
+     A            W31SINO   R        B  3  2REFFLD(SINO)                                            
+     A                                      DSPATR(HI)                                              
+     A                                      VALUES('0' '1')                                         
+     A          R W37                                                                               
+     A*%%TS  SD  20020807  140539  JESUS       REL-V4R2M0  5769-PW1                                 
+     A                                      WINDOW(18 45 4 27)                                      
+     A                                      CF12(12 'REVISAR')                                      
+     A                                      OVERLAY                                                 
+TQM  A            @@_132     00024   O  1  2   MSGID(CMM6517 CMMMSGF)                               
+TQM  A*                                 1  2'Generar orden de compra?'                              
+     A            W37SINO   R        B  3  2REFFLD(SINO)                                            
+     A                                      DSPATR(HI)                                              
+     A                                      VALUES('0' '1')                                         
+     A          R WE3                                                                               
+     A*%%TS  SD  20040716  191853  JBAZAN      REL-V4R2M0  5769-PW1                                 
+     A                                      WINDOW(15 45 7 27)                                      
+     A                                      CF12(12 'REVISAR')                                      
+     A                                      OVERLAY                                                 
+TQM  A            @@_133     00011   O  1  2   MSGID(CMM6491 CMMMSGF)                               
+TQM  A*                                 1  2'1=CONFIRMAR'                                           
+     A                                      COLOR(BLU)                                              
+TQM  A            @@_134     00024   O  2  2   MSGID(CMM9656 CMMMSGF)                               
+TQM  A*                                 2  2'Confirmar preparación a '                              
+TQM  A            @@_135     00020   O  3  2   MSGID(CMM9657 CMMMSGF)                               
+TQM  A*                                 3  2'O.L.?               '                                  
+     A            WE3SINO   R        B  4  2REFFLD(SINO)                                            
+     A                                      DSPATR(HI)                                              
+     A                                      VALUES('0' '1')                                         
+TQM  A            @@_136     00011   O  6  2   MSGID(CMM3067 CMMMSGF)                               
+TQM  A*                                 6  2'F12=repasar'                                           
+     A                                      COLOR(BLU)                                              
+     A          R WD1                                                                               
+     A*%%TS  SD  20060321  093156  CARLOSDV    REL-V5R3M0  5722-WDS                                 
+     A                                      CF12(12 'REVISAR')                                      
+     A                                      OVERLAY                                                 
+     A                                      WINDOW(14 35 7 37)                                      
+     A                                      WDWBORDER((*COLOR BLU) (*DSPATR HI))                    
+TQM  A            @@_137     00035   O  1  1   MSGID(CMM09A5 CMMMSGF)                               
+TQM  A*                                 1  1'No se puede desreservar producto y-                    
+TQM  A*                                     a'                                                      
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_138     00032   O  2  1   MSGID(CMM09A6 CMMMSGF)                               
+TQM  A*                                 2  1'reservado para entregas directas'                      
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_139     00029   O  3  1   MSGID(CMM09A7 CMMMSGF)                               
+TQM  A*                                 3  1'hasta llegar a fecha acordada'                         
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_140     00011   O  5  1   MSGID(CMM09A8 CMMMSGF)                               
+TQM  A*                                 5  1'Fecha Envío'                                           
+     A            WD1FRRR       10   O  5 18DSPATR(HI)                                              
+TQM  A            @@_141     00014   O  6  1   MSGID(CMM09A9 CMMMSGF)                               
+TQM  A*                                 6  1'Fecha Acordada'                                        
+     A            WD1FACO       10   O  6 18DSPATR(HI)                                              
+04098A          R W05                                                                               
+04098A                                      WINDOW(9 30 6 32 *NOMSGLIN)                             
+04098A                                      OVERLAY                                                 
+04098A                                      CF12(12 'Revisar')                                      
+04098A                                      CF10(10 'Confirmar')                                    
+TQM  A            @@_142     00026   O  1  2   MSGID(CMM106D CMMMSGF)                               
+TQM  A*                                 1  2'Autorizar y Liberar Pedido'                            
+04098A                                      DSPATR(HI)                                              
+04098A            W05NPCO   R        O  1 21REFFLD(NPED)                                            
+04098A                                      DSPATR(HI)                                              
+TQM  A            @@_143     00022   O  3  2   MSGID(CMM106B CMMMSGF)                               
+TQM  A*                                 3  2'Rendimiento del pedido'                                
+04098A            W05RDTOP       4A  O  3 25                                                        
+TQM  A            @@_144     00022   O  4  2   MSGID(CMM106C CMMMSGF)                               
+TQM  A*                                 4  2'Rendimiento de empresa'                                
+04098A            W05RDTOE       3A  O  4 25                                                        
+TQM  A            @@_145     00028   O  6  2   MSGID(CMM105F CMMMSGF)                               
+TQM  A*                                 6  2'F10=Confirmar F12=Retroceder'                          
+04098A                                      DSPATR(HI)                                              
+03111A          R W01                                                                               
+03111A*%%TS  SD  20021021  145224  VICKY       REL-V4R2M0  5769-PW1                                 
+03111A*                                     WINDOW(16 45 6 27)                                      
+03111A                                      WINDOW(18 42 4 34)                                      
+03111A                                      OVERLAY                                                 
+03111A                                      CF04(04 'REVISAR')                                      
+TQM  A            @@_146     00024   O  1  2   MSGID(CMM6515 CMMMSGF)                               
+TQM  A*                                 1  2'Desea enviar el pedido  '                              
+TQM  A            @@_147     00024   O  2  2   MSGID(CMM22BA CMMMSGF)                               
+TQM  A*                                 2  2'directamente al cliente?'                              
+03111A            W01SINO   R        B  3  2REFFLD(SINO)                                            
+03111A                                      DSPATR(HI)                                              
+03111A                                      VALUES('0' '1')                                         
+C1544A*%%TS  SD  20021021  145224  VICKY       REL-V4R2M0  5769-PW1                                 
+C1544A          R W6C                                                                               
+C1544A*%%TS  SD  20140408  101549  JLMARTIN    REL-V6R1M0  5761-WDS                                 
+C1544A                                      WINDOW(18 42 4 34)                                      
+C1544A                                      OVERLAY                                                 
+C1544A                                      CF04(04 'REVISAR')                                      
+TQM  A            @@_148     00025   O  1  5   MSGID(CMM39C3 CMMMSGF)                               
+TQM  A*                                 1  5'Packing List Consolidador'                             
+C1544A            W6CMS1        30   O  2  3DSPATR(HI)                                              
+C1544A                                      MSGID(&W6MSG1 ASGMSG)                                   
+C1544A            W6CMS2        30   O  3  3DSPATR(HI)                                              
+C1544A                                      MSGID(&W6MSG2 ASGMSG)                                   
+C1544A            W6MSG1         7A  H                                                              
+C1544A            W6MSG2         7A  H                                                              
+C1543 *-------------------------------------------------------------------------                    
+C1543 *                                                                                             
+C1543A          R W15                                                                               
+C1543A                                      WINDOW(6 20 13 40)                                      
+C1543A                                      CF04(04 'LISTA')                                        
+C1543A                                      CF12(12 'REVISAR')                                      
+C1543A                                      OVERLAY                                                 
+C1543A                                      RMVWDW                                                  
+TQM  A            @@_149     00032   O  2  2   MSGID(CMM3A32 CMMMSGF)                               
+TQM  A*                                 2  2'Como Usuario Autorizado, le está'                      
+TQM  A            @@_150     00033   O  3  2   MSGID(CMM3A33 CMMMSGF)                               
+TQM  A*                                 3  2'permitido borrar líneas de pedido'                     
+TQM  A            @@_151     00035   O  4  2   MSGID(CMM3A34 CMMMSGF)                               
+TQM  A*                                 4  2'ó pedidos con líneas de Referencia-                    
+TQM  A*                                     s'                                                      
+TQM  A            @@_152     00035   O  5  2   MSGID(CMM3A35 CMMMSGF)                               
+TQM  A*                                 5  2'tipo B, para las que se ha superad-                    
+TQM  A*                                     o'                                                      
+TQM  A            @@_153     00035   O  6  2   MSGID(CMM3A36 CMMMSGF)                               
+TQM  A*                                 6  2'el % de, días entre la Fecha Actua-                    
+TQM  A*                                     l'                                                      
+TQM  A            @@_154     00034   O  7  2   MSGID(CMM3A37 CMMMSGF)                               
+TQM  A*                                 7  2'y la Fecha de Recepción, entre los'                    
+TQM  A            @@_155     00018   O  8  2   MSGID(CMM3A38 CMMMSGF)                               
+TQM  A*                                 8  2'días de Lead Time.'                                    
+TQM  A            @@_156     00030   O  9  2   MSGID(CMM3A39 CMMMSGF)                               
+TQM  A*                                 9  2'Está seguro de la anulación ?:'                        
+TQM  A            @@_157     00031   O 11  2   MSGID(CMM3A3A CMMMSGF)                               
+TQM  A*                                11  2'F12=Retroceder  Intro=Confirmar'                       
+C1543A                                      COLOR(BLU)                                              
+C1543A            W15SN          1A  B  9 33DSPATR(HI)                                              
+C1543A                                      DSPATR(UL)                                              
+C1543A  50                                  DSPATR(PC)                                              
+C1543A  50                                  DSPATR(RI)                                              
+C2520 *----------------------------------------------------------------                             
+C2520A          R WERRCOA                                                                           
+C2520A                                      WINDOW(15 45 6 27)                                      
+C2520A                                      CF12(12 'REVISAR')                                      
+C2520A                                      OVERLAY                                                 
+TQM  A            @@_075     00024   O  1  2   MSGID(CMM3A4E CMMMSGF)                               
+TQM  A*                                 1  2'AVISO COENVIO INCOMPLETO'                              
+C2520A                                      DSPATR(HI)                                              
+TQM  A            @@_076     00025   O  2  2   MSGID(CMM09D0 CMMMSGF)                               
+TQM  A*                                 2  2'Está mezclando Coenvíos o'                             
+TQM  A            @@_077     00026   O  3  2   MSGID(CMM09D1 CMMMSGF)                               
+TQM  A*                                 3  2'está intentando hacer Xdoc'                            
+TQM  A            @@_078     00021   O  4  2   MSGID(CMM09D2 CMMMSGF)                               
+TQM  A*                                 4  2'de coenvío incompleto'                                 
+TQM  A            @@_079     00012   O  5  2   MSGID(CMM0282 CMMMSGF)                               
+TQM  A*                                 5  2'Intro=seguir'                                          
+C2520A                                      COLOR(RED)                                              
+TQM  A            @@_080     00010   O  5 16   MSGID(CMM3D9B CMMMSGF)                               
+TQM  A*                                 5 16'F12=P.Ant.'                                            
+C2520A                                      COLOR(RED)                                              

@@ -1,0 +1,262 @@
+     A*%%TS  SD  20140321  125640  MALONSO     REL-V6R1M0  5761-WDS                                 
+TQM  A* T Q M   4 0 0          11/12/13  Sowre Consulting,sl                                        
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3)                                      
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      PRINT                                                   
+     A          R SUFD                      SFL                                                     
+     A*%%TS  SD  20140321  125640  MALONSO     REL-V6R1M0  5761-WDS                                 
+     A                                      KEEP                                                    
+     A  78                                  SFLNXTCHG                                               
+     A            SUFCIAS   R        H      REFFLD(CIAS)                                            
+     A            SUFARTI       15A  H                                                              
+     A            SUFVARI        3A  H                                                              
+     A            SUFMODE        3A  H                                                              
+     A            SUFTPE4        2A  H                                                              
+     A            SUFLOGE        3A  H                                                              
+     A            IND33          1A  H                                                              
+     A            SUFLINE   R        H      REFFLD(RCODEPE/S5LINE *LIBL/CODEPE)                     
+     A            SUFBAJA   R        O 13  2REFFLD(BAJA)                                            
+     A                                      DSPATR(HI)                                              
+     A  33                                  COLOR(YLW)                                              
+     A            SUFOPCI        2A  B 13  4                                                        
+     A N41                                  DSPATR(HI)                                              
+     A  41                                  DSPATR(RI)                                              
+     A N75                                  DSPATR(PC)                                              
+     A            SUFDATA       74A  O 13  7                                                        
+     A  50                                  DSPATR(RI)                                              
+     A          R SUFC                      SFLCTL(SUFD)                                            
+     A*%%TS  SD  20131107  105136  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      SFLSIZ(0009)                                            
+     A                                      SFLPAG(0008)                                            
+     A                                      CF03(03)                                                
+     A                                      CF04(04)                                                
+     A                                      CF10(10)                                                
+     A                                      CF12(12)                                                
+     A                                      VLDCMDKEY(74)                                           
+     A N71                                  ROLLUP(76)                                              
+     A                                      ROLLDOWN(77)                                            
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A                                      OVERLAY                                                 
+     A                                      PUTRETAIN                                               
+     A  73                                  SFLDSP                                                  
+     A  72                                  SFLDSPCTL                                               
+     A  70                                  SFLCLR                                                  
+     A  71                                  SFLEND(*MORE)                                           
+     A            SUFRCDN        4S 0H      SFLRCDNBR                                               
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            SUFOPC1        7A  H                                                              
+     A            SUFOPC2        7A  H                                                              
+     A            SUFHED1        7A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            SUCCUST       10A  O  3 46DSPATR(HI)                                              
+     A            SUCCUSTD      35A  O  4 46DSPATR(HI)                                              
+TQM  A            @@_001     00008   O  3  2   MSGID(CMM2B91 CMMMSGF)                               
+TQM  A*                                 3  2'Pedido..'                                              
+     A                                      COLOR(BLU)                                              
+     A            SUCNPCO       10A  O  3 11DSPATR(HI)                                              
+     A            SUCDIR1       34A  O  5 46COLOR(YLW)                                              
+     A            SUCDIR2       34A  O  6 46COLOR(YLW)                                              
+     A            SUCDIR3       34A  O  7 46COLOR(YLW)                                              
+     A            SUCDIR4       34A  O  8 46COLOR(YLW)                                              
+     A            SUFOPT1       79A  O 11  2MSGID(&SUFOPC1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            CCCFMT         1A  O 12  2DSPATR(HI)                                              
+     A                                      DSPATR(UL)                                              
+     A            SUFHEAD       77A  O 12  4DSPATR(HI)                                              
+     A                                      MSGID(&SUFHED1 ASGMSG)                                  
+TQM  A            @@_002     00010   O  9 57   MSGID(CMM30C6 CMMMSGF)                               
+TQM  A*                                 9 57'Confirmada'                                            
+     A                                      DSPATR(UL)                                              
+     A                                      COLOR(BLU)                                              
+TQM  A            @@_003     00010   O  9 68   MSGID(CMM30C7 CMMMSGF)                               
+TQM  A*                                 9 68'Simulada  '                                            
+     A                                      DSPATR(UL)                                              
+     A                                      COLOR(BLU)                                              
+     A            SUCFREP       10A  O  5 11DSPATR(HI)                                              
+     A            SUCFRRE       10A  O 10 57DSPATR(HI)                                              
+     A                                      DSPATR(RI)                                              
+     A            SUCFRRF       10A  O 10 68DSPATR(HI)                                              
+     A                                      DSPATR(RI)                                              
+     A            SUCFPED       10A  O  4 11DSPATR(HI)                                              
+TQM  A            @@_004     00008   O  6  2   MSGID(CMM30C8 CMMMSGF)                               
+TQM  A*                                 6  2'Agencia.'                                              
+TQM  A            @@_005     00008   O  9 13   MSGID(CMM983B CMMMSGF)                               
+TQM  A*                                 9 13'T.Portes'                                              
+TQM  A            @@_006     00008   O  9  2   MSGID(CMM30C9 CMMMSGF)                               
+TQM  A*                                 9  2'Coenvío.'                                              
+TQM  A            @@_007     00008   O  8  2   MSGID(CMM30CA CMMMSGF)                               
+TQM  A*                                 8  2'S/Ref...'                                              
+     A            SUCREFE       20A  O  8 11DSPATR(HI)                                              
+     A            SUCCOEN        1A  O  9 11DSPATR(HI)                                              
+     A            SUCTPOR        3A  O  9 22DSPATR(HI)                                              
+TQM  A            @@_008     00007   O  3 38   MSGID(CMM0943 CMMMSGF)                               
+TQM  A*                                 3 38'Cliente'                                               
+     A                                      COLOR(BLU)                                              
+     A            SUCDLGA        5A  O  3 22DSPATR(HI)                                              
+     A            SUCTTTA        3A  O  6 11DSPATR(HI)                                              
+     A            SUCTTAD       28A  O  6 15                                                        
+TQM  A            @@_009     00008   O  4  2   MSGID(CMM20CD CMMMSGF)                               
+TQM  A*                                 4  2'Fecha...'                                              
+TQM  A            @@_010     00008   O  5  2   MSGID(CMM30CB CMMMSGF)                               
+TQM  A*                                 5  2'Solicit.'                                              
+TQM  A            @@_011     00008   O  7  2   MSGID(CMM30CC CMMMSGF)                               
+TQM  A*                                 7  2'Repres..'                                              
+     A            SUCREPD       28A  O  7 15                                                        
+TQM  A            @@_012     00008   O 10  2   MSGID(CMM30CD CMMMSGF)                               
+TQM  A*                                10  2'F.pago..'                                              
+     A            SUCFPAG        2A  O 10 11DSPATR(HI)                                              
+     A            SUCFPAD       20A  O 10 14                                                        
+     A            SUCREPR        3S 0O  7 11DSPATR(HI)                                              
+     A            SUCTDI1        2   O  3 57                                                        
+C1632A          R SUFD2                     SFL                                                     
+C1632A*%%TS  SD  20100215  100604  CARLOSDV    REL-V5R3M0  5722-WDS                                 
+C1632A                                      KEEP                                                    
+C1632A  78                                  SFLNXTCHG                                               
+C1632A            SUFCIAS   R        H      REFFLD(CIAS)                                            
+C1632A            SUFARTI       15   H                                                              
+C1632A            SUFVARI        3   H                                                              
+C1632A            SUFMODE        3   H                                                              
+C1632A            SUFTPE4        2   H                                                              
+C1632A            SUFLOGE        3   H                                                              
+C1158A            SUFLINE   R        H      REFFLD(RCODEPE/S5LINE *LIBL/CODEPE)                     
+C1632A            SUFBAJA   R        O 13  2REFFLD(BAJA)                                            
+C1632A                                      DSPATR(HI)                                              
+C1632A            SUFOPCI        2A  B 13  4                                                        
+C1632A N41                                  DSPATR(HI)                                              
+C1632A  41                                  DSPATR(RI)                                              
+C1632A N75                                  DSPATR(PC)                                              
+C1632A            SUFDATA       74A  O 13  7                                                        
+C1632A  50                                  DSPATR(RI)                                              
+C1632A          R SUFC2                     SFLCTL(SUFD2)                                           
+C1632A*%%TS  SD  20131107  105136  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+C1632A                                      SFLSIZ(0009)                                            
+C1632A                                      SFLPAG(0008)                                            
+C1632A                                      CF03(03)                                                
+C1632A                                      CF04(04)                                                
+C1632A                                      CF10(10)                                                
+C1632A                                      CF12(12)                                                
+C1632A                                      VLDCMDKEY(74)                                           
+C1632A N71                                  ROLLUP(76)                                              
+C1632A                                      ROLLDOWN(77)                                            
+C1632A                                      KEEP                                                    
+C1632A                                      RTNCSRLOC(&RECORD &FIELD)                               
+C1632A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+C1632A                                      OVERLAY                                                 
+C1632A                                      PUTRETAIN                                               
+C1632A  73                                  SFLDSP                                                  
+C1632A  72                                  SFLDSPCTL                                               
+C1632A  70                                  SFLCLR                                                  
+C1632A  71                                  SFLEND(*MORE)                                           
+C1632A            SUFRCDN        4S 0H      SFLRCDNBR                                               
+C1632A            FIELD         10A  H                                                              
+C1632A            RECORD        10A  H                                                              
+C1632A            SUFOPC1        7A  H                                                              
+C1632A            SUFOPC2        7A  H                                                              
+C1632A            SUFHED1        7A  H                                                              
+C1632A            CCCCTIT        7A  H                                                              
+C1632A            CSRFILA        3S 0H                                                              
+C1632A            CSRCOLU        3S 0H                                                              
+C1632A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+C1632A                                  1 60TIME                                                    
+C1632A                                      COLOR(GRN)                                              
+C1632A                                  1 71DATE                                                    
+C1632A                                      EDTCDE(Y)                                               
+C1632A                                      COLOR(GRN)                                              
+C1632A            CCCJOB        10A  O  2  2                                                        
+C1632A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+C1632A                                      MSGID(&CCCCTIT ASGMSG)                                  
+C1632A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+C1632A                                  2 71USER                                                    
+C1632A            SUCCUST       10A  O  3 46DSPATR(HI)                                              
+C1632A            SUCCUSTD      35A  O  4 46DSPATR(HI)                                              
+C1632A            @@_001     00008   O  3  2   MSGID(CMM2B91 CMMMSGF)                               
+C1632A*                                 3  2'Pedido..'                                              
+C1632A                                      COLOR(BLU)                                              
+C1632A            SUCNPCO       10A  O  3 11DSPATR(HI)                                              
+C1632A            SUCDIR1       34A  O  5 46COLOR(YLW)                                              
+C1632A            SUCDIR2       34A  O  6 46COLOR(YLW)                                              
+C1632A            SUCDIR3       34A  O  7 46COLOR(YLW)                                              
+C1632A            SUCDIR4       34A  O  8 46COLOR(YLW)                                              
+C1632A            SUFOPT1       79A  O 11  2MSGID(&SUFOPC1 ASGMSG)                                  
+C1632A                                      COLOR(BLU)                                              
+C1632A            CCCFMT         1A  O 12  2DSPATR(HI)                                              
+C1632A                                      DSPATR(UL)                                              
+C1632A            SUFHEAD       77A  O 12  4DSPATR(HI)                                              
+C1632A                                      MSGID(&SUFHED1 ASGMSG)                                  
+C1632A            @@_002     00010   O  9 57   MSGID(CMM30C6 CMMMSGF)                               
+C1632A*                                 9 57'Confirmada'                                            
+C1632A                                      DSPATR(UL)                                              
+C1632A                                      COLOR(BLU)                                              
+C1632A*           @@_003     00010   O  9 68   MSGID(CMM30C7 CMMMSGF)                               
+C1632A*                                 9 68'Simulada  '                                            
+C1632A*                                     DSPATR(UL)                                              
+C1632A*                                     COLOR(BLU)                                              
+C1632A            SUCFREP       10A  O  5 11DSPATR(HI)                                              
+C1632A            SUCFRRF       10A  O 10 57DSPATR(HI)                                              
+C1632A                                      DSPATR(RI)                                              
+C1632A*           SUCFRRF       10A  O 10 68DSPATR(HI)                                              
+C1632A*                                     DSPATR(RI)                                              
+C1632A            SUCFPED       10A  O  4 11DSPATR(HI)                                              
+C1632A            @@_004     00008   O  6  2   MSGID(CMM30C8 CMMMSGF)                               
+C1632A*                                 6  2'Agencia.'                                              
+C1632A            @@_005     00008   O  9 13   MSGID(CMM983B CMMMSGF)                               
+C1632A*                                 9 13'T.Portes'                                              
+C1632A            @@_006     00008   O  9  2   MSGID(CMM30C9 CMMMSGF)                               
+C1632A*                                 9  2'Coenvío.'                                              
+C1632A            @@_007     00008   O  8  2   MSGID(CMM30CA CMMMSGF)                               
+C1632A*                                 8  2'S/Ref...'                                              
+C1632A            SUCREFE       20A  O  8 11DSPATR(HI)                                              
+C1632A            SUCCOEN        1A  O  9 11DSPATR(HI)                                              
+C1632A            SUCTPOR        3A  O  9 22DSPATR(HI)                                              
+C1632A            @@_008     00007   O  3 38   MSGID(CMM0943 CMMMSGF)                               
+C1632A*                                 3 38'Cliente'                                               
+C1632A                                      COLOR(BLU)                                              
+C1632A            SUCDLGA        5A  O  3 22DSPATR(HI)                                              
+C1632A            SUCTTTA        3A  O  6 11DSPATR(HI)                                              
+C1632A            SUCTTAD       28A  O  6 15                                                        
+C1632A            @@_009     00008   O  4  2   MSGID(CMM20CD CMMMSGF)                               
+C1632A*                                 4  2'Fecha...'                                              
+C1632A            @@_010     00008   O  5  2   MSGID(CMM30CB CMMMSGF)                               
+C1632A*                                 5  2'Solicit.'                                              
+C1632A            @@_011     00008   O  7  2   MSGID(CMM30CC CMMMSGF)                               
+C1632A*                                 7  2'Repres..'                                              
+C1632A            SUCREPD       28A  O  7 15                                                        
+C1632A            @@_012     00008   O 10  2   MSGID(CMM30CD CMMMSGF)                               
+C1632A*                                10  2'F.pago..'                                              
+C1632A            SUCFPAG        2A  O 10 11DSPATR(HI)                                              
+C1632A            SUCFPAD       20A  O 10 14                                                        
+C1632A            SUCREPR        3S 0O  7 11DSPATR(HI)                                              
+C1632A            SUCTDI1        2   O  3 57                                                        
+     A          R SUFP                                                                              
+     A*%%TS  SD  20050510  172312  CDELVALLE   REL-V5R1M0  5722-WDS                                 
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+C1632A          R SUFP2                                                                             
+C1632A*%%TS  SD  20050510  172312  CDELVALLE   REL-V5R1M0  5722-WDS                                 
+C1632A            PPPCMD1        7A  H                                                              
+C1632A            MSGER          7A  H                                                              
+C1632A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+C1632A                                      COLOR(BLU)                                              
+C1632A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+C1632A                                      DSPATR(HI)                                              

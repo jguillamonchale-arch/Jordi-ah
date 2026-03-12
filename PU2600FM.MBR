@@ -1,0 +1,34 @@
+TQM  A* T Q M   4 0 0          07/07/05  Sowre Consulting,sl                                        
+     A*%%TS  SD  20010308  171409  TONI        REL-V4R2M0  5769-PW1                                 
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3)                                      
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      PRINT                                                   
+     A          R W10                                                                               
+     A*%%TS  SD  20010308  171409  TONI        REL-V4R2M0  5769-PW1                                 
+     A                                      WINDOW(4 12 10 54)                                      
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      OVERLAY                                                 
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+TQM  A            @@_001     00021   O  2  1   MSGID(CMM4515 CMMMSGF)                               
+TQM  A*                                 2  1'Atención:            '                                 
+     A            MSGART        25   O  6  3COLOR(WHT)                                              
+     A            MSGER          7A  H                                                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            PPWCMD1        7A  H                                                              
+TQM  A            @@_002     00040   O  4  3   MSGID(CMM4516 CMMMSGF)                               
+TQM  A*                                 4  3'El precio correspondiente al artíc-                    
+TQM  A*                                     ulo...'                                                 
+TQM  A            @@_003     00017   O  9 37   MSGID(CMM4517 CMMMSGF)                               
+TQM  A*                                 9 37'...está caducado.'                                     
+     A            MSGDES        40   O  7 14COLOR(WHT)                                              
+     A          R RBLANK                                                                            
+     A*%%TS  SD  19970923  171915  JOAN        REL-V3R1M0  5763-PW1                                 
+     A                                      ASSUME                                                  
+TQM  A                                 24  1'@'                                                     
+     A                                      DSPATR(ND)                                              

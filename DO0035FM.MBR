@@ -1,0 +1,451 @@
+TQM  A* T Q M   4 0 0          11/11/25  Sowre Consulting,sl                                        
+     A*%%TS  SD  20140121  180809  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3)                                      
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      PRINT                                                   
+     A          R P2B                                                                               
+     A*%%TS  SD  20140121  180809  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      CF03(03 'FI')                                           
+     A  27                                  CF10(10 'DLT')                                          
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            P2BDLGA        5A  O  3 17DSPATR(RI)                                              
+     A                                      DSPATR(HI)                                              
+TQM  A                                  3 23'-'                                                     
+     A            P2BDESC       40A  O  3 25                                                        
+TQM  A            @@_001     00011   O  4 35   MSGID(CMM34CD CMMMSGF)                               
+TQM  A*                                 4 35'Excepciones'                                           
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_002     00022   O  5  2   MSGID(CMM0832 CMMMSGF)                               
+TQM  A*                                 5  2'Proveedor.............'                                
+     A            P2BPRVR       10A  B  5 25                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+     A            P2BDES1       40A  O  6 25                                                        
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+TQM  A  27        @@_003     00036   O 21  2   MSGID(CMM34CE CMMMSGF)                               
+TQM  A* 27                             21  2'Pulse F10 para eliminar la excepci-                    
+TQM  A*                                     ón'                                                     
+     A                                      DSPATR(HI)                                              
+     A                                      DSPATR(BL)                                              
+     A          R P2C                                                                               
+     A*%%TS  SD  20140121  161335  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      CF03(03 'FI')                                           
+     A  27                                  CF10(10 'DLT')                                          
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_004     00022   O  5  2   MSGID(CMM0070 CMMMSGF)                               
+TQM  A*                                 5  2'Artículo..............'                                
+     A            P2CDLGA        5A  O  3 17DSPATR(RI)                                              
+     A                                      DSPATR(HI)                                              
+TQM  A                                  3 23'-'                                                     
+     A            P2CDESC       40A  O  3 25                                                        
+     A            P2CARTI       15A  B  5 25                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+TQM  A            @@_005     00011   O  4 35   MSGID(CMM34CD CMMMSGF)                               
+TQM  A*                                 4 35'Excepciones'                                           
+     A                                      DSPATR(HI)                                              
+     A            P2CVARI        3A  B  5 41                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+     A            P2CMODE        3A  B  5 45                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+TQM  A  27        @@_006     00036   O 21  2   MSGID(CMM34CE CMMMSGF)                               
+TQM  A* 27                             21  2'Pulse F10 para eliminar la excepci-                    
+TQM  A*                                     ón'                                                     
+     A                                      DSPATR(HI)                                              
+     A                                      DSPATR(BL)                                              
+     A            P2CDES1       40   O  6 25                                                        
+     A          R P2D                                                                               
+     A*%%TS  SD  20140121  160854  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      CF03(03 'FI')                                           
+     A  27                                  CF10(10 'DLT')                                          
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_007     00022   O  5  2   MSGID(CMM0831 CMMMSGF)                               
+TQM  A*                                 5  2'Familia...............'                                
+     A            P2DDLGA        5A  O  3 17DSPATR(RI)                                              
+     A                                      DSPATR(HI)                                              
+TQM  A                                  3 23'-'                                                     
+     A            P2DDESC       40A  O  3 25                                                        
+     A            P2DFAMI        3A  B  5 25                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+TQM  A            @@_008     00011   O  4 35   MSGID(CMM34CD CMMMSGF)                               
+TQM  A*                                 4 35'Excepciones'                                           
+     A                                      DSPATR(HI)                                              
+TQM  A  27        @@_009     00036   O 21  2   MSGID(CMM34CE CMMMSGF)                               
+TQM  A* 27                             21  2'Pulse F10 para eliminar la excepci-                    
+TQM  A*                                     ón'                                                     
+     A                                      DSPATR(HI)                                              
+     A                                      DSPATR(BL)                                              
+     A            P2DDES1       40   O  6 25                                                        
+     A          R P2E                                                                               
+     A*%%TS  SD  20140121  160854  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      CF03(03 'FI')                                           
+     A  27                                  CF10(10 'DLT')                                          
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_010     00022   O  5  2   MSGID(CMM0759 CMMMSGF)                               
+TQM  A*                                 5  2'Familia/Subfamilia....'                                
+     A            P2EDLGA        5A  O  3 17DSPATR(RI)                                              
+     A                                      DSPATR(HI)                                              
+TQM  A                                  3 23'-'                                                     
+     A            P2EDESC       40A  O  3 25                                                        
+     A            P2EFMIL        3A  B  5 25                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+TQM  A            @@_011     00011   O  4 35   MSGID(CMM34CD CMMMSGF)                               
+TQM  A*                                 4 35'Excepciones'                                           
+     A                                      DSPATR(HI)                                              
+TQM  A                                  5 29'/'                                                     
+     A            P2ESMIL        3A  B  5 31                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+     A            P2EDES1       40   O  6 25                                                        
+TQM  A  27        @@_012     00036   O 21  2   MSGID(CMM34CE CMMMSGF)                               
+TQM  A* 27                             21  2'Pulse F10 para eliminar la excepci-                    
+TQM  A*                                     ón'                                                     
+     A                                      DSPATR(HI)                                              
+     A                                      DSPATR(BL)                                              
+     A          R P2F                                                                               
+     A*%%TS  SD  20140121  160854  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      CF03(03 'FI')                                           
+     A  27                                  CF10(10 'DLT')                                          
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_013     00022   O  5  2   MSGID(CMM34CF CMMMSGF)                               
+TQM  A*                                 5  2'Familia tarifa........'                                
+     A            P2FDLGA        5A  O  3 17DSPATR(RI)                                              
+     A                                      DSPATR(HI)                                              
+TQM  A                                  3 23'-'                                                     
+     A            P2FDESC       40A  O  3 25                                                        
+TQM  A            @@_014     00011   O  4 35   MSGID(CMM34CD CMMMSGF)                               
+TQM  A*                                 4 35'Excepciones'                                           
+     A                                      DSPATR(HI)                                              
+     A            P2FFAMT        3A  B  5 25                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+     A            P2FDES1       40   O  6 25                                                        
+TQM  A  27        @@_015     00036   O 21  2   MSGID(CMM34CE CMMMSGF)                               
+TQM  A* 27                             21  2'Pulse F10 para eliminar la excepci-                    
+TQM  A*                                     ón'                                                     
+     A                                      DSPATR(HI)                                              
+     A                                      DSPATR(BL)                                              
+     A          R P2G                                                                               
+     A*%%TS  SD  20140121  160854  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      CF03(03 'FI')                                           
+     A  27                                  CF10(10 'DLT')                                          
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_016     00022   O  5  2   MSGID(CMM0051 CMMMSGF)                               
+TQM  A*                                 5  2'Cliente...............'                                
+     A            P2GDLGA        5A  O  3 17DSPATR(RI)                                              
+     A                                      DSPATR(HI)                                              
+TQM  A                                  3 23'-'                                                     
+     A            P2GDESC       40A  O  3 25                                                        
+TQM  A            @@_017     00011   O  4 35   MSGID(CMM34CD CMMMSGF)                               
+TQM  A*                                 4 35'Excepciones'                                           
+     A                                      DSPATR(HI)                                              
+     A            P2GCUST       10A  B  5 25                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+     A            P2GDES1       40   O  6 25                                                        
+TQM  A  27        @@_018     00036   O 21  2   MSGID(CMM34CE CMMMSGF)                               
+TQM  A* 27                             21  2'Pulse F10 para eliminar la excepci-                    
+TQM  A*                                     ón'                                                     
+     A                                      DSPATR(HI)                                              
+     A                                      DSPATR(BL)                                              
+     A          R P2H                                                                               
+     A*%%TS  SD  20140121  160854  JMARTINEZP  REL-V6R1M0  5761-WDS                                 
+     A                                      CF03(03 'FI')                                           
+     A  27                                  CF10(10 'DLT')                                          
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_019     00022   O  5  2   MSGID(CMM3BA6 CMMMSGF)                               
+TQM  A*                                 5  2'Procedencia Pedido....'                                
+     A            P2HDLGA        5A  O  3 17DSPATR(RI)                                              
+     A                                      DSPATR(HI)                                              
+TQM  A                                  3 23'-'                                                     
+     A            P2HDESC       40A  O  3 25                                                        
+TQM  A            @@_020     00011   O  4 35   MSGID(CMM34CD CMMMSGF)                               
+TQM  A*                                 4 35'Excepciones'                                           
+     A                                      DSPATR(HI)                                              
+     A            P2HPPED        2A  B  5 25                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+     A            P2HDES1       40   O  6 25                                                        
+TQM  A  27        @@_021     00036   O 21  2   MSGID(CMM34CE CMMMSGF)                               
+TQM  A* 27                             21  2'Pulse F10 para eliminar la excepci-                    
+TQM  A*                                     ón'                                                     
+     A                                      DSPATR(HI)                                              
+     A                                      DSPATR(BL)                                              
+     A          R P2M                                                                               
+     A                                      CF03(03 'FI')                                           
+     A  27                                  CF10(10 'DLT')                                          
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      KEEP                                                    
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCDEEM   R        O  1  2REFFLD(DESC)                                            
+     A                                  1 60TIME                                                    
+     A                                      COLOR(GRN)                                              
+     A                                  1 71DATE                                                    
+     A                                      EDTCDE(Y)                                               
+     A                                      COLOR(GRN)                                              
+     A            CCCJOB        10A  O  2  2                                                        
+     A            CCCTIT        40A  O  2 17DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+     A            CCCPGM        10A  O  2 60COLOR(BLU)                                              
+     A                                  2 71USER                                                    
+     A            PPPCMD        78A  O 23  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        79A  O 24  1MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+TQM  A            @@_022     00022   O  5  2   MSGID(CMM52C0 CMMMSGF)                               
+TQM  A*                                 5  2'Categorización Artic..'                                
+     A            P2MDLGA        5A  O  3 17DSPATR(RI)                                              
+     A                                      DSPATR(HI)                                              
+TQM  A                                  3 23'-'                                                     
+     A            P2MDESC       40A  O  3 25                                                        
+TQM  A            @@_023     00011   O  4 35   MSGID(CMM34CD CMMMSGF)                               
+TQM  A*                                 4 35'Excepciones'                                           
+     A                                      DSPATR(HI)                                              
+     A            P2MCATA        3A  B  5 25                                                        
+     A N40                                  DSPATR(HI)                                              
+     A  40                                  DSPATR(RI)                                              
+     A  40                                  DSPATR(PC)                                              
+     A N90 29                               DSPATR(UL)                                              
+     A N29                                                                                          
+     AO 90                                  DSPATR(PR)                                              
+     A            P2MDES1       40   O  6 25                                                        
+TQM  A  27        @@_024     00036   O 21  2   MSGID(CMM34CE CMMMSGF)                               
+TQM  A* 27                             21  2'Pulse F10 para eliminar la excepci-                    
+TQM  A*                                     ón'                                                     
+     A                                      DSPATR(HI)                                              
+     A                                      DSPATR(BL)                                              

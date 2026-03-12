@@ -1,0 +1,55 @@
+TQM  A* T Q M   4 0 0          07/07/05  Sowre Consulting,sl                                        
+     A*%%TS  SD  20000207  093507  TL          REL-V4R2M0  5769-PW1                                 
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3                  -                    
+     A                                             27 132 *DS4)                                     
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      PRINT                                                   
+     A          R W01                                                                               
+     A*%%TS  SD  20000207  093507  TL          REL-V4R2M0  5769-PW1                                 
+     A  *DS3                                WINDOW(7 9 12 40)                                       
+     A  *DS4                                WINDOW(7 9 12 40)                                       
+     A                                      OVERLAY                                                 
+     A                                      CF04(04)                                                
+     A                                      CF12(12)                                                
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            MSGER          7A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCTIT        35A  O  1  2DSPATR(HI)                                              
+     A                                      MSGID(&CCCCTIT ASGMSG)                                  
+TQM  A            @@_001     00025   O  3  2   MSGID(CMM0973 CMMMSGF)                               
+TQM  A*                                 3  2'Generación Expediente....'                             
+     A            W01GEXP        1A  B  3 28                                                        
+     A N31                                  DSPATR(HI)                                              
+     A  31                                  DSPATR(RI)                                              
+     A  31                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_002     00025   O  5  2   MSGID(CMM0971 CMMMSGF)                               
+TQM  A*                                 5  2'Nº Pedido compra=Venta...'                             
+     A            W01PEPE        1A  B  5 28                                                        
+     A N33                                  DSPATR(HI)                                              
+     A  33                                  DSPATR(RI)                                              
+     A  33                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+TQM  A            @@_003     00025   O  7  2   MSGID(CMM0972 CMMMSGF)                               
+TQM  A*                                 7  2'Generar pedido de compra.'                             
+     A            W01NPIC        1A  B  7 28                                                        
+     A N32                                  DSPATR(HI)                                              
+     A  32                                  DSPATR(RI)                                              
+     A  32                                  DSPATR(PC)                                              
+     A  90                                  DSPATR(PR)                                              
+     A            PPPCMD        35A  O 10  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            MSGERR        35A  O 11  2MSGID(&MSGER ASGMSG)                                    
+     A                                      DSPATR(HI)                                              
+     A          R RBLANK                                                                            
+     A*%%TS  SD  19970923  171915  TL          REL-V3R1M0  5763-PW1                                 
+     A                                      ASSUME                                                  
+TQM  A                                 24  1'@'                                                     
+     A                                      DSPATR(ND)                                              

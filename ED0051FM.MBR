@@ -1,0 +1,85 @@
+TQM  A* T Q M   4 0 0          26/05/14  Sowre Consulting,sl                                        
+     A*%%TS  SD  20130226  141351  CDELVALLE   REL-V6R1M0  5761-WDS                                 
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3)                                      
+     A                                      REF(*LIBL/PRDLIB)                                       
+     A                                      PRINT                                                   
+     A          R W01                                                                               
+     A*%%TS  SD  20100203  160008  JARAGONES   REL-V5R3M0  5722-WDS                                 
+     A                                      WINDOW(7 3 10 74)                                       
+     A                                      CF12(12)                                                
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A                                      OVERLAY                                                 
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+     A            CCCTIT        59   O  1  2MSGID(&CCCCTIT ASGMSG)                                  
+     A                                      DSPATR(RI)                                              
+     A            PPPCMD        59A  O  9  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            W01ERR1       30   O  3  2DSPATR(HI)                                              
+     A            W01EXT1       42   O  3 33                                                        
+     A            W01ERR2       30A  O  4  2DSPATR(HI)                                              
+     A            W01ERR3       30A  O  5  2DSPATR(HI)                                              
+     A            W01ERR4       30A  O  6  2DSPATR(HI)                                              
+     A            W01ERR5       30A  O  7  2DSPATR(HI)                                              
+     A            W01EXT2       42A  O  4 33                                                        
+     A            W01EXT3       42A  O  5 33                                                        
+     A            W01EXT4       42A  O  6 33                                                        
+     A            W01EXT5       42A  O  7 33                                                        
+     A          R W02                                                                               
+     A*%%TS  SD  20130226  141351  CDELVALLE   REL-V6R1M0  5761-WDS                                 
+     A                                      CF12(12)                                                
+     A                                      RTNCSRLOC(&RECORD &FIELD)                               
+     A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+     A                                      OVERLAY                                                 
+     A                                      WINDOW(7 3 6 74)                                        
+     A            CCCCTIT        7A  H                                                              
+     A            PPPCMD1        7A  H                                                              
+     A            FIELD         10A  H                                                              
+     A            RECORD        10A  H                                                              
+     A            CSRFILA        3S 0H                                                              
+     A            CSRCOLU        3S 0H                                                              
+TQM  A            @@_001     00071   O  1  2   MSGID(CMM2B4E CMMMSGF)                               
+TQM  A*                                 1  2'FD: Artículo bloqueado para compra-                    
+TQM  A*                                     s, revise para poder cursar el pedi-                    
+TQM  A*                                     do'                                                     
+     A                                      DSPATR(HI)                                              
+     A                                      COLOR(RED)                                              
+     A            W02ARVM       21A  O  3  2DSPATR(HI)                                              
+     A            W02DES1       40A  O  3 24                                                        
+     A            PPPCMD        59A  O  5  2MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+C1579A          R W03                                                                               
+C1579A*%%TS  SD  20130226  141351  CDELVALLE   REL-V6R1M0  5761-WDS                                 
+C1579A                                      CF12(12)                                                
+C1579A                                      RTNCSRLOC(&RECORD &FIELD)                               
+C1579A                                      CSRLOC(CSRFILA    CSRCOLU)                              
+C1579A                                      OVERLAY                                                 
+C1579A                                      WINDOW(7 3 6 74)                                        
+C1579A            CCCCTIT        7A  H                                                              
+C1579A            PPPCMD1        7A  H                                                              
+C1579A            FIELD         10A  H                                                              
+C1579A            RECORD        10A  H                                                              
+C1579A            CSRFILA        3S 0H                                                              
+C1579A            CSRCOLU        3S 0H                                                              
+TQM  A            @@_002     00024   O  2  2   MSGID(CMM39E8 CMMMSGF)                               
+TQM  A*                                 2  2'ATENCIÓN: PEDIDO POOLWEB'                              
+C1579A                                      COLOR(RED)                                              
+TQM  A            @@_003     00045   O  3  2   MSGID(CMM39E9 CMMMSGF)                               
+TQM  A*                                 3  2'Avisar a proveedor externo de la m-                    
+TQM  A*                                     odificación'                                            
+C1579A                                      DSPATR(HI)                                              
+C1579A            W03PRVR       10A  O  4  2                                                        
+C1579A            W03DES1       40A  O  4 14                                                        
+C1579A            PPPCMD        59A  O  5  2MSGID(&PPPCMD1 ASGMSG)                                  
+C1579A                                      COLOR(BLU)                                              
+     A          R RBLANK                                                                            
+     A*%%TS  SD  20100202  113355  JARAGONES   REL-V5R3M0  5722-WDS                                 
+     A                                      ASSUME                                                  
+TQM  A                                 24  1'@'                                                     
+     A                                      DSPATR(ND)                                              

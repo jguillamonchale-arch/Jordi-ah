@@ -1,0 +1,45 @@
+TQM  A* T Q M   4 0 0          29/12/22  Sowre Consulting,sl                                        
+     A*%%TS  SD  20220707  093716  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A*%%EC                                                                                         
+     A                                      DSPSIZ(24 80 *DS3)                                      
+     A                                      PRINT                                                   
+     A          R REG0                                                                              
+     A*%%TS  SD  20220707  093403  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A                                      ASSUME                                                  
+TQM  A                                 24  2'$'                                                     
+     A                                      DSPATR(ND)                                              
+     A          R SUFD                      SFL                                                     
+     A*%%TS  SD  20220707  093403  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A  78                                  SFLNXTCHG                                               
+     A            SUFDATA       50A  O  4  1                                                        
+     A          R SUFC                      SFLCTL(SUFD)                                            
+     A*%%TS  SD  20220707  093403  MALONSO     REL-V7R3M0  5770-WDS                                 
+E7139A                                      SFLSIZ(0200)                                            
+E7139A*                                     SFLSIZ(0100)                                            
+     A                                      SFLPAG(0010)                                            
+     A                                      WINDOW(SUFP)                                            
+     A  51                                                                                          
+     AO 52                                  CF12(12)                                                
+     A  52                                  CF10(10)                                                
+     A                                      OVERLAY                                                 
+     A  73                                  SFLDSP                                                  
+     A  72                                  SFLDSPCTL                                               
+     A  70                                  SFLCLR                                                  
+     A  71                                  SFLEND(*SCRBAR *MORE)                                   
+     A                                      WDWBORDER((*COLOR BLU) (*DSPATR HI))                    
+     A            CCCTIT        50A  O  2  1DSPATR(HI)                                              
+     A************                          MSGID(&CCCCTIT ASGMSG)                                  
+     A            SUFRCDN        4S 0H      SFLRCDNBR                                               
+     A            ZXNRR00        4S 0H                                                              
+     A************CCCCTIT        7A  H                                                              
+     A          R SUFP                                                                              
+     A*%%TS  SD  20220707  093716  MALONSO     REL-V7R3M0  5770-WDS                                 
+     A                                      WINDOW(3 13 16 52)                                      
+E7139A                                      WDWBORDER((*COLOR BLU) (*DSPATR HI))                    
+E7139A*                                     WDWBORDER((*COLOR BLU) (*DSPATR HI -                    
+E7139A*                                     RI) (*CHAR '        '))                                 
+     A                                      RMVWDW                                                  
+     A                                      USRRSTDSP                                               
+     A            PPPCMD        50A  O 15  1MSGID(&PPPCMD1 ASGMSG)                                  
+     A                                      COLOR(BLU)                                              
+     A            PPPCMD1        7A  H                                                              
