@@ -1,0 +1,273 @@
+     H/TITLE Búsqueda del necesario para fabricar                                                   
+     H DECEDIT('0,') DATEDIT(*YMD/)                                                                 
+      *-----------------------------------------------------------------------------------          
+      *  Programa................ PRD702      Búsqueda del necesario para fabricar                  
+      *  Aplicacion.............. PRD         ASTRAL Grup, S.A. PR                                  
+      *  Empresa................. Astral      VERSION PARA AQUAPOINT S.A.                           
+      *  Usuario................. JESUS                                                             
+      *  Generado por ADP 400.... 20/02/98    20:22    Ver:96/09/25                                 
+      *-----------------------------------------------------------------------------------          
+      * RESUMEN AUTOMATICO DE FUNCIONES DEL PROGRAMA (SINOPSIS):                                    
+      *  usa File PMDEOR09   Detalle de estructuras en O.F. para INP                                
+      *  usa File PMCAOR     Fichero de cabecera de órdenes para INP                                
+      *  usa File PMUNAL     Fichero unidades alternativas  para INP                                
+      *  se han tratado 00122 lineas desde puntos de Usuario y Logic en .@                          
+      *  Recibe:                                                                                    
+      *  Si @PERRO='A'=> en lugar de desear necesidad  se quiere                                    
+      *  la cantidad asignada (DOLL)                                                                
+      *-----------------------------------------------------------------------------------          
+      * DATA DE MODIFICACIÓ: 16/09/2009  MARCA: 17099              *                                
+      * AUTOR: Julián                                              *                                
+      * DOCUMENTACIÓ: Se cambia PMDEOR05 por el PMDEOR09 para      *                                
+      *                 tratar solo los registros con PHSTUC < '3' *                                
+      **************************************************************                                
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+17099F*PMDEOR05  IF   E           K DISK                                        Detalle de estru    
+17099FPMDEOR09  IF   E           K DISK                                         Detalle de estru    
+     FPMCAOR    IF   E           K DISK                                         Fichero de cabec    
+     FPMUNAL    IF   E           K DISK                                         Fichero unidades    
+     D SDE             S              1    DIM(9)                                                   
+     D                UDS                                                                           
+     D  UDSEMP                 4     33                                                             
+     D  UDSCEM                 1      3  0                                                          
+     D                SDS                                                       Datos               
+     D  @PGM                   1     10                                         Progra              
+     D  @JOB                 244    253                                         Id Job              
+     D  @USER                254    263                                         Id Usu              
+     D  @JNBR                264    269                                         Id Usu              
+     D  @SDS81                81    269                                         Contro              
+     D @MSGFA          C                   CONST('ASGMSG    ')                  MSG-File Aplicac    
+      * Calculos Previos a Todo. Punto 01A.                                                         
+     C     *LIKE         DEFINE    PFEMPR        @PEMPR                                             
+     C     *LIKE         DEFINE    PFESTR        @PCODA                                             
+     C     *LIKE         DEFINE    PFVARI        @PVARI                                             
+     C     *LIKE         DEFINE    PFMODE        @PMODE                                             
+     C     *LIKE         DEFINE    PFCANT        @PCAN1                                             
+     C     *LIKE         DEFINE    PFCANT        @PCAN2                                             
+     C     *LIKE         DEFINE    PFCANT        ZXCANT                                             
+     C     *LIKE         DEFINE    PFCANT        ZXCAN2                                             
+     C     *LIKE         DEFINE    PFCANT        ZXCAN3                                             
+     C     *LIKE         DEFINE    PFDAT8        ZXDATD                                             
+     C     *LIKE         DEFINE    PFDAT8        ZXDATH                                             
+      *                                                                                             
+     C                   Z-ADD     @PDATH        @PDATH            8 0                              
+     C                   Z-ADD     @PDATD        @PDATD            8 0                              
+      *                                                                                             
+      *                                                                                             
+     C     KUNAL         KLIST                                                                      
+     C                   KFLD                    PHEMPR                                             
+     C                   KFLD                    PHCOMP                                             
+     C                   KFLD                    P6VARI                                             
+     C                   KFLD                    P6MODE                                             
+     C                   KFLD                    PHUNIM                                             
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PEMPR                                             
+     C                   PARM                    @PCODA                                             
+     C                   PARM                    @PVARI                                             
+     C                   PARM                    @PMODE                                             
+     C                   PARM                    @PDATD                                             
+     C                   PARM                    @PDATH                                             
+     C                   PARM                    @PCAN1                                             
+     C                   PARM                    @PCAN2                                             
+     C                   PARM                    @PMAGA            5                                
+     C                   PARM                    @PMAGD            5                                
+     C                   PARM                    @PERRO            1                                
+      *                                                                                             
+     C                   MOVE      @PERRO        ZXERRO            1                                
+     C                   MOVE      *BLANKS       @PERRO            1                                
+      *                                                                                             
+     C                   EXSR      SR01                                         Proceso Inicial     
+     C     LR            TAG                                                    Fin Programa        
+     C                   MOVE      '1'           *INLR                          Fin Programa        
+     C*- - - - - - - - - - - - - - - - - - - - - - - - - -                                          
+     C     SR01          BEGSR                                                  Proceso Inicial     
+     C                   MOVE      'ADP0050'     @MSGMO            7            MIC Cabecera Pan    
+     C                   MOVE      '2'           XXTERR            1            Modo Control Err    
+     C                   MOVE      'ADP0050'     @MSGER            7            Desactiva Error     
+      *                                                                                             
+     C                   Z-ADD     @PEMPR        PHEMPR                                             
+     C                   MOVEL     @PCODA        PHCOMP                                             
+     C                   MOVEL     @PVARI        PHVARI                                             
+     C                   MOVEL     @PMODE        PHMODE                                             
+     C                   MOVEL     @PVARI        PHVAR2                                             
+     C                   MOVEL     @PMODE        PHMOD2                                             
+      *                                                                                             
+     C                   Z-ADD     @PDATD        ZXDATD                                             
+     C     ZXDATD        IFEQ      0                                                                
+     C                   Z-ADD     *DATE         ZXDATD                                             
+     C                   ENDIF                                                                      
+     C                   Z-ADD     ZXDATD        PFDATI                                             
+      *                                                                                             
+     C                   Z-ADD     @PDATH        ZXDATH                                             
+     C     ZXDATH        IFEQ      0                                                                
+     C                   Z-ADD     *DATE         ZXDATH                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C*                    MOVEL'19'      ZXDATD                                                    
+     C*                    MOVEL'19'      ZXDATH                                                    
+     C*          UYEAR     IFLT 50                                                                  
+     C*                    MOVEL'20'      ZXDATD                                                    
+     C*                    MOVEL'20'      ZXDATH                                                    
+     C*                    ENDIF                                                                    
+      *                                                                                             
+17099C*    KDEOR5        SETLL     PMDEOR05                                                         
+17099C     KDEOR5        SETLL     PMDEOR09                                                         
+     C                   MOVE      '0'           *IN81                          off indic lectur    
+17099C*    KDEOR5        READE     PMDEOR05                             8081                        
+17099C     KDEOR5        READE     PMDEOR09                             8081                        
+     C                   MOVE      *IN81         FI@PH             1            Control file PMD    
+     C     FI@PH         DOWNE     '1'                                          PMDEOR05            
+      *                                                                                             
+17099C*    PHSTUC        IFGE      '3'                                                              
+17099C*                  GOTO      TNEX01                                                           
+17099C*                  ENDIF                                                                      
+      *                                                                                             
+     C                   Z-ADD     PHEMPR        PFEMPR                                             
+     C                   Z-ADD     PHNORD        PFNORD                                             
+     C                   Z-ADD     PHINDX        PFINDX                                             
+     C                   Z-ADD     PHDAT1        PFDAT1                                             
+     C                   Z-ADD     PHNOPL        PFNOPL                                             
+     C     KCAOR         CHAIN     PMCAOR                             8280                          
+      *                                                                                             
+     C     PFALOR        IFEQ      *BLANKS                                                          
+     C                   EVAL      PFALOR=@PMAGD                                                    
+     C                   ENDIF                                                                      
+     C                                                                                              
+     C     @PMAGA        IFNE      *BLANKS                                                          
+     C     @PMAGA        ANDNE     PFALOR                                                           
+     C                   GOTO      TNEX01                                                           
+     C                   ENDIF                                                                      
+     C                   MOVE      *IN82         FI@PF             1            Control file PMC    
+     C   82              EXSR      Z@PF                                         Clear F. PMCAOR     
+     C     FI@PF         IFEQ      '1'                                          PMCAOR              
+     C     PFSTUO        ORGE      '90'                                                             
+     C                   GOTO      TNEX01                                                           
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     PFDATF        IFGT      ZXDATH                                                           
+     C                   GOTO      TNEX01                                                           
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     PFDATF        IFLT      ZXDATD                                                           
+     C                   GOTO      TNEX01                                                           
+     C                   ENDIF                                                                      
+      * Salvo que solo quieran ver la cantidad asignada (DOLL), al resto                            
+      * se le muestra cantidad como necesidad                                                       
+     C                   IF        ZXERRO<>'A'                                                      
+     C                   Z-ADD     PHCANT        ZXCANT                                             
+     C                   SUB       PHCANR        ZXCANT                                             
+     C                   SUB       PHCACO        ZXCANT                                             
+     C                   SUB       PHCAFA        ZXCANT                                             
+     C                   SUB       PHCARE        ZXCANT                                             
+     C                   SUB       PHCARV        ZXCANT                                             
+     C                   ELSE                                                                       
+     C                   Z-SUB     PHCANR        ZXCANT                                             
+     C                   SUB       PHCARV        ZXCANT                                             
+     C                   ENDIF                                                                      
+      * SI LA CANTIDAD ES NEGATIVA ENTONCES MIRO SI LA FABRICACION                                  
+      * SUPERA LAS PREVISIONES ENTONCES DISMINUIRE LAS NECESIDADES                                  
+      * EN LA PROPORCION QUE LE CORRESPONDA SEGUN LO QUE PASE EN LA                                 
+      * O.F. PRINCIPAL                                                                              
+     C     ZXCANT        IFLT      0                                                                
+     C     ZXERRO        ANDNE     'A'                                                              
+     C                   Z-ADD     0             ZXCANT                                             
+     C                   Z-ADD     PFCANT        ZXCAN2                                             
+     C                   SUB       PFCACO        ZXCAN2                                             
+     C                   SUB       PFCAFA        ZXCAN2                                             
+     C                   SUB       PFCARE        ZXCAN2                                             
+     C     ZXCAN2        IFLT      0                                                                
+     C                   Z-SUB     ZXCAN2        ZXCAN3                                             
+     C                   Z-ADD     PFCACO        ZXCAN2                                             
+     C                   ADD       PFCAFA        ZXCAN2                                             
+     C     ZXCAN3        IFLE      ZXCAN2                                                           
+     C                   Z-ADD     ZXCAN3        ZXCAN2                                             
+     C                   ENDIF                                                                      
+     C                   Z-ADD     1             ZXAUXI           29 9                              
+     C     PFCANT        IFNE      0                                                                
+     C     ZXCAN2        DIV       PFCANT        ZXAUXI                                             
+     C                   ENDIF                                                                      
+      * LA PROPORCION DE FABRICADO DE MAS PASA A SER MENOS NECESIDAD                                
+      * JUNTO CON EL EXCESO DE ASIGNADO                                                             
+     C     PHCANT        MULT      ZXAUXI        ZXCANT                                             
+     C                   ADD       PHCANR        ZXCANT                                             
+     C                   ADD       PHCARV        ZXCANT                                             
+     C                   Z-SUB     ZXCANT        ZXCANT                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * Busco la cantidad de stock que significan                                                   
+     C                   EVAL      P6VARI=PHVAR2                                                    
+     C                   EVAL      P6MODE=PHMOD2                                                    
+     C     KUNAL         CHAIN     PMUNAL                             8380                          
+     C                   IF        *IN83=*ON                                                        
+     C                   EVAL      P6VARI=*BLANKS                                                   
+     C                   EVAL      P6MODE=*BLANKS                                                   
+     C     KUNAL         CHAIN     PMUNAL                             8380                          
+     C                   ENDIF                                                                      
+     C                   MOVE      *IN83         FI@P6             1            Control file PMU    
+     C   83              EXSR      Z@P6                                         Clear F. PMUNAL     
+     C     P6TCOF        IFNE      '1'                                                              
+     C     ZXCANT        MULT      P6COFA        XZAUXI                                             
+     C                   ELSE                                                                       
+     C     P6COFA        IFNE      0                                                                
+     C     ZXCANT        DIV       P6COFA        XZAUXI                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   MOVE      P6DECI        XZDECI                                             
+     C                   MOVE      P6AJUD        XZAJUD                                             
+      * AJUSTE Y DECIMALES                                                                          
+     C/COPY *LIBL/QSRDSRC,SRD001                                                                    
+     C                   Z-ADD     XZAUXI        ZXCANT                                             
+      *                                                                                             
+     C     PFSTUO        IFLE      '10'                                                             
+     C                   ADD       ZXCANT        @PCAN1                                             
+     C                   ELSE                                                                       
+     C                   ADD       ZXCANT        @PCAN2                                             
+     C                   ENDIF                                                                      
+      * ENLAZO CON EL DETALLE                                                                       
+     C     TNEX01        TAG                                                                        
+     C                   MOVE      '0'           *IN81                          off indic lectur    
+17099C*    KDEOR5        READE     PMDEOR05                             8081                        
+17099C     KDEOR5        READE     PMDEOR09                             8081                        
+     C                   MOVE      *IN81         FI@PH             1            Control file PMD    
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C     TFIN          TAG                                                                        
+     C     KCAOR         KLIST                                                  *KL PMCAOR   5      
+     C                   KFLD                    PFEMPR                         Empresa             
+     C                   KFLD                    PFNORD                         Nº de orden fabr    
+     C                   KFLD                    PFINDX                         Indice O.F.         
+     C                   KFLD                    PFDAT1                         Fecha               
+     C                   KFLD                    PFNOPL                         Nº de orden pdte    
+     C     KDEOR5        KLIST                                                  *KL PMDEOR09 4      
+     C                   KFLD                    PHEMPR                         Empresa             
+     C                   KFLD                    PHCOMP                         Componente          
+     C                   KFLD                    PHVAR2                         Variación           
+     C                   KFLD                    PHMOD2                         Modelo artículo     
+     C                   ENDSR                                                  Fin Subrutina       
+     C*- - - - - - - - - - - - - - - - - - - - - - - - - -                                          
+     C     Z@PF          BEGSR                                                  *BL/*ZER PMCAOR     
+     C                   MOVE      *ZEROS        PFEMPR                         Empresa             
+     C                   MOVE      *BLANKS       PFESTR                         Estructura          
+     C                   MOVE      *ZEROS        PFCANT                         Cantidad            
+     C                   MOVE      *ZEROS        PFDAT8                         Fecha               
+     C                   MOVE      *ZEROS        PFDAT1                         Fecha               
+     C                   MOVE      *BLANKS       PFMODE                         Modelo artículo     
+     C                   MOVE      *BLANKS       PFVARI                         Variación           
+     C                   MOVE      *BLANKS       PFSTUO                         Estatus de orden    
+     C                   MOVE      *ZEROS        PFNORD                         Nº de orden fabr    
+     C                   MOVE      *ZEROS        PFINDX                         Indice O.F.         
+     C                   MOVE      *ZEROS        PFDATI                         Fecha de inicio     
+     C                   MOVE      *ZEROS        PFDATF                         Fecha final         
+     C                   MOVE      *ZEROS        PFNOPL                         Nº de orden pdte    
+     C                   MOVE      *ZEROS        PFCACO                         Cantidad consumi    
+     C                   MOVE      *ZEROS        PFCAFA                         Cantidad fabrica    
+     C                   MOVE      *ZEROS        PFCARE                         Cantidad reporta    
+     C                   ENDSR                                                  Fin Subrutina       
+     C*- - - - - - - - - - - - - - - - - - - - - - - - - -                                          
+     C     Z@P6          BEGSR                                                  *BL/*ZER PMUNAL     
+     C                   MOVE      *ZEROS        P6COFA                         Factor conversió    
+     C                   MOVE      *BLANKS       P6TCOF                         Tipo factor conv    
+     C                   MOVE      *ZEROS        P6AJUD                         Ajuste decimal      
+     C                   MOVE      *ZEROS        P6DECI                         Nº decimales        
+     C                   ENDSR                                                  Fin Subrutina       

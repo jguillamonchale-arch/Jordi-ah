@@ -1,0 +1,142 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      *------------------------------------------------------------*                                
+      * TITOL: PU2527  © AQUAPOINT S.A.                           *                                 
+      * DATA CREACIO:  17/10/1997                                  *                                
+      * AUTOR: DPTO. INFORMATICA                                   *                                
+      * FUNCIO DEL PROGRAMA: BUSQUEDA AUTOMATICA LINEA DE PEDIDO   *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      * ZXOPT1 = NOM DEL PROCÉS                                    *                                
+      *        - WN = FINESTRA  N.          N=[01,02,...,99]       *                                
+      *        - N TAMBÉ EQUIVAL AL NÚMERO DE FORMAT DEL SFL       *                                
+      *          I COINCIDEIX AMB EL Nº DE LÒGIC (ESSENT N=00 EL   *                                
+      *          FITXER FÍSIC)                                     *                                
+      * ZXOPT2 = RUTINA DINTRE DEL PROCÉS                          *                                
+      *        - 'INZ'= INICILITZAR                                *                                
+      *        - 'DSP'= VISUALITZA DE PANTALLA                     *                                
+      *        - 'CHK'= VALIDACIÓ DE LA PANTALLA                   *                                
+      *        - 'CLR'= NETEJA DEL SFL                             *                                
+      *        - 'UPD'= ACTUALITZACIONS DELS FITXERS               *                                
+      *                                                            *                                
+      **************************************************************                                
+      * OBSERVACIONES:                                             *                                
+      * @PEERR='1'- No se ha encontrado número libre               *                                
+      **************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FPUDEPE    IF   E           K DISK                                         Maestro de tabla    
+                                                                                                    
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXOPT                  1      6                                                             
+     D  ZXOPT1                 1      3                                                             
+     D  ZXOPT2                 4      6                                                             
+                                                                                                    
+     D DSLDA         E DS                  EXTNAME(PURLDADS)                                        
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+     D    @PCIAS       S                   LIKE(C5CIAS)                                             
+     D    @PDLGA       S                   LIKE(C5DLGA)                                             
+     D    @PNPCO       S                   LIKE(C5NPCO)                                             
+     D    @PTPED       S                   LIKE(C5TPED)                                             
+     D    @PDATP       S                   LIKE(C5DATP)                                             
+     D    @PNOPL       S                   LIKE(C5NOPL)                                             
+     D    @PLINE       S                   LIKE(C5LINE)                                             
+     D    @PERRO       S              1                                                             
+     D  @PFILE         S             10                                                             
+     D  @PPGM          S             10                                                             
+     D    ZXERRO       S              1                                                             
+     D    ZXERR2       S              1                                                             
+     D  ZXPTRETORN     S              6A   INZ                                                      
+      **************************************************************                                
+      * RUTINA  PRINCIPAL DEL PROGRAMA                             *                                
+      *------------------------------------------------------------*                                
+     C                   DOW       ZXOPT1 <> 'END'                                                  
+     C     ZXOPT1        CASEQ     'CHK'         SUBCHK                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+      *                                                                                             
+     C     KPUDEPE0      KLIST                                                                      
+     C                   KFLD                    C5CIAS                                             
+     C                   KFLD                    C5DLGA                                             
+     C                   KFLD                    C5NPCO                                             
+     C                   KFLD                    C5TPED                                             
+     C                   KFLD                    C5DATP                                             
+     C                   KFLD                    C5NOPL                                             
+                                                                                                    
+     C     KPUDEPE       KLIST                                                                      
+     C                   KFLD                    C5CIAS                                             
+     C                   KFLD                    C5DLGA                                             
+     C                   KFLD                    C5NPCO                                             
+     C                   KFLD                    C5TPED                                             
+     C                   KFLD                    C5DATP                                             
+     C                   KFLD                    C5NOPL                                             
+     C                   KFLD                    C5LINE                                             
+                                                                                                    
+      * RECUPERACIÓ DE LA LDA DE COMPRES                                                            
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+                                                                                                    
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PLINE                                             
+     C                   PARM                    @PERRO                                             
+                                                                                                    
+     C                   EVAL      ZXERRO=@PERRO                                                    
+     C                   EVAL      @PERRO=*BLANKS                                                   
+                                                                                                    
+     C                   EVAL      C5CIAS=@PCIAS                                                    
+     C                   EVAL      C5DLGA=@PDLGA                                                    
+     C                   EVAL      C5NPCO=@PNPCO                                                    
+     C                   EVAL      C5TPED=@PTPED                                                    
+     C                   EVAL      C5DATP=@PDATP                                                    
+     C                   EVAL      C5NOPL=@PNOPL                                                    
+                                                                                                    
+     C                   EVAL      ZXOPT1='CHK'                                                     
+     C     TINZSR        ENDSR                                                                      
+                                                                                                    
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     SUBCHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT1='END'                                                     
+     C     KPUDEPE0      SETGT     PUDEPE                                                           
+     C     KPUDEPE0      READPE    PUDEPE                                 81                        
+     C                   EVAL      @PLINE=C5LINE+1                                                  
+      * Si se han agotado los nºs de entrada de líneas busco el 1º libre                            
+     C                   IF        @PLINE=0                                                         
+     C                   EVAL      C5LINE=0                                                         
+     C                   EVAL      CHAIN=*OFF                                                       
+     C                   DOW       CHAIN=*OFF AND C5LINE<999                                        
+     C                   EVAL      C5LINE=C5LINE+1                                                  
+     C     KPUDEPE       CHAIN     PUDEPE                             81                            
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      @PLINE=C5LINE                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      @PERRO='1'                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      

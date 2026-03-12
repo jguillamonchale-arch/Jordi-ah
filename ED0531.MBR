@@ -1,0 +1,1358 @@
+      **************************************************************                                
+      * ED0531  © Fluidra                                                                           
+      * Gestión de E-MAILS EDI: Generación de Variables                                             
+      * Diciembre 2009 by Carlos del Valle                                                          
+      **************************************************************                                
+FQ754 * Modificación: FQ754                                        *                                
+FQ754 *        Autor: Carlos del Valle                             *                                
+FQ754 * Fecha Inicio: 30/03/2011                                   *                                
+FQ754 *  Descripción: Maestro corporativo de artículos             *                                
+FQ754 **************************************************************                                
+CR653 *      Modificació: CR653                                                                     
+CR653 *            Autor: X.Bou                                                                     
+CR653 * Data modificació: 28/10/2013                                                                
+CR653 *       Descripció: Tratamiento Proveedores externos en Fluidra                               
+CR653 *                   Direct                                                                    
+CR653 **************************************************************                                
+C1034 *        Autor: Carlos Martínez M.        CR1034             *                                
+C1034 * Fecha Inicio: 25/07/14     Marca : C1034                   *                                
+C1034 *  Descripción: Carta de Bienvenida a Nuevos Clientes        *                                
+C1034 *               Aprovechamos CR para incluir Variables       *                                
+C1034 *               sin Documento asociado. 2 nuevos tipos de    *                                
+C1034 *               documento asociado (aprovechamos este campo) *                                
+C1034 *               8 Clientes y 9 Proveedores                   *                                
+C1034 **************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+      *                                                                                             
+     FED0531W   UF A E           K DISK    USROPN                                                   
+     FEDMAIV    IF   E           K DISK                                                             
+     FPMLIBL    IF   E           K DISK                                                             
+      *                                                                                             
+FQ754FMSARTI00  IF   E           K DISK    USROPN EXTFILE(File1)                                    
+FQ754FPUPROV    IF   E           K DISK    USROPN EXTFILE(File2)                                    
+     FCOCAPE    IF   E           K DISK                                                             
+     FCODEPE    IF   E           K DISK                                                             
+     FCOHCAP    IF   E           K DISK                                                             
+     FCOHDEP    IF   E           K DISK                                                             
+      *                                                                                             
+     FCOALBC    IF   E           K DISK    PREFIX(CC:2)                                             
+     FCOALBD    IF   E           K DISK    PREFIX(CD:2)                                             
+     FCOHALB    IF   E           K DISK    PREFIX(CC:2)                                             
+     FCOHALD18  IF   E           K DISK    PREFIX(CD:2)                                             
+      *                                                                                             
+     FCOFACC12  UF   E           K DISK                                                             
+     FCOFAIM    IF   E           K DISK                                                             
+     FCOCLIN    IF   E           K DISK                                                             
+      *                                                                                             
+     FPUCAPE    IF   E           K DISK                                                             
+     FPUDEPE    IF   E           K DISK                                                             
+     FPUHCAP    IF   E           K DISK                                                             
+     FPUHDEP    IF   E           K DISK                                                             
+      *                                                                                             
+     FPUALBD    IF   E           K DISK                                                             
+     FPUHALD17  IF   E           K DISK                                                             
+      *                                                                                             
+     FPUFACC10  IF   E           K DISK                                                             
+     FPUFAIM    IF   E           K DISK                                                             
+      *                                                                                             
+      * ESTRUCTURA DE LA INFDS                                                                      
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSSTATUS             11     15S 0                                                          
+     D  SDSCODERR             91    170                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+FQ754* Ficheros Externos                                                                           
+FQ754D File1           S             21                                                             
+FQ754D File2           S             21                                                             
+      *                                                                                             
+      * IMPORT/EXPORT PARÀMETRES                                                                    
+      *                                                                                             
+     D  @PCIAS         S                   LIKE(EWCIAS)                                             
+     D  @PDLGA         S                   LIKE(EWDLGA)                                             
+     D  @PTDAJ         S                   LIKE(EWTDAJ)                                             
+     D  @PCODE         S                   LIKE(EWCODE)                                             
+     D  @PNDOC         S                   LIKE(EWNDOC)                                             
+     D  @PFDOC         S                   LIKE(EWFDOC)                                             
+     D  @PLDOC         S              3S 0                                                          
+     D  @PEVEN         S                   LIKE(EWEVEN)                                             
+      *                                                                                             
+      * Ficheros de Trabajo (UTIFQTMPCL)                                                            
+      *                                                                                             
+     D  @pefile1       s             10                                                             
+     D  @pelog11       s             10                                                             
+     D  @pelog12       s             10                                                             
+     D  @pelog13       s             10                                                             
+     D  @pefile2       s             10                                                             
+     D  @pelog21       s             10                                                             
+     D  @pelog22       s             10                                                             
+     D  @pelog23       s             10                                                             
+     D  @pefile3       s             10                                                             
+     D  @pelog31       s             10                                                             
+     D  @pelog32       s             10                                                             
+     D  @pelog33       s             10                                                             
+     D  @peprogr       s             10                                                             
+     D  @peparms       s            250                                                             
+      *                                                                                             
+      * Edición de Números (PRD650)                                                                 
+      *                                                                                             
+      * VALOR NUMÈRIC                                                                               
+     D   PXNUM         S             29  9                                                          
+      * VALOR ALFANUMÈRIC                                                                           
+     D   PXALPH        S             29                                                             
+      * LONGITUD TOTAL DEL CAMP (Nº CARÀCTERS INCLÒS CODI EDICIÓ)                                   
+     D   PXFLDD        S              2  0 INZ(20)                                                  
+      * Nº DE DECIMALS DEL CAMP                                                                     
+     D  PXDCCD         S              1  0 INZ(2)                                                   
+      * TIPUS DE FORMAT DECIMAL (.,)                                                                
+     D  PXFMD1         S              1                                                             
+      * CODI D'EDICIÓ (4,M,Q,Z)                                                                     
+     D  PXEDTC         S              1                                                             
+      * RETORN CODI D'ERROR                                                                         
+     D  PXNMER         S              1  0 INZ(0)                                                   
+      * TIPUS D'AJUST DECIMAL (0=MIG 1=PER SOBRE 2=PER SOTA)                                        
+     D  PXTIPA         S              1                                                             
+      *                                                                                             
+      * Edición de Fechas (MM2510)                                                                  
+      *                                                                                             
+     D  @PVAN          S             10  0                                                          
+     D  @PVAA          S             10                                                             
+     D  @PFMI          S              7                                                             
+     D  @PFMF          S              7                                                             
+     D  @PSEP          S              7                                                             
+     D  @PERRO         S              1                                                             
+      *                                                                                             
+     D  ZXDATO         S             40                                                             
+      *                                                                                             
+      **************************************************************                                
+      * Definir Claves                                                                              
+      **************************************************************                                
+      *                                                                                             
+     C     KEDMAIV       KLIST                                                                      
+     C                   KFLD                    E1EVEN                                             
+     C     KEDMAIV0      KLIST                                                                      
+     C                   KFLD                    E1EVEN                                             
+     C                   KFLD                    E1VARE                                             
+      *                                                                                             
+     C     KED0531W      KLIST                                                                      
+     C                   KFLD                    EWCIAS                                             
+     C                   KFLD                    EWDLGA                                             
+     C                   KFLD                    EWTDAJ                                             
+     C                   KFLD                    EWCODE                                             
+     C                   KFLD                    EWNDOC                                             
+     C                   KFLD                    EWFDOC                                             
+     C                   KFLD                    EWLDOC                                             
+     C                   KFLD                    EWEVEN                                             
+     C                   KFLD                    EWVARE                                             
+FQ754 *                                                                                             
+FQ754C     KMSARTI00     KLIST                                                                      
+FQ754C                   KFLD                    M5CIAS                                             
+FQ754C                   KFLD                    M5ARTI                                             
+FQ754C                   KFLD                    M5VARI                                             
+FQ754C                   KFLD                    M5MODE                                             
+      *                                                                                             
+     C     KCOCAPE       KLIST                                                                      
+     C                   KFLD                    S0CIAS                                             
+     C                   KFLD                    S0DLGA                                             
+     C                   KFLD                    S0NPCO                                             
+     C                   KFLD                    S0TPED                                             
+     C                   KFLD                    S0DATP                                             
+     C                   KFLD                    S0NOPL                                             
+      *                                                                                             
+     C     KCOCAPEB      KLIST                                                                      
+     C                   KFLD                    S0CIAS                                             
+     C                   KFLD                    S0DLGA                                             
+     C                   KFLD                    S0NPCO                                             
+      *                                                                                             
+     C     KCODEPE       KLIST                                                                      
+     C                   KFLD                    S5CIAS                                             
+     C                   KFLD                    S5DLGA                                             
+     C                   KFLD                    S5NPCO                                             
+     C                   KFLD                    S5TPED                                             
+     C                   KFLD                    S5DATP                                             
+     C                   KFLD                    S5NOPL                                             
+     C                   KFLD                    S5LINE                                             
+      *                                                                                             
+     C     KCODEPEB      KLIST                                                                      
+     C                   KFLD                    S5CIAS                                             
+     C                   KFLD                    S5DLGA                                             
+     C                   KFLD                    S5NPCO                                             
+      *                                                                                             
+     C     KCOALBC       KLIST                                                                      
+     C                   KFLD                    CCCIAS                                             
+     C                   KFLD                    CCCUST                                             
+     C                   KFLD                    CCALBA                                             
+      *                                                                                             
+     C     KCOALBD       KLIST                                                                      
+     C                   KFLD                    CDCIAS                                             
+     C                   KFLD                    CDCUST                                             
+     C                   KFLD                    CDALBA                                             
+     C                   KFLD                    CDLIN2                                             
+      *                                                                                             
+     C     KCOHALB       KLIST                                                                      
+     C                   KFLD                    CCCIAS                                             
+     C                   KFLD                    CCCUST                                             
+     C                   KFLD                    CCALBA                                             
+     C                   KFLD                    CCDAT8                                             
+     C                   KFLD                    CCHORA                                             
+      *                                                                                             
+     C     KCOHALD18     KLIST                                                                      
+     C                   KFLD                    CDCIAS                                             
+     C                   KFLD                    CDCUST                                             
+     C                   KFLD                    CDALBA                                             
+     C                   KFLD                    CDLIN2                                             
+     C                   KFLD                    CDDATP                                             
+     C                   KFLD                    CDNOPL                                             
+     C     KCOHALD18B    KLIST                                                                      
+     C                   KFLD                    CDCIAS                                             
+     C                   KFLD                    CDCUST                                             
+     C                   KFLD                    CDALBA                                             
+     C                   KFLD                    CDLIN2                                             
+      *                                                                                             
+     C     KCOCLIN       KLIST                                                                      
+     C                   KFLD                    S0CIAS                                             
+     C                   KFLD                    S0CUST                                             
+      *                                                                                             
+     C     KCOFACC12     KLIST                                                                      
+     C                   KFLD                    VWCIAS                                             
+     C                   KFLD                    VWCUST                                             
+     C                   KFLD                    VWNFAC                                             
+     C                   KFLD                    VWFFAC                                             
+      *                                                                                             
+     C     KCOFAIM       KLIST                                                                      
+     C                   KFLD                    VXCIAS                                             
+     C                   KFLD                    VXCUST                                             
+     C                   KFLD                    VXNPRF                                             
+     C                   KFLD                    VXDAT1                                             
+     C                   KFLD                    VXMONE                                             
+     C                   KFLD                    VXTIVA                                             
+     C                   KFLD                    VXTCAM                                             
+      *                                                                                             
+     C     KCOFAIMB      KLIST                                                                      
+     C                   KFLD                    VXCIAS                                             
+     C                   KFLD                    VXCUST                                             
+     C                   KFLD                    VXNPRF                                             
+     C                   KFLD                    VXDAT1                                             
+      *                                                                                             
+     C     KPUCAPE       KLIST                                                                      
+     C                   KFLD                    C0CIAS                                             
+     C                   KFLD                    C0DLGA                                             
+     C                   KFLD                    C0NPCO                                             
+     C                   KFLD                    C0TPED                                             
+     C                   KFLD                    C0DATP                                             
+     C                   KFLD                    C0NOPL                                             
+      *                                                                                             
+     C     KPUCAPEB      KLIST                                                                      
+     C                   KFLD                    C0CIAS                                             
+     C                   KFLD                    C0DLGA                                             
+     C                   KFLD                    C0NPCO                                             
+      *                                                                                             
+     C     KPUDEPE       KLIST                                                                      
+     C                   KFLD                    C5CIAS                                             
+     C                   KFLD                    C5DLGA                                             
+     C                   KFLD                    C5NPCO                                             
+     C                   KFLD                    C5TPED                                             
+     C                   KFLD                    C5DATP                                             
+     C                   KFLD                    C5NOPL                                             
+     C                   KFLD                    C5LINE                                             
+      *                                                                                             
+     C     KPUDEPEB      KLIST                                                                      
+     C                   KFLD                    C5CIAS                                             
+     C                   KFLD                    C5DLGA                                             
+     C                   KFLD                    C5NPCO                                             
+      *                                                                                             
+     C     KPUALBD       KLIST                                                                      
+     C                   KFLD                    CECIAS                                             
+     C                   KFLD                    CEPRVR                                             
+     C                   KFLD                    CEALBA                                             
+     C                   KFLD                    CELIN2                                             
+      *                                                                                             
+     C     KPUHALB       KLIST                                                                      
+     C                   KFLD                    CECIAS                                             
+     C                   KFLD                    CEPRVR                                             
+     C                   KFLD                    CEALBA                                             
+     C                   KFLD                    CEDAT1                                             
+      *                                                                                             
+     C     KPUHALD17     KLIST                                                                      
+     C                   KFLD                    CECIAS                                             
+     C                   KFLD                    CEPRVR                                             
+     C                   KFLD                    CEALBA                                             
+     C                   KFLD                    CELIN2                                             
+     C                   KFLD                    CEDAT1                                             
+     C     KPUHALD17B    KLIST                                                                      
+     C                   KFLD                    CECIAS                                             
+     C                   KFLD                    CEPRVR                                             
+     C                   KFLD                    CEALBA                                             
+     C                   KFLD                    CELIN2                                             
+      *                                                                                             
+     C     KPUPROV       KLIST                                                                      
+     C                   KFLD                    C0CIAS                                             
+     C                   KFLD                    C0PRVR                                             
+      *                                                                                             
+     C     KPUFACC10     KLIST                                                                      
+     C                   KFLD                    NWCIAS                                             
+     C                   KFLD                    NWNFAC                                             
+     C                   KFLD                    NWPRVR                                             
+     C                   KFLD                    NWFFAC                                             
+      *                                                                                             
+     C     KPUFAIM       KLIST                                                                      
+     C                   KFLD                    NXCIAS                                             
+     C                   KFLD                    NXPRVR                                             
+     C                   KFLD                    NXNPRF                                             
+     C                   KFLD                    NXDAT1                                             
+     C                   KFLD                    NXMONE                                             
+     C                   KFLD                    NXTIVA                                             
+     C                   KFLD                    NXTCAM                                             
+      *                                                                                             
+     C     KPUFAIMB      KLIST                                                                      
+     C                   KFLD                    NXCIAS                                             
+     C                   KFLD                    NXPRVR                                             
+     C                   KFLD                    NXNPRF                                             
+     C                   KFLD                    NXDAT1                                             
+      *                                                                                             
+      **************************************************************                                
+      * Entrada de Parámetros                                                                       
+      **************************************************************                                
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PEVEN                                             
+     C                   PARM                    @PTDAJ                                             
+     C                   PARM                    @PCODE                                             
+     C                   PARM                    @PNDOC                                             
+     C                   PARM                    @PFDOC                                             
+     C                   PARM                    @PLDOC                                             
+      *                                                                                             
+      **************************************************************                                
+      * Estructura                                                                                  
+      **************************************************************                                
+      *                                                                                             
+      * Generamos el/los ficheros de trabajo deseados en QTEMP                                      
+      *                                                                                             
+     C                   call      'UTIFQTMPCL'                                                     
+     C                   parm      'ED0531W   '  @pefile1                                           
+     C                   parm      *blanks       @pelog11                                           
+     C                   parm      *blanks       @pelog12                                           
+     C                   parm      *blanks       @pelog13                                           
+     C                   parm      *blanks       @pefile2                                           
+     C                   parm      *blanks       @pelog21                                           
+     C                   parm      *blanks       @pelog22                                           
+     C                   parm      *blanks       @pelog23                                           
+     C                   parm      *blanks       @pefile3                                           
+     C                   parm      *blanks       @pelog31                                           
+     C                   parm      *blanks       @pelog32                                           
+     C                   parm      *blanks       @pelog33                                           
+     C                   parm      *blanks       @peprogr                                           
+     C                   parm      *blanks       @peparms                                           
+      *                                                                                             
+      * Abrir Ficheros QTEMP                                                                        
+      *                                                                                             
+     C                   OPEN      ED0531W                                                          
+FQ754 *                                                                                             
+FQ754 * MSARTI y PUPROV los abro referenciando                                                      
+FQ754 *                                                                                             
+FQ754C                   MOVE      @PCIAS        ZACIAS            3        0')                     
+FQ754C                   EVAL      File1 = %TRIMR('PURLIBF'+ZACIAS+'/MSARTI00')                     
+FQ754C                   OPEN(E)   MSARTI00                                                         
+FQ754C                   EVAL      File2 = %TRIMR('PURLIBF'+ZACIAS+'/PUPROV')                       
+FQ754C                   OPEN(E)   PUPROV                                                           
+      *                                                                                             
+      * Segun tipo documento recupero datos                                                         
+      *                                                                                             
+     C                   SELECT                                                                     
+      * Pedido de venta                                                                             
+     C                   WHEN      @PTDAJ='1'                                                       
+     C                   EXSR      CS_PEDVTA                                                        
+      * Albarán de venta                                                                            
+     C                   WHEN      @PTDAJ='2'                                                       
+     C                   EXSR      CS_ALBVTA                                                        
+      * Factura de venta                                                                            
+     C                   WHEN      @PTDAJ='3'                                                       
+     C                   EXSR      CS_FACVTA                                                        
+      * Pedido de compra                                                                            
+     C                   WHEN      @PTDAJ='4'                                                       
+     C                   EXSR      CS_PEDCOM                                                        
+CR653 * Pedido de compra Proveedor Externo                                                          
+CR653C                   WHEN      @PTDAJ='E'                                                       
+CR653C                   EXSR      CS_PEDCOE                                                        
+      * Albarán de compra                                                                           
+     C                   WHEN      @PTDAJ='5'                                                       
+     C                   EXSR      CS_ALBCOM                                                        
+      * Factura de compra                                                                           
+     C                   WHEN      @PTDAJ='6'                                                       
+     C                   EXSR      CS_FACCOM                                                        
+FQ754 * Masterdata: Datos de artículo                                                               
+FQ754C                   WHEN      @PTDAJ='7'                                                       
+FQ754C                   EXSR      CS_MASTER                                                        
+C1034 * Datos de Cliente                                                                            
+C1034C                   WHEN      @PTDAJ='8'                                                       
+C1034C                   EXSR      CS_CLIENTE                                                       
+C1034 * Datos de Proveedor                                                                          
+C1034C                   WHEN      @PTDAJ='9'                                                       
+C1034C                   EXSR      CS_PROVEED                                                       
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+      * Cerrar Ficheros QTEMP                                                                       
+      *                                                                                             
+     C                   CLOSE     ED0531W                                                          
+FQ754C                   CLOSE(E)  MSARTI00                                                         
+FQ754C                   CLOSE(E)  PUPROV                                                           
+      *                                                                                             
+     C                   EVAL      *INLR=*ON                                                        
+      **************************************************************                                
+      * Recupera datos para pedido de venta                                                         
+      *------------------------------------------------------------*                                
+     C     CS_PEDVTA     BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      E1EVEN=@PEVEN                                                    
+     C                   EVAL      E1VARE=*BLANKS                                                   
+     C     KEDMAIV0      SETLL     EDMAIV                                                           
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   DOW       NOT %EOF(EDMAIV)                                                 
+      *                                                                                             
+     C                   SELECT                                                                     
+      * Nombre empresa                                                                              
+     C                   WHEN      E1VARE='&V00'                                                    
+     C                   MOVE      @PCIAS        PPCIAS                                             
+     C     PPCIAS        CHAIN     PMLIBL                                                           
+     C                   IF        %FOUND(PMLIBL)                                                   
+     C                   MOVEL(P)  PPDESC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Artículo y descripción (sólo si viene línea informada)                                      
+     C                   WHEN      E1VARE='&V13' OR E1VARE='&V14'                                   
+     C                   IF        @PLDOC<>0                                                        
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      S5CIAS=@PCIAS                                                    
+     C                   EVAL      S5DLGA=@PDLGA                                                    
+     C                   EVAL      S5NPCO=@PNDOC                                                    
+     C                   EVAL      S5TPED=*BLANKS                                                   
+     C                   EVAL      S5DATP=0                                                         
+     C                   EVAL      S5NOPL=0                                                         
+     C                   EVAL      S5LINE=0                                                         
+     C     KCODEPE       SETLL     CODEPE                                                           
+     C     KCODEPEB      READE     CODEPE                                                           
+     C                   DOW       NOT %EOF(CODEPE)                                                 
+     C                   IF        S5LINE=@PLDOC                                                    
+     C                             AND S5DATP=@PFDOC                                                
+     C                   IF        E1VARE='&V13'                                                    
+     C                   EVAL      ZXDATO=S5ARTI+S5VARI+S5MODE                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=S5DES1                                                    
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KCODEPEB      READE     CODEPE                                                           
+     C                   ENDDO                                                                      
+     C                   IF        ZXDATO=*BLANKS                                                   
+     C                   EVAL      S5TPED=*BLANKS                                                   
+     C                   EVAL      S5DATP=0                                                         
+     C                   EVAL      S5NOPL=0                                                         
+     C                   EVAL      S5LINE=0                                                         
+     C     KCODEPE       SETLL     COHDEP                                                           
+     C     KCODEPEB      READE     COHDEP                                                           
+     C                   DOW       NOT %EOF(COHDEP)                                                 
+     C                   IF        S5LINE=@PLDOC                                                    
+     C                             AND S5DATP=@PFDOC                                                
+     C                   IF        E1VARE='&V13'                                                    
+     C                   EVAL      ZXDATO=S5ARTI+S5VARI+S5MODE                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=S5DES1                                                    
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KCODEPEB      READE     COHDEP                                                           
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * Código cliente                                                                              
+     C                   WHEN      E1VARE='&V01'                                                    
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      S0CIAS=@PCIAS                                                    
+     C                   EVAL      S0DLGA=@PDLGA                                                    
+     C                   EVAL      S0NPCO=@PNDOC                                                    
+     C                   EVAL      S0TPED=*BLANKS                                                   
+     C                   EVAL      S0DATP=0                                                         
+     C                   EVAL      S0NOPL=0                                                         
+     C     KCOCAPE       SETLL     COCAPE                                                           
+     C     KCOCAPEB      READE     COCAPE                                                           
+     C                   IF        NOT %EOF(COCAPE)                                                 
+     C                   MOVEL(P)  S0CUST        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Nombre o NIF cliente en el pedido                                                           
+     C                   WHEN      E1VARE='&V02' OR E1VARE='&V03'                                   
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      S0CIAS=@PCIAS                                                    
+     C                   EVAL      S0DLGA=@PDLGA                                                    
+     C                   EVAL      S0NPCO=@PNDOC                                                    
+     C                   EVAL      S0TPED=*BLANKS                                                   
+     C                   EVAL      S0DATP=0                                                         
+     C                   EVAL      S0NOPL=0                                                         
+     C     KCOCAPE       SETLL     COCAPE                                                           
+     C     KCOCAPEB      READE     COCAPE                                                           
+     C                   DOW       NOT %EOF(COCAPE)                                                 
+     C                   IF        S0DATP=@PFDOC                                                    
+     C                   IF        E1VARE='&V02'                                                    
+     C                   EVAL      ZXDATO=S0DES1                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=S0NIFI+' '+S0NIFC                                         
+     C                   EVAL      ZXDATO=%TRIM(ZXDATO)                                             
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KCOCAPEB      READE     COCAPE                                                           
+     C                   ENDDO                                                                      
+     C                   IF        ZXDATO=*BLANKS                                                   
+     C                   EVAL      S0TPED=*BLANKS                                                   
+     C                   EVAL      S0DATP=0                                                         
+     C                   EVAL      S0NOPL=0                                                         
+     C     KCOCAPE       SETLL     COHCAP                                                           
+     C     KCOCAPEB      READE     COHCAP                                                           
+     C                   DOW       NOT %EOF(COHCAP)                                                 
+     C                   IF        S0DATP=@PFDOC                                                    
+     C                   IF        E1VARE='&V02'                                                    
+     C                   EVAL      ZXDATO=S0DES1                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=S0NIFI+' '+S0NIFC                                         
+     C                   EVAL      ZXDATO=%TRIM(ZXDATO)                                             
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KCOCAPEB      READE     COHCAP                                                           
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+      * Nº de pedido                                                                                
+     C                   WHEN      E1VARE='&V04'                                                    
+     C                   MOVEL(P)  @PNDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Línea de pedido                                                                             
+     C                   WHEN      E1VARE='&V05'                                                    
+     C                   MOVEL(P)  @PLDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Fecha de pedido                                                                             
+     C                   WHEN      E1VARE='&V06'                                                    
+     C                   MOVE      @PFDOC        @PVAN                                              
+     C                   CALL      'MM2510'                                                         
+     C                   PARM                    @PVAN                                              
+     C                   PARM      *BLANKS       @PVAA                                              
+     C                   PARM      'YYMD'        @PFMI                                              
+     C                   PARM      'DMYY'        @PFMF                                              
+     C                   PARM      '/'           @PSEP                                              
+     C                   PARM      ' '           @PERRO                                             
+     C                   MOVEL(P)  @PVAA         ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Recupera datos para albarán de venta                                                        
+      *------------------------------------------------------------*                                
+     C     CS_ALBVTA     BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      E1EVEN=@PEVEN                                                    
+     C                   EVAL      E1VARE=*BLANKS                                                   
+     C     KEDMAIV0      SETLL     EDMAIV                                                           
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   DOW       NOT %EOF(EDMAIV)                                                 
+      *                                                                                             
+     C                   SELECT                                                                     
+      * Nombre empresa                                                                              
+     C                   WHEN      E1VARE='&V00'                                                    
+     C                   MOVE      @PCIAS        PPCIAS                                             
+     C     PPCIAS        CHAIN     PMLIBL                                                           
+     C                   IF        %FOUND(PMLIBL)                                                   
+     C                   MOVEL(P)  PPDESC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Artículo y descripción (sólo si viene línea informada)                                      
+     C                   WHEN      E1VARE='&V13' OR E1VARE='&V14'                                   
+     C                   IF        @PLDOC<>0                                                        
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      CDCIAS=@PCIAS                                                    
+     C                   EVAL      CDCUST=@PCODE                                                    
+     C                   EVAL      CDALBA=@PNDOC                                                    
+     C                   EVAL      CDLIN2=@PLDOC                                                    
+     C     KCOALBD       CHAIN     COALBD                                                           
+     C                   IF        %FOUND(COALBD)                                                   
+     C                   IF        E1VARE='&V13'                                                    
+     C                   EVAL      ZXDATO=CDARTI+CDVARI+CDMODE                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=CDDES1                                                    
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+     C                   IF        ZXDATO=*BLANKS                                                   
+     C                   EVAL      CDCIAS=@PCIAS                                                    
+     C                   EVAL      CDCUST=@PCODE                                                    
+     C                   EVAL      CDALBA=@PNDOC                                                    
+     C                   EVAL      CDLIN2=@PLDOC                                                    
+     C                   EVAL      CDDATP=0                                                         
+     C                   EVAL      CDNOPL=0                                                         
+     C     KCOHALD18     SETLL     COHALD18                                                         
+     C     KCOHALD18B    READE     COHALD18                                                         
+     C                   DOW       NOT %EOF(COHALD18)                                               
+     C                   IF        CDDAT1=@PFDOC                                                    
+     C                   IF        E1VARE='&V13'                                                    
+     C                   EVAL      ZXDATO=CDARTI+CDVARI+CDMODE                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=CDDES1                                                    
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KCOHALD18B    READE     COHALD18                                                         
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * Código cliente                                                                              
+     C                   WHEN      E1VARE='&V01'                                                    
+     C                   MOVEL(P)  @PCODE        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Nombre o NIF cliente en el Albarán                                                          
+     C                   WHEN      E1VARE='&V02' OR E1VARE='&V03'                                   
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      CCCIAS=@PCIAS                                                    
+     C                   EVAL      CCCUST=@PCODE                                                    
+     C                   EVAL      CCALBA=@PNDOC                                                    
+     C     KCOALBC       CHAIN     COALBC                                                           
+     C                   IF        %FOUND(COALBC)                                                   
+     C                   IF        E1VARE='&V02'                                                    
+     C                   EVAL      ZXDATO=CCDES1                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=CCNIFI+' '+CCNIFC                                         
+     C                   EVAL      ZXDATO=%TRIM(ZXDATO)                                             
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+     C                   IF        ZXDATO=*BLANKS                                                   
+     C                   EVAL      CCCIAS=@PCIAS                                                    
+     C                   EVAL      CCCUST=@PCODE                                                    
+     C                   EVAL      CCALBA=@PNDOC                                                    
+     C                   EVAL      CCDAT8=0                                                         
+     C                   EVAL      CCHORA=0                                                         
+     C     KCOHALB       SETLL     COHALB                                                           
+     C     KCOALBC       READE     COHALB                                                           
+     C                   DOW       NOT %EOF(COHALB)                                                 
+     C                   IF        CCFALB=@PFDOC                                                    
+     C                   IF        E1VARE='&V02'                                                    
+     C                   EVAL      ZXDATO=CCDES1                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=CCNIFI+' '+CCNIFC                                         
+     C                   EVAL      ZXDATO=%TRIM(ZXDATO)                                             
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KCOALBC       READE     COHALB                                                           
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+      * Nº de Albarán                                                                               
+     C                   WHEN      E1VARE='&V07'                                                    
+     C                   MOVEL(P)  @PNDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Línea de Albarán                                                                            
+     C                   WHEN      E1VARE='&V08'                                                    
+     C                   MOVEL(P)  @PLDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Fecha de Albarán                                                                            
+     C                   WHEN      E1VARE='&V09'                                                    
+     C                   MOVE      @PFDOC        @PVAN                                              
+     C                   CALL      'MM2510'                                                         
+     C                   PARM                    @PVAN                                              
+     C                   PARM      *BLANKS       @PVAA                                              
+     C                   PARM      'YYMD'        @PFMI                                              
+     C                   PARM      'DMYY'        @PFMF                                              
+     C                   PARM      '/'           @PSEP                                              
+     C                   PARM      ' '           @PERRO                                             
+     C                   MOVEL(P)  @PVAA         ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Recupera datos para Factura de venta                                                        
+      *------------------------------------------------------------*                                
+     C     CS_FACVTA     BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      E1EVEN=@PEVEN                                                    
+     C                   EVAL      E1VARE=*BLANKS                                                   
+     C     KEDMAIV0      SETLL     EDMAIV                                                           
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   DOW       NOT %EOF(EDMAIV)                                                 
+      *                                                                                             
+     C                   SELECT                                                                     
+      * Nombre empresa                                                                              
+     C                   WHEN      E1VARE='&V00'                                                    
+     C                   MOVE      @PCIAS        PPCIAS                                             
+     C     PPCIAS        CHAIN     PMLIBL                                                           
+     C                   IF        %FOUND(PMLIBL)                                                   
+     C                   MOVEL(P)  PPDESC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Código cliente                                                                              
+     C                   WHEN      E1VARE='&V01'                                                    
+     C                   MOVEL(P)  @PCODE        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Nombre o NIF cliente en el Maestro                                                          
+     C                   WHEN      E1VARE='&V02' OR E1VARE='&V03'                                   
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      S0CIAS=@PCIAS                                                    
+     C                   EVAL      S0CUST=@PCODE                                                    
+     C     KCOCLIN       CHAIN     COCLIN                                                           
+     C                   IF        %FOUND(COCLIN)                                                   
+     C                   IF        E1VARE='&V02'                                                    
+     C                   EVAL      ZXDATO=S0DES1                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=S0NIFI+' '+S0NIFC                                         
+     C                   EVAL      ZXDATO=%TRIM(ZXDATO)                                             
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Nº de Factura                                                                               
+     C                   WHEN      E1VARE='&V10'                                                    
+     C                   MOVEL(P)  @PNDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Fecha de Factura                                                                            
+     C                   WHEN      E1VARE='&V11'                                                    
+     C                   MOVE      @PFDOC        @PVAN                                              
+     C                   CALL      'MM2510'                                                         
+     C                   PARM                    @PVAN                                              
+     C                   PARM      *BLANKS       @PVAA                                              
+     C                   PARM      'YYMD'        @PFMI                                              
+     C                   PARM      'DMYY'        @PFMF                                              
+     C                   PARM      '/'           @PSEP                                              
+     C                   PARM      ' '           @PERRO                                             
+     C                   MOVEL(P)  @PVAA         ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Importe de Factura                                                                          
+     C                   WHEN      E1VARE='&V12'                                                    
+     C                   EVAL      VWCIAS=@PCIAS                                                    
+     C                   EVAL      VWCUST=@PCODE                                                    
+     C                   EVAL      VWNFAC=@PNDOC                                                    
+     C                   EVAL      VWFFAC=@PFDOC                                                    
+     C     KCOFACC12     CHAIN     COFACC12                                                         
+     C                   IF        %FOUND(COFACC12)                                                 
+      *                                                                                             
+     C                   EVAL      VXCIAS=VWCIAS                                                    
+     C                   EVAL      VXCUST=VWCUST                                                    
+     C                   EVAL      VXNPRF=VWNPRF                                                    
+     C                   EVAL      VXDAT1=VWDAT1                                                    
+     C                   EVAL      VXMONE=*BLANKS                                                   
+     C                   EVAL      VXTIVA=*BLANKS                                                   
+     C                   EVAL      VXTCAM=*BLANKS                                                   
+     C                   Z-ADD     0             ZXIMPO           17 5                              
+     C     KCOFAIM       SETLL     COFAIM                                                           
+     C     KCOFAIMB      READE     COFAIM                                                           
+     C                   DOW       NOT %EOF(COFAIM)                                                 
+     C                   EVAL(H)   ZXIMPO=ZXIMPO+(VXBIMP+VXIIV1+VXIIV2)                             
+     C     KCOFAIMB      READE     COFAIM                                                           
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXNUM=ZXIMPO                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM      2             PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM      'K'           PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+      *                                                                                             
+     C                   Z-ADD     0             J                 2 0                              
+     C                   Z-ADD     0             X                 2 0                              
+     C     ' '           CHECK     PXALPH        J                                                  
+     C                   IF        J>1                                                              
+     C                   EVAL      X=(29-J)+1                                                       
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      ZXDATO=%SUBST(PXALPH:J:X)+' '+VWMONC                             
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Recupera datos para pedido de compra                                                        
+      *------------------------------------------------------------*                                
+     C     CS_PEDCOM     BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      E1EVEN=@PEVEN                                                    
+     C                   EVAL      E1VARE=*BLANKS                                                   
+     C     KEDMAIV0      SETLL     EDMAIV                                                           
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   DOW       NOT %EOF(EDMAIV)                                                 
+      *                                                                                             
+     C                   SELECT                                                                     
+      * Nombre empresa                                                                              
+     C                   WHEN      E1VARE='&V00'                                                    
+     C                   MOVE      @PCIAS        PPCIAS                                             
+     C     PPCIAS        CHAIN     PMLIBL                                                           
+     C                   IF        %FOUND(PMLIBL)                                                   
+     C                   MOVEL(P)  PPDESC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Artículo y descripción (sólo si viene línea informada)                                      
+     C                   WHEN      E1VARE='&V13' OR E1VARE='&V14'                                   
+     C                   IF        @PLDOC<>0                                                        
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      C5CIAS=@PCIAS                                                    
+     C                   EVAL      C5DLGA=@PDLGA                                                    
+     C                   EVAL      C5NPCO=@PNDOC                                                    
+     C                   EVAL      C5TPED=*BLANKS                                                   
+     C                   EVAL      C5DATP=0                                                         
+     C                   EVAL      C5NOPL=0                                                         
+     C                   EVAL      C5LINE=0                                                         
+     C     KPUDEPE       SETLL     PUDEPE                                                           
+     C     KPUDEPEB      READE     PUDEPE                                                           
+     C                   DOW       NOT %EOF(PUDEPE)                                                 
+     C                   IF        C5PRVR=@PCODE AND C5LINE=@PLDOC                                  
+     C                             AND C5DATP=@PFDOC                                                
+     C                   IF        E1VARE='&V13'                                                    
+     C                   EVAL      ZXDATO=C5ARTI+C5VARI+C5MODE                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=C5DES1                                                    
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KPUDEPEB      READE     PUDEPE                                                           
+     C                   ENDDO                                                                      
+     C                   IF        ZXDATO=*BLANKS                                                   
+     C                   EVAL      C5TPED=*BLANKS                                                   
+     C                   EVAL      C5DATP=0                                                         
+     C                   EVAL      C5NOPL=0                                                         
+     C                   EVAL      C5LINE=0                                                         
+     C     KPUDEPE       SETLL     PUHDEP                                                           
+     C     KPUDEPEB      READE     PUHDEP                                                           
+     C                   DOW       NOT %EOF(PUHDEP)                                                 
+     C                   IF        C5PRVR=@PCODE AND C5LINE=@PLDOC                                  
+     C                             AND C5DATP=@PFDOC                                                
+     C                   IF        E1VARE='&V13'                                                    
+     C                   EVAL      ZXDATO=C5ARTI+C5VARI+C5MODE                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=C5DES1                                                    
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KPUDEPEB      READE     PUHDEP                                                           
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * Código proveedor                                                                            
+     C                   WHEN      E1VARE='&V15'                                                    
+     C                   MOVEL(P)  @PCODE        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Nombre o NIF proveedor en el pedido                                                         
+     C                   WHEN      E1VARE='&V16' OR E1VARE='&V17'                                   
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      C0CIAS=@PCIAS                                                    
+     C                   EVAL      C0DLGA=@PDLGA                                                    
+     C                   EVAL      C0NPCO=@PNDOC                                                    
+     C                   EVAL      C0TPED=*BLANKS                                                   
+     C                   EVAL      C0DATP=0                                                         
+     C                   EVAL      C0NOPL=0                                                         
+     C     KPUCAPE       SETLL     PUCAPE                                                           
+     C     KPUCAPEB      READE     PUCAPE                                                           
+     C                   DOW       NOT %EOF(PUCAPE)                                                 
+     C                   IF        C0PRVR=@PCODE AND C0DATP=@PFDOC                                  
+     C                   IF        E1VARE='&V16'                                                    
+     C                   EVAL      ZXDATO=C0DES1                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=C0NIFI+' '+C0NIFC                                         
+     C                   EVAL      ZXDATO=%TRIM(ZXDATO)                                             
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KPUCAPEB      READE     PUCAPE                                                           
+     C                   ENDDO                                                                      
+     C                   IF        ZXDATO=*BLANKS                                                   
+     C                   EVAL      C0TPED=*BLANKS                                                   
+     C                   EVAL      C0DATP=0                                                         
+     C                   EVAL      C0NOPL=0                                                         
+     C     KPUCAPE       SETLL     PUHCAP                                                           
+     C     KPUCAPEB      READE     PUHCAP                                                           
+     C                   DOW       NOT %EOF(PUHCAP)                                                 
+     C                   IF        C0PRVR=@PCODE AND C0DATP=@PFDOC                                  
+     C                   IF        E1VARE='&V16'                                                    
+     C                   EVAL      ZXDATO=C0DES1                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=C0NIFI+' '+C0NIFC                                         
+     C                   EVAL      ZXDATO=%TRIM(ZXDATO)                                             
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KPUCAPEB      READE     PUHCAP                                                           
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+      * Nº de pedido                                                                                
+     C                   WHEN      E1VARE='&V18'                                                    
+     C                   MOVEL(P)  @PNDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Línea de pedido                                                                             
+     C                   WHEN      E1VARE='&V19'                                                    
+     C                   MOVEL(P)  @PLDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Fecha de pedido                                                                             
+     C                   WHEN      E1VARE='&V20'                                                    
+     C                   MOVE      @PFDOC        @PVAN                                              
+     C                   CALL      'MM2510'                                                         
+     C                   PARM                    @PVAN                                              
+     C                   PARM      *BLANKS       @PVAA                                              
+     C                   PARM      'YYMD'        @PFMI                                              
+     C                   PARM      'DMYY'        @PFMF                                              
+     C                   PARM      '/'           @PSEP                                              
+     C                   PARM      ' '           @PERRO                                             
+     C                   MOVEL(P)  @PVAA         ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+CR653 **************************************************************                                
+CR653 * Recupera datos para pedido de compra proveedor externo                                      
+CR653 *------------------------------------------------------------*                                
+CR653C     CS_PEDCOE     BEGSR                                                                      
+CR653 *                                                                                             
+CR653C                   EVAL      E1EVEN=@PEVEN                                                    
+CR653C                   EVAL      E1VARE=*BLANKS                                                   
+CR653C     KEDMAIV0      SETLL     EDMAIV                                                           
+CR653C     KEDMAIV       READE     EDMAIV                                                           
+CR653C                   DOW       NOT %EOF(EDMAIV)                                                 
+CR653 *                                                                                             
+CR653C                   SELECT                                                                     
+CR653 * Nombre empresa                                                                              
+CR653C                   WHEN      E1VARE='&V00'                                                    
+CR653C                   MOVE      @PCIAS        PPCIAS                                             
+CR653C     PPCIAS        CHAIN     PMLIBL                                                           
+CR653C                   IF        %FOUND(PMLIBL)                                                   
+CR653C                   MOVEL(P)  PPDESC        ZXDATO                                             
+CR653C                   EXSR      CS_WRITE                                                         
+CR653C                   ENDIF                                                                      
+CR653 * Código proveedor                                                                            
+CR653C                   WHEN      E1VARE='&V15'                                                    
+CR653C                   MOVEL(P)  @PCODE        ZXDATO                                             
+CR653C                   EXSR      CS_WRITE                                                         
+CR653 * Nombre Proveedor                                                                            
+CR653C                   WHEN      E1VARE='&V16'                                                    
+CR653C                   EVAL      ZXDATO=*BLANKS                                                   
+CR653C                   EVAL      C0CIAS=@PCIAS                                                    
+CR653C                   EVAL      C0PRVR=@PCODE                                                    
+CR653C     KPUPROV       CHAIN     PUPROV                                                           
+CR653C                   IF        %FOUND(PUPROV)                                                   
+CR653C                   EVAL      ZXDATO=C0DES1                                                    
+CR653C                   EXSR      CS_WRITE                                                         
+CR653C                   ENDIF                                                                      
+CR653 * Nº de pedido                                                                                
+CR653C                   WHEN      E1VARE='&V18'                                                    
+CR653C                   MOVEL(P)  @PNDOC        ZXDATO                                             
+CR653C                   EXSR      CS_WRITE                                                         
+CR653 * Fecha de pedido                                                                             
+CR653C                   WHEN      E1VARE='&V20'                                                    
+CR653C                   MOVE      @PFDOC        @PVAN                                              
+CR653C                   CALL      'MM2510'                                                         
+CR653C                   PARM                    @PVAN                                              
+CR653C                   PARM      *BLANKS       @PVAA                                              
+CR653C                   PARM      'YYMD'        @PFMI                                              
+CR653C                   PARM      'DMYY'        @PFMF                                              
+CR653C                   PARM      '/'           @PSEP                                              
+CR653C                   PARM      ' '           @PERRO                                             
+CR653C                   MOVEL(P)  @PVAA         ZXDATO                                             
+CR653C                   EXSR      CS_WRITE                                                         
+CR653 *                                                                                             
+CR653C                   ENDSL                                                                      
+CR653 *                                                                                             
+CR653C     KEDMAIV       READE     EDMAIV                                                           
+CR653C                   ENDDO                                                                      
+CR653 *                                                                                             
+CR653C                   ENDSR                                                                      
+      **************************************************************                                
+      * Recupera datos para albarán de compra                                                       
+      *------------------------------------------------------------*                                
+     C     CS_ALBCOM     BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      E1EVEN=@PEVEN                                                    
+     C                   EVAL      E1VARE=*BLANKS                                                   
+     C     KEDMAIV0      SETLL     EDMAIV                                                           
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   DOW       NOT %EOF(EDMAIV)                                                 
+      *                                                                                             
+     C                   SELECT                                                                     
+      * Nombre empresa                                                                              
+     C                   WHEN      E1VARE='&V00'                                                    
+     C                   MOVE      @PCIAS        PPCIAS                                             
+     C     PPCIAS        CHAIN     PMLIBL                                                           
+     C                   IF        %FOUND(PMLIBL)                                                   
+     C                   MOVEL(P)  PPDESC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Artículo y descripción (sólo si viene línea informada)                                      
+     C                   WHEN      E1VARE='&V13' OR E1VARE='&V14'                                   
+     C                   IF        @PLDOC<>0                                                        
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      CECIAS=@PCIAS                                                    
+     C                   EVAL      CEPRVR=@PCODE                                                    
+     C                   EVAL      CEALBA=@PNDOC                                                    
+     C                   EVAL      CELIN2=@PLDOC                                                    
+     C     KPUALBD       CHAIN     PUALBD                                                           
+     C                   IF        %FOUND(PUALBD)                                                   
+     C                   IF        E1VARE='&V13'                                                    
+     C                   EVAL      ZXDATO=CEARTI+CEVARI+CEMODE                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=CEDES1                                                    
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+     C                   IF        ZXDATO=*BLANKS                                                   
+     C                   EVAL      CECIAS=@PCIAS                                                    
+     C                   EVAL      CEPRVR=@PCODE                                                    
+     C                   EVAL      CEALBA=@PNDOC                                                    
+     C                   EVAL      CELIN2=@PLDOC                                                    
+     C                   EVAL      CEDAT1=0                                                         
+     C     KPUHALD17     SETLL     PUHALD17                                                         
+     C     KPUHALD17B    READE     PUHALD17                                                         
+     C                   DOW       NOT %EOF(PUHALD17)                                               
+     C                   IF        CEDAT1=@PFDOC                                                    
+     C                   IF        E1VARE='&V13'                                                    
+     C                   EVAL      ZXDATO=CEARTI+CEVARI+CEMODE                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=CEDES1                                                    
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KPUHALD17B    READE     PUHALD17                                                         
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * Código proveedor                                                                            
+     C                   WHEN      E1VARE='&V15'                                                    
+     C                   MOVEL(P)  @PCODE        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Nombre o NIF proveedor en el Maestro                                                        
+     C                   WHEN      E1VARE='&V16' OR E1VARE='&V17'                                   
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      C0CIAS=@PCIAS                                                    
+     C                   EVAL      C0PRVR=@PCODE                                                    
+     C     KPUPROV       CHAIN     PUPROV                                                           
+     C                   IF        %FOUND(PUPROV)                                                   
+     C                   IF        E1VARE='&V16'                                                    
+     C                   EVAL      ZXDATO=C0DES1                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=C0NIFI+' '+C0NIFC                                         
+     C                   EVAL      ZXDATO=%TRIM(ZXDATO)                                             
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Nº de Albarán                                                                               
+     C                   WHEN      E1VARE='&V21'                                                    
+     C                   MOVEL(P)  @PNDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Línea de Albarán                                                                            
+     C                   WHEN      E1VARE='&V22'                                                    
+     C                   MOVEL(P)  @PLDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Fecha de Albarán                                                                            
+     C                   WHEN      E1VARE='&V23'                                                    
+     C                   MOVE      @PFDOC        @PVAN                                              
+     C                   CALL      'MM2510'                                                         
+     C                   PARM                    @PVAN                                              
+     C                   PARM      *BLANKS       @PVAA                                              
+     C                   PARM      'YYMD'        @PFMI                                              
+     C                   PARM      'DMYY'        @PFMF                                              
+     C                   PARM      '/'           @PSEP                                              
+     C                   PARM      ' '           @PERRO                                             
+     C                   MOVEL(P)  @PVAA         ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Recupera datos para factura de compra                                                       
+      *------------------------------------------------------------*                                
+     C     CS_FACCOM     BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      E1EVEN=@PEVEN                                                    
+     C                   EVAL      E1VARE=*BLANKS                                                   
+     C     KEDMAIV0      SETLL     EDMAIV                                                           
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   DOW       NOT %EOF(EDMAIV)                                                 
+      *                                                                                             
+     C                   SELECT                                                                     
+      * Nombre empresa                                                                              
+     C                   WHEN      E1VARE='&V00'                                                    
+     C                   MOVE      @PCIAS        PPCIAS                                             
+     C     PPCIAS        CHAIN     PMLIBL                                                           
+     C                   IF        %FOUND(PMLIBL)                                                   
+     C                   MOVEL(P)  PPDESC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Código proveedor                                                                            
+     C                   WHEN      E1VARE='&V15'                                                    
+     C                   MOVEL(P)  @PCODE        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Nombre o NIF proveedor en el Maestro                                                        
+     C                   WHEN      E1VARE='&V16' OR E1VARE='&V17'                                   
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      C0CIAS=@PCIAS                                                    
+     C                   EVAL      C0PRVR=@PCODE                                                    
+     C     KPUPROV       CHAIN     PUPROV                                                           
+     C                   IF        %FOUND(PUPROV)                                                   
+     C                   IF        E1VARE='&V16'                                                    
+     C                   EVAL      ZXDATO=C0DES1                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXDATO=C0NIFI+' '+C0NIFC                                         
+     C                   EVAL      ZXDATO=%TRIM(ZXDATO)                                             
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      * Nº de Factura                                                                               
+     C                   WHEN      E1VARE='&V24'                                                    
+     C                   MOVEL(P)  @PNDOC        ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Fecha de Factura                                                                            
+     C                   WHEN      E1VARE='&V25'                                                    
+     C                   MOVE      @PFDOC        @PVAN                                              
+     C                   CALL      'MM2510'                                                         
+     C                   PARM                    @PVAN                                              
+     C                   PARM      *BLANKS       @PVAA                                              
+     C                   PARM      'YYMD'        @PFMI                                              
+     C                   PARM      'DMYY'        @PFMF                                              
+     C                   PARM      '/'           @PSEP                                              
+     C                   PARM      ' '           @PERRO                                             
+     C                   MOVEL(P)  @PVAA         ZXDATO                                             
+     C                   EXSR      CS_WRITE                                                         
+      * Importe de Factura                                                                          
+     C                   WHEN      E1VARE='&V12'                                                    
+     C                   EVAL      NWCIAS=@PCIAS                                                    
+     C                   EVAL      NWNFAC=@PNDOC                                                    
+     C                   EVAL      NWPRVR=@PCODE                                                    
+     C                   EVAL      NWFFAC=@PFDOC                                                    
+     C     KPUFACC10     CHAIN     PUFACC10                                                         
+     C                   IF        %FOUND(PUFACC10)                                                 
+      *                                                                                             
+     C                   EVAL      NXCIAS=NWCIAS                                                    
+     C                   EVAL      NXPRVR=NWPRVR                                                    
+     C                   EVAL      NXNPRF=NWNPRF                                                    
+     C                   EVAL      NXDAT1=NWDAT1                                                    
+     C                   EVAL      NXMONE=*BLANKS                                                   
+     C                   EVAL      NXTIVA=*BLANKS                                                   
+     C                   EVAL      NXTCAM=*BLANKS                                                   
+     C                   Z-ADD     0             ZXIMPO           17 5                              
+     C     KPUFAIM       SETLL     PUFAIM                                                           
+     C     KPUFAIMB      READE     PUFAIM                                                           
+     C                   DOW       NOT %EOF(PUFAIM)                                                 
+     C                   EVAL(H)   ZXIMPO=ZXIMPO+(NXBIMP+NXIIV1+NXIIV2)                             
+     C     KPUFAIMB      READE     PUFAIM                                                           
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXNUM=ZXIMPO                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM      2             PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM      'K'           PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+      *                                                                                             
+     C                   Z-ADD     0             J                 2 0                              
+     C                   Z-ADD     0             X                 2 0                              
+     C     ' '           CHECK     PXALPH        J                                                  
+     C                   IF        J>1                                                              
+     C                   EVAL      X=(29-J)+1                                                       
+     C                   EVAL      ZXDATO=*BLANKS                                                   
+     C                   EVAL      ZXDATO=%SUBST(PXALPH:J:X)+' '+NWMONC                             
+     C                   EXSR      CS_WRITE                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C     KEDMAIV       READE     EDMAIV                                                           
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+FQ754 **************************************************************                                
+FQ754 * Masterdata: Datos de un artículo                                                            
+FQ754 *------------------------------------------------------------*                                
+FQ754C     CS_MASTER     BEGSR                                                                      
+FQ754 *                                                                                             
+FQ754C                   EVAL      E1EVEN=@PEVEN                                                    
+FQ754C                   EVAL      E1VARE=*BLANKS                                                   
+FQ754C     KEDMAIV0      SETLL     EDMAIV                                                           
+FQ754C     KEDMAIV       READE     EDMAIV                                                           
+FQ754C                   DOW       NOT %EOF(EDMAIV)                                                 
+FQ754 *                                                                                             
+FQ754C                   SELECT                                                                     
+FQ754 * Nombre empresa                                                                              
+FQ754C                   WHEN      E1VARE='&V00'                                                    
+FQ754C                   MOVE      @PCIAS        PPCIAS                                             
+FQ754C     PPCIAS        CHAIN     PMLIBL                                                           
+FQ754C                   IF        %FOUND(PMLIBL)                                                   
+FQ754C                   MOVEL(P)  PPDESC        ZXDATO                                             
+FQ754C                   EXSR      CS_WRITE                                                         
+FQ754C                   ENDIF                                                                      
+FQ754 * Artículo                                                                                    
+FQ754C                   WHEN      E1VARE='&V13'                                                    
+FQ754C                   EVAL      M5CIAS=@PCIAS                                                    
+FQ754C                   EVAL      M5ARTI=%SUBST(@PCODE:1:15)                                       
+FQ754C                   EVAL      M5VARI=%SUBST(@PCODE:16:3)                                       
+FQ754C                   EVAL      M5MODE=%SUBST(@PCODE:19:3)                                       
+FQ754C     KMSARTI00     CHAIN     MSARTI00                                                         
+FQ754C                   IF        %FOUND(MSARTI00)                                                 
+FQ754C                   MOVEL(P)  @PCODE        ZXDATO                                             
+FQ754C                   EXSR      CS_WRITE                                                         
+FQ754 * Descripción                                                                                 
+FQ754C                   EVAL      E1VARE='&V14'                                                    
+FQ754C                   MOVEL(P)  M5DES1        ZXDATO                                             
+FQ754C                   EXSR      CS_WRITE                                                         
+FQ754 * Proveedor                                                                                   
+FQ754C                   EVAL      E1VARE='&V15'                                                    
+FQ754C                   MOVEL(P)  M5PRVR        ZXDATO                                             
+FQ754C                   EXSR      CS_WRITE                                                         
+FQ754 * Nombre proveedor                                                                            
+FQ754C                   EVAL      ZXDATO=*BLANKS                                                   
+FQ754C                   EVAL      C0CIAS=@PCIAS                                                    
+FQ754C                   EVAL      C0PRVR=M5PRVR                                                    
+FQ754C     KPUPROV       CHAIN     PUPROV                                                           
+FQ754C                   IF        %FOUND(PUPROV)                                                   
+FQ754C                   EVAL      E1VARE='&V16'                                                    
+FQ754C                   EVAL      ZXDATO=C0DES1                                                    
+FQ754C                   EXSR      CS_WRITE                                                         
+FQ754C                   ENDIF                                                                      
+FQ754 *                                                                                             
+FQ754C                   ENDIF                                                                      
+FQ754 *                                                                                             
+FQ754C                   ENDSL                                                                      
+FQ754 *                                                                                             
+FQ754C     KEDMAIV       READE     EDMAIV                                                           
+FQ754C                   ENDDO                                                                      
+FQ754 *                                                                                             
+FQ754C                   ENDSR                                                                      
+C1034 **************************************************************                                
+C1034 * Datos de Cliente                                                                            
+C1034 *------------------------------------------------------------*                                
+C1034C     CS_CLIENTE    BEGSR                                                                      
+C1034 *                                                                                             
+C1034C                   EVAL      E1EVEN=@PEVEN                                                    
+C1034C                   EVAL      E1VARE=*BLANKS                                                   
+C1034C     KEDMAIV0      SETLL     EDMAIV                                                           
+C1034C     KEDMAIV       READE     EDMAIV                                                           
+C1034C                   DOW       NOT %EOF(EDMAIV)                                                 
+C1034 *                                                                                             
+C1034C                   SELECT                                                                     
+C1034 * Cliente                                                                                     
+C1034C                   WHEN      E1VARE='&V01'                                                    
+C1034C                   MOVEL(P)  @PCODE        ZXDATO                                             
+C1034C                   EXSR      CS_WRITE                                                         
+C1034 * Nombre Cliente                                                                              
+C1034C                   EVAL      ZXDATO=*BLANKS                                                   
+C1034C                   EVAL      S0CIAS=@PCIAS                                                    
+C1034C                   EVAL      S0CUST=@PCODE                                                    
+C1034C     KCOCLIN       CHAIN     COCLIN                                                           
+C1034C                   IF        %FOUND                                                           
+C1034C                   EVAL      E1VARE='&V02'                                                    
+C1034C                   EVAL      ZXDATO=S0DES1                                                    
+C1034C                   EXSR      CS_WRITE                                                         
+C1034C                   ENDIF                                                                      
+C1034 *                                                                                             
+C1034C                   ENDSL                                                                      
+C1034 *                                                                                             
+C1034C     KEDMAIV       READE     EDMAIV                                                           
+C1034C                   ENDDO                                                                      
+C1034 *                                                                                             
+C1034C                   ENDSR                                                                      
+C1034 **************************************************************                                
+C1034 * Datos de Proveedor                                                                          
+C1034 *------------------------------------------------------------*                                
+C1034C     CS_PROVEED    BEGSR                                                                      
+C1034 *                                                                                             
+C1034C                   EVAL      E1EVEN=@PEVEN                                                    
+C1034C                   EVAL      E1VARE=*BLANKS                                                   
+C1034C     KEDMAIV0      SETLL     EDMAIV                                                           
+C1034C     KEDMAIV       READE     EDMAIV                                                           
+C1034C                   DOW       NOT %EOF(EDMAIV)                                                 
+C1034 *                                                                                             
+C1034C                   SELECT                                                                     
+C1034 * Proveedor                                                                                   
+C1034C                   WHEN      E1VARE='&V15'                                                    
+C1034C                   MOVEL(P)  @PCODE        ZXDATO                                             
+C1034C                   EXSR      CS_WRITE                                                         
+C1034 * Nombre proveedor                                                                            
+C1034C                   EVAL      ZXDATO=*BLANKS                                                   
+C1034C                   EVAL      C0CIAS=@PCIAS                                                    
+C1034C                   EVAL      C0PRVR=@PCODE                                                    
+C1034C     KPUPROV       CHAIN     PUPROV                                                           
+C1034C                   IF        %FOUND                                                           
+C1034C                   EVAL      E1VARE='&V16'                                                    
+C1034C                   EVAL      ZXDATO=C0DES1                                                    
+C1034C                   EXSR      CS_WRITE                                                         
+C1034C                   ENDIF                                                                      
+C1034 *                                                                                             
+C1034C                   ENDSL                                                                      
+C1034 *                                                                                             
+C1034C     KEDMAIV       READE     EDMAIV                                                           
+C1034C                   ENDDO                                                                      
+C1034 *                                                                                             
+C1034C                   ENDSR                                                                      
+      **************************************************************                                
+      * Grabar la variable (No debería existir)                                                     
+      *------------------------------------------------------------*                                
+     C     CS_WRITE      BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      EWCIAS=@PCIAS                                                    
+     C                   EVAL      EWDLGA=@PDLGA                                                    
+     C                   EVAL      EWTDAJ=@PTDAJ                                                    
+     C                   EVAL      EWCODE=@PCODE                                                    
+     C                   EVAL      EWNDOC=@PNDOC                                                    
+     C                   EVAL      EWFDOC=@PFDOC                                                    
+     C                   EVAL      EWLDOC=@PLDOC                                                    
+     C                   EVAL      EWEVEN=@PEVEN                                                    
+     C                   EVAL      EWVARE=E1VARE                                                    
+     C     KED0531W      CHAIN     ED0531W                                                          
+     C                   EVAL      EWDATO=ZXDATO                                                    
+     C                   IF        %FOUND(ED0531W)                                                  
+     C                   UPDATE    RED0531W                                                         
+     C                   ELSE                                                                       
+     C                   WRITE     RED0531W                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      

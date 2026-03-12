@@ -1,0 +1,92 @@
+       //========================================================================                  
+       //PROGRAMA...: MM1414                                                                       
+       //DESCRIPCIÓ.: Crida a l'API MWFQ85MI.ExeMWFQ85 per alinear coenvio de                      
+       //             comandes que s'han modificat en l'AS                                         
+       //AUTOR......: MMontana                                                                     
+       //FECHA......: 08/02/2022                                                                   
+       //========================================================================                  
+       //DESCRIPCIÓN: Eliminar Sleep per saturació de JOBQ                                         
+       //AUTOR......: MMontana                                                                     
+       //FECHA......: 07/03/2021                                                                   
+       //MARCA......: 2OLXX                                                                        
+       //========================================================================                  
+       //DESCRIPCIÓN:                                                                              
+       //AUTOR......:                                                                              
+       //FECHA......:                                                                              
+       //MARCA......:                                                                              
+       //========================================================================                  
+       ctl-opt OPTION(*NODEBUGIO:*SRCSTMT) DFTACTGRP(*NO) THREAD(*SERIALIZE)                        
+               BNDDIR('QC2LE');                                                                     
+       //========================================================================                  
+                                                                                                    
+       //LDA                                                                                       
+       //dcl-ds purLDAds extname('PURLDADS');                                                       
+       //end-ds;                                                                                    
+                                                                                                    
+       //dcl-ds dsLDA dtaara('PURLDA');                                                             
+       //   purLDA like(PURLDADS);                                                                  
+       //end-ds;                                                                                    
+                                                                                                    
+       //========================================================================                  
+       dcl-ds pgm_stat psds;                                                                        
+         sdsPgmID   char(10) pos(1);                                                                
+         PgmID      char(10) pos(1);                                                                
+         sdsWrkstn  char(10) pos(244);                                                              
+         sdsJobUser char(10) pos(254);                                                              
+         sdsCurUser char(10) pos(358);                                                              
+         UsrId      char(10) pos(358);                                                              
+         sdsJobnbr  char(6)  pos(264);                                                              
+         sdsJobDate char(6)  pos(270);                                                              
+         sdsMsg     char(7)  pos(40);                                                               
+         sdsMsgd    char(80) pos(91);                                                               
+         sdsDate    char(8)  pos(191);                                                              
+       end-ds;                                                                                      
+                                                                                                    
+       //Módulos llamados                                                                          
+       dcl-pr m3Api  ExtPgm('M3APICLP');                                                            
+         *n char(3) const;                      // entorno;                                         
+         *n char(3) const;                      // cono                                             
+         *n char(3) const;                      // divi                                             
+         *n char(10) const;                     // nombre api                                       
+         *n char(15) const;                     // transacción                                      
+         *n char(999);                          // Datos input                                      
+         *n char(999);                          // Datos output                                     
+       end-pr;                                                                                      
+                                                                                                    
+       //A dormir!                                                                                 
+       dcl-pr sleep  extproc('sleep') ;                                                             
+          *n uns(10) value ;                                                                        
+       end-pr ;                                                                                     
+                                                                                                    
+       //========================================================================                  
+       //PLIST                                                                                     
+       dcl-pi *n;                                                                                   
+         envmnt  char(3);                                                                           
+         cono    char(3);                                                                           
+         divi    char(3);                                                                           
+         ApiName char(10);                                                                          
+         TrnName char(15);                                                                          
+         DataIn  char(999);                                                                         
+         DataOut char(999);                                                                         
+       end-pi;                                                                                      
+                                                                                                    
+       //========================================================================                  
+       //Recuperamos LDA:                                                                          
+       //in dsLDA;                                                                                  
+       //purLdaDS = purLDA;                                                                         
+                                                                                                    
+       //COPY PARA DEBUG.  PARA SALIR, A='X' (cualquier cosa distinta de '1')                      
+       // /COPY PURLIBC8/QSRDSRC,SRDWSDEBUG                                                         
+                                                                                                    
+       //Primer pas, a dormir una estona                                                           
+       //sleep(53);       //2OLXX s'elimina sleep                                                   
+                                                                                                    
+       //Segón pas, executem l'Api                                                                 
+       m3Api (envmnt:cono:divi:ApiName:TrnName:DataIn:DataOut);                                     
+                                                                                                    
+       //That's all folks!                                                                         
+       *inLR = *on;                                                                                 
+                                                                                                    
+       //========================================================================                  
+       begsr *inzsr;                                                                                
+       endsr;                                                                                       

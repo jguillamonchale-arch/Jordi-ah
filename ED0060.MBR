@@ -1,0 +1,1115 @@
+      * TITOL: ED0060  © FLUIDRA SERVICES                          *                                
+      * DATA CREACIO:  29/01/2010                                  *                                
+      * FUNCIO DEL PROGRAMA: ED: Creación de líneas ED             *                                
+      **************************************************************                                
+FQ606 * Modificación: FQ606                                        *                                
+FQ606 *        Autor: Josep Aragonès                               *                                
+FQ606 * Fecha Inicio: 10/03/2011                                   *                                
+FQ606 *  Descripción: Grabar mateixa hora x comanda al EDH050      *                                
+FQ606 **************************************************************                                
+FDX01 *      Modificació: FDX01                                                                     
+FDX01 *            Autor: Carlos del Valle                                                          
+FDX01 * Data modificació: 03/01/2013                                                                
+FDX01 *       Descripció: Fluidra Direct: Correcciones y mejoras                                    
+FDX01 **************************************************************                                
+C1369 *      Modificació: C1369                                                                     
+C1369 *            Autor: JMARTINEZP                                                                
+C1369 * Data modificació: 15/10/2013                                                                
+C1369 *       Descripció: ARREGLO TEMPORAL NCD MIXTO                                                
+C1369 *                                                                                             
+C1369 **************************************************************                                
+CR653 *      Modificació: CR653                                                                     
+CR653 *            Autor: X.Bou                                                                     
+CR653 * Data modificació: 28/10/2013                                                                
+CR653 *       Descripció: Tratamiento Proveedores externos en Fluidra                               
+CR653 *                   Direct: No cal fer comprobacions d'estoc                                  
+CR653 *                   perque asumim que sempre tenen estoc.                                     
+CR653 *                   A mes no cal generar comanda EDI de compra                                
+CR653 **************************************************************                                
+C1078 * DATA DE MODIFICACIÓ: 19/01/2012  MARCA: C1078              *                                
+C1078 * AUTOR: JMARTINEZP                                          *                                
+C1078 * DOCUMENTACIÓ: DOM                                          *                                
+C1078 **************************************************************                                
+      * Modificación: M1078                                        *                                
+      *        Autor: JMARTINEZP                                   *                                
+      * Fecha Inicio: 01/09/2014                                   *                                
+      *  Descripción: CAMBIAMOS INFORMACION                        *                                
+      **************************************************************                                
+      * Modificación: N1078                                        *                                
+      *        Autor: JMARTINEZP                                   *                                
+      * Fecha Inicio: 01/09/2014                                   *                                
+      *  Descripción: CAMBIAMOS INFORMACION                        *                                
+      **************************************************************                                
+      * Modificación: X1078                                        *                                
+      *        Autor: JMARTINEZP                                   *                                
+      * Fecha Inicio: 01/09/2014                                   *                                
+      *  Descripción: CAMBIAMOS INFORMACION                        *                                
+      **************************************************************                                
+C2384 * Modificación: C2384                                        *                                
+C2384 *        Autor: Javier Arbide                                *                                
+C2384 * Fecha Inicio: 08/01/2015                                   *                                
+C2384 *  Descripción: Consignas en Fluidra Direct                  *                                
+C2384 *               Permitir dejar material en consigna          *                                
+C2384 *               para los clientes.                           *                                
+C2384 *               Si el pedido FD es de consigna ponerle la    *                                
+C2384 *               logística de la consigna al pedido.          *                                
+C2384 **************************************************************                                
+C2426 * Modificación: C2426                                        *                                
+C2426 *        Autor: Josep Aragonès                               *                                
+C2426 * Fecha Inicio: 23/01/2015                                   *                                
+C2426 *  Descripción: Desasteriscar validació conjunts Mixtes      *                                
+C2426 **************************************************************                                
+C2638 * DATA DE MODIFICACIÓ: 13/04/2015  MARCA: C2638                          *                    
+C2638 * AUTOR: Javier Arbide                                                   *                    
+C2638 * DOCUMENTACIÓ: FD - No cambiar logística de líneas cerradas             *                    
+C2638 **************************************************************************                    
+IT225 * DATA DE MODIFICACIÓ: 19/11/2021  MARCA: IT225              *                                
+IT225 * AUTOR: MMontana                                            *                                
+IT225 * DOCUMENTACIÓ: Vincular T3LVIR según OL                     *                                
+IT225 **************************************************************                                
+IT228 * DATA DE MODIFICACIÓ: 24/12/2021  MARCA: IT228              *                                
+IT228 * AUTOR: JCampillo                                           *                                
+IT228 * DOCUMENTACIÓ: ITOM228                                      *                                
+IT228 **************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+IT225H dftactgrp(*no)                                                                               
+      *                                                                                             
+     FED0050W   IF   E           K DISK                                                             
+     FEDH050    O  A E           K DISK                                                             
+     FCOCAPE    UF   E           K DISK                                                             
+     FCODEPE    UF   E           K DISK                                                             
+     FMSALMA    IF   E           K DISK                                                             
+     FMSARTI00  IF   E           K DISK                                                             
+FDX01FMSCOJC    IF   E           K Disk                                                             
+FDX01FMSCOJD    IF   E           K Disk                                                             
+C1369FEDPARM    IF   E           K Disk                                                             
+IT225FMSALMA08  IF   E           K DISK    rename(rmsalma:rmsalma08) usropn                         
+C1369FMSALMA05  IF   E           K DISK    RENAME(RMSALMA:RMSALMA05)                                
+     F                                     PREFIX(C_)                                               
+C2384FCODIMA    IF   E           K DISK    PREFIX(D_)                                               
+C2384FCODIPE    UF   E           K DISK                                                             
+C2384FCODIPR    IF   E           K DISK                                                             
+C1078                                                                                               
+C1078FDO0050W   IF   E           K DISK                                                             
+C1078FDO0051W   IF   E           K DISK                                                             
+C1078FDO0052W   IF   E           K DISK    PREFIX(S_)                                               
+N1078FDO0053W   IF   E           K DISK                                                             
+C1078FDOH050    UF A E           K DISK                                                             
+C1078FDOH051    UF A E           K DISK                                                             
+C1078FDOH052    UF A E           K DISK    PREFIX(S_)                                               
+N1078FDOH053    UF A E           K DISK                                                             
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSSTS           *STATUS                                                                    
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+      *                                                                                             
+     D  @PCIAS         S                   LIKE(T2CIAS)                                             
+     D  @PDLGA         S                   LIKE(T2DLGA)                                             
+     D  @PNPCO         S                   LIKE(T2NPCO)                                             
+     D  @PTPED         S                   LIKE(T2TPED)                                             
+     D  @PDATP         S                   LIKE(T2DATP)                                             
+     D  @PNOPL         S                   LIKE(T2NOPL)                                             
+     D  @PLINE         S                   LIKE(T2LINE)                                             
+     D  @PCHKS         S              1  0                                                          
+      *                                                                                             
+     D  @FDCIAS        S                   LIKE(T2CIAS)                                             
+     D  @FDDLGA        S              5                                                             
+     D  @FDNPCO        S             10                                                             
+     D  @FDTPED        S              2                                                             
+     D  @FDDATP        S                   LIKE(T2DATP)                                             
+     D  @FDNOPL        S                   LIKE(T2NOPL)                                             
+     D  @FDLINE        S              3p 0                                                          
+     D  @FDCUST        S             10                                                             
+     D  @FDTDI1        S              2                                                             
+     D  @FDEDAU        S              3                                                             
+     D  @FDORIG        S              1  0                                                          
+     D  @FDINTE        S              1                                                             
+     D  @FDERRO        S              1                                                             
+     D  @FDCIA2        S                   LIKE(T2CIAS)                                             
+     D  @FDDLG2        S              5                                                             
+     D  @FDNPC2        S             10                                                             
+     D  @FDTPE2        S              2                                                             
+     D  @FDDAT2        S                   LIKE(T2DATP)                                             
+     D  @FDNOP2        S                   LIKE(T2NOPL)                                             
+     D  @FDLIN2        S                   LIKE(T2LINE)                                             
+     D  @FDLOGI        S              1  0                                                          
+     D  @FDERAV        S              3                                                             
+     D  @FDTEXT        S             50                                                             
+     D  @FDDATO        S            300                                                             
+     D  @FDWAUD        S              1  0                                                          
+     D  @FDCANT        S             15  5                                                          
+     D  @PEFIN         S              1  0                                                          
+      *                                                                                             
+C2638D  ZXENTD         S              1                                                             
+     D  ZXEDSN         S              1  0                                                          
+IT225 *     D  ZXLOGOL        S                   LIKE(M0LOGS)                                      
+IT225d  T_logol        s                   like(m0logs) dim(10) inz                                 
+IT225d  i2OL           s              2  0 inz                                                      
+FQ606D  ZXHORA         S                   LIKE(T2HORA)                                             
+CR964D*                                                                                             
+CR964D  @QCIAS         S                   LIKE(S5CIAS)                                             
+CR964D  @QDLGA         S                   LIKE(S5DLGA)                                             
+CR964D  @QLOGE         S                   LIKE(S5LOGE)                                             
+CR964D  @QARTI         S                   LIKE(S5ARTI)                                             
+CR964D  @QVARI         S                   LIKE(S5VARI)                                             
+CR964D  @QMODE         S                   LIKE(S5MODE)                                             
+CR964D  @QTCOJ         S              1A                                                            
+CR964D  @QCROT         S              2A                                                            
+CR964D  @QCROTA        S              2A                                                            
+CR964D  @QCROTB        S              2A                                                            
+CR964D  @QCROTC        S              2A                                                            
+CR964D  @QLOFD         S              2A                                                            
+C2384 *                                                                                             
+C2384D  S0AMP1         DS                                                                           
+C2384D    S0CNSG              41     41                                                             
+C2384D    S0LGCG              42     44                                                             
+C2384D    S0TDIG              45     46                                                             
+C2384 *                                                                                             
+CR964D  S5AMPL         DS                                                                           
+CR964D    S5CROT              72     72                                                             
+CR964D    S5CROP              73     73                                                             
+CR964D    S5CROTA             74     75                                                             
+CR964D    S5CROTB             76     77                                                             
+CR964D    S5CROTC             78     79                                                             
+CR964D    S5RESTO2           100    100                                                             
+C1369 *                                                                                             
+C1369D T3AMPL          DS                                                                           
+C1369D  T3LVIR                 9     11                                                             
+C1708D  T3ADOM                14     14                                                             
+C1369D  T3RESTO                4    100                                                             
+C1369 *                                                                                             
+C1369D ZXCHGLVIR       S              1                                                             
+CR653D  @YCIAS         S                   LIKE(M5CIAS)                                             
+CR653D  @YARTI         S                   LIKE(M5ARTI)                                             
+CR653D  @YVARI         S                   LIKE(M5VARI)                                             
+CR653D  @YMODE         S                   LIKE(M5MODE)                                             
+CR653D  @YPRVR         S                   LIKE(M5PRVR)                                             
+CR653D  @YGRUP         S              1                                                             
+CR653D  @YPEVT         S              1                                                             
+IT225 * add-begin                                                                                   
+        dcl-s xpebl64 char(10); // PEBL64                                                           
+        dcl-s xpedesc char(30); // PEDESC                                                           
+        dcl-s auxLVIR like(T3LVIR) inz;                                                             
+        dcl-s pPointer pointer;                                                                     
+        dcl-s pDsPgmOL pointer;                                                                     
+        dcl-ds DsPgmOL based(pDsPgmOL);                                                             
+              zoldl like(m0maga);                                                                   
+              loEdl like(M0LOGE) ;                                                                  
+              loSdl like(M0LOGS) ;                                                                  
+              zolem like(m0maga);                                                                   
+              loEem like(M0LOGE) ;                                                                  
+              loSem like(M0LOGS) ;                                                                  
+              zolgc like(m0maga);                                                                   
+              loEgc like(M0LOGE) ;                                                                  
+              loSgc like(M0LOGS) ;                                                                  
+              zolgm like(m0maga);                                                                   
+              loEgm like(M0LOGE) ;                                                                  
+              loSgm like(M0LOGS) ;                                                                  
+              zolgt like(m0maga);                                                                   
+              loEgt like(M0LOGE) ;                                                                  
+              loSgt like(M0LOGS) ;                                                                  
+        end-ds;                                                                                     
+        dcl-pr pgmOL   extpgm('MM1410');                                                            
+           xCIAS   like(s5cias) const;   // cia                                                     
+           xDLGA   like(s5dlga) const;   // delega                                                  
+           xptr    pointer       ;        // pointer                                                
+        end-pr;                                                                                     
+        dcl-pr pgmOL2  extpgm('MM1411');                                                            
+           xCIAS   like(s5cias);                                                                    
+           xPALMA  like(m0maga) ;                                                                   
+           xPTIPO  char(1)      ;                                                                   
+           xDLGA   like(s5DLGA) ;                                                                   
+           xPRESP  like(m0maga) ;                                                                   
+        end-pr;                                                                                     
+IT225 * add-end                                                                                     
+      **********************************************************************                        
+      * Claves                                                                                      
+      **********************************************************************                        
+      *                                                                                             
+     C     KED0050W0     KLIST                                                                      
+     C                   KFLD                    T2CIAS                                             
+     C                   KFLD                    T2DLGA                                             
+     C                   KFLD                    T2NPCO                                             
+     C                   KFLD                    T2TPED                                             
+     C                   KFLD                    T2DATP                                             
+     C                   KFLD                    T2NOPL                                             
+      *                                                                                             
+     C     KED0050W      KLIST                                                                      
+     C                   KFLD                    T2CIAS                                             
+     C                   KFLD                    T2DLGA                                             
+     C                   KFLD                    T2NPCO                                             
+     C                   KFLD                    T2TPED                                             
+     C                   KFLD                    T2DATP                                             
+     C                   KFLD                    T2NOPL                                             
+     C                   KFLD                    T2LINE                                             
+      *                                                                                             
+     C     KCOCAPE       KLIST                                                                      
+     C                   KFLD                    S0CIAS                                             
+     C                   KFLD                    S0DLGA                                             
+     C                   KFLD                    S0NPCO                                             
+     C                   KFLD                    S0TPED                                             
+     C                   KFLD                    S0DATP                                             
+     C                   KFLD                    S0NOPL                                             
+      *                                                                                             
+     C     KCODEPE       KLIST                                                                      
+     C                   KFLD                    S5CIAS                                             
+     C                   KFLD                    S5DLGA                                             
+     C                   KFLD                    S5NPCO                                             
+     C                   KFLD                    S5TPED                                             
+     C                   KFLD                    S5DATP                                             
+     C                   KFLD                    S5NOPL                                             
+     C                   KFLD                    S5LINE                                             
+      *                                                                                             
+     C     KMSARTI00     KLIST                                                                      
+     C                   KFLD                    @PCIAS                                             
+     C                   KFLD                    S5ARTI                                             
+     C                   KFLD                    S5VARI                                             
+     C                   KFLD                    S5MODE                                             
+FDX01 *                                                                                             
+FDX01C     KMSARTICO     KLIST                                                                      
+FDX01C                   KFLD                    @PCIAS                                             
+FDX01C                   KFLD                    NDCOMP                                             
+FDX01C                   KFLD                    NDVAR2                                             
+FFDX1C                   KFLD                    NDMOD2                                             
+FFDX1 *                                                                                             
+FDX01C     KMSCOJC       KLIST                                                                      
+FDX01C                   KFLD                    @PCIAS                                             
+FDX01C                   KFLD                    NDARTI                                             
+FDX01C                   KFLD                    NDVARI                                             
+FDX01C                   KFLD                    NDMODE                                             
+FDX01C                   KFLD                    NDTCOJ                                             
+FFDX1 *                                                                                             
+FQ606                                                                                               
+FQ606C                   TIME                    ZXHORA                                             
+C1369                                                                                               
+C1369C     KEDPARM       KLIST                                                                      
+C1369C                   KFLD                    T3CIAS                                             
+C1369C                   KFLD                    T3DLGA                                             
+C1369                                                                                               
+C1369C     KMSALMA05     KLIST                                                                      
+C1369C                   KFLD                    C_M0CIAS                                           
+C1369C                   KFLD                    C_M0LOGE                                           
+C1369                                                                                               
+C1078                                                                                               
+C1078C     KDO0050       KLIST                                                                      
+C1078C                   KFLD                    D2CIAS                                             
+C1078C                   KFLD                    D2DLGA                                             
+C1078C                   KFLD                    D2NPCO                                             
+C1078C                   KFLD                    D2TPED                                             
+C1078C                   KFLD                    D2DATP                                             
+C1078C                   KFLD                    D2NOPL                                             
+C1078                                                                                               
+C1078C     KDO0052       KLIST                                                                      
+C1078C                   KFLD                    D2CIAS                                             
+C1078C                   KFLD                    D2DLGA                                             
+C1078C                   KFLD                    D2NPCO                                             
+C1078C                   KFLD                    D2TPED                                             
+C1078C                   KFLD                    D2DATP                                             
+C1078C                   KFLD                    D2NOPL                                             
+C1078C                   KFLD                    D2LINE                                             
+C1078C                   KFLD                    D2LINC                                             
+C1078                                                                                               
+C1078C     KDO0051       KLIST                                                                      
+C1078C                   KFLD                    D1CIAS                                             
+C1078C                   KFLD                    D1DLGA                                             
+C1078C                   KFLD                    D1NPCO                                             
+C1078C                   KFLD                    D1TPED                                             
+C1078C                   KFLD                    D1DATP                                             
+C1078C                   KFLD                    D1NOPL                                             
+C1078                                                                                               
+C1078 *                                                                                             
+C2384C     KCODIMA       KLIST                                                                      
+C2384C                   KFLD                    D_C2CIAS                                           
+C2384C                   KFLD                    D_C2MAGA                                           
+C2384C                   KFLD                    D_C2TDIR                                           
+C2384 *                                                                                             
+C2384C     KCODIPE       KLIST                                                                      
+C2384C                   KFLD                    S2CIAS                                             
+C2384C                   KFLD                    S2DLGA                                             
+C2384C                   KFLD                    S2NPCO                                             
+C2384C                   KFLD                    S2TPED                                             
+C2384C                   KFLD                    S2DATP                                             
+C2384C                   KFLD                    S2NOPL                                             
+C2384C                   KFLD                    S2CDIR                                             
+C2384C     KCODIPR0      KLIST                                                                      
+C2384C                   KFLD                    S2CIAS                                             
+C2384C                   KFLD                    S2CUST                                             
+      **********************************************************************                        
+      * Entrada de parámetros                                                                       
+      **********************************************************************                        
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PLINE                                             
+     C                   PARM                    @PCHKS                                             
+      *                                                                                             
+      **********************************************************************                        
+      * Estructura de Programa                                                                      
+      **********************************************************************                        
+C1369                                                                                               
+C1369C                   EVAL      T3CIAS=@PCIAS                                                    
+C1369C                   EVAL      T3DLGA=@PDLGA                                                    
+C1369C     KEDPARM       CHAIN     EDPARM                                                           
+      *                                                                                             
+     C                   EVAL      ZXEDSN=0                                                         
+      *                                                                                             
+     C                   EXSR      CS_LOGOL                                                         
+      *                                                                                             
+     C                   EVAL      T2CIAS=@PCIAS                                                    
+     C                   EVAL      T2DLGA=@PDLGA                                                    
+     C                   EVAL      T2NPCO=@PNPCO                                                    
+     C                   EVAL      T2TPED=@PTPED                                                    
+     C                   EVAL      T2DATP=@PDATP                                                    
+     C                   EVAL      T2NOPL=@PNOPL                                                    
+     C                   EVAL      T2LINE=@PLINE                                                    
+      *                                                                                             
+      * Si me llega Nº de línea, sólo debo comprobar esa línea                                      
+      *                                                                                             
+     C                   IF        @PLINE<>0                                                        
+      *                                                                                             
+     C     KED0050W      CHAIN     ED0050W                                                          
+     C                   IF        %FOUND(ED0050W)                                                  
+      *                                                                                             
+     C                   EXSR      CS_DETVTA                                                        
+      *                                                                                             
+      * Si es ED entonces generá fichero de control                                                 
+C2638 * (Si la linea no está cerrada)                                                               
+      *                                                                                             
+     C                   IF        T2ENTD=1                                                         
+C2638C                   IF        ZXENTD='1'                                                       
+      *                                                                                             
+     C                   IF        T2FORZ=1                                                         
+     C                   EVAL      @FDEDAU='002'                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      @FDEDAU='001'                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EXSR      CS_GENERAED                                                      
+     C                   EXSR      CS_SINCROCOMP                                                    
+C2638C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      ZXEDSN=1                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ELSE                                                                       
+      *                                                                                             
+      * Si no me llega Nº de línea, comprobar todas                                                 
+      *                                                                                             
+     C     KED0050W      SETLL     ED0050W                                                          
+     C     KED0050W0     READE     ED0050W                                                          
+     C                   DOW       NOT %EOF(ED0050W)                                                
+      *                                                                                             
+     C                   EXSR      CS_DETVTA                                                        
+PJ933C                   IF        S0STCO>='20'                                                     
+PJ933C                   EVAL      @PECABE='1'                                                      
+PJ933C                   ENDIF                                                                      
+      *                                                                                             
+      * Si es ED entonces generá fichero de control                                                 
+C2638 * (Si la linea no está cerrada)                                                               
+      *                                                                                             
+     C                   IF        T2ENTD=1                                                         
+C2638C                   IF        ZXENTD='1'                                                       
+      *                                                                                             
+     C                   IF        T2FORZ=1                                                         
+     C                   EVAL      @FDEDAU='002'                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      @FDEDAU='001'                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EXSR      CS_GENERAED                                                      
+     C                   EXSR      CS_SINCROCOMP                                                    
+C2638C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      ZXEDSN=1                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Graba histórico algorítmo decisión ED                                                       
+     C                   EXSR      CS_HISALG                                                        
+      *                                                                                             
+     C     KED0050W0     READE     ED0050W                                                          
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+C1078                                                                                               
+C1078C*                                                                                             
+C1078 * Graba histórico algorítmo decisión DOM                                                      
+X1078C*                  IF        T3ADOM='1'                                                       
+X1078C*                  IF        T3ADOM='1' AND S0STCO<'20'                                       
+C1078C*                  EXSR      CS_HISDOM                                                        
+C1078C*                  ENDIF                                                                      
+C1078C*                                                                                             
+      *                                                                                             
+      * Actualiza cabecera de pedido de venta                                                       
+      *                                                                                             
+     C                   EXSR      CS_CABVTA                                                        
+X1078                                                                                               
+X1078C*                                                                                             
+X1078 * Graba histórico algorítmo decisión DOM                                                      
+X1078C                   IF        T3ADOM='1' AND S0STCO<'20'                                       
+X1078C                   EXSR      CS_HISDOM                                                        
+X1078C                   ENDIF                                                                      
+X1078C*                                                                                             
+      *                                                                                             
+      * Llama a ED0015 para enviar TR de cabeceras de compra                                        
+      * mediante @PEFIN                                                                             
+      *                                                                                             
+      * Si me viene PCHKS=1 quiere decir que me han creado una línea en                             
+      * un pedido ya confirmado con anterioridad en CO0180 o CO0181                                 
+      * entonces no hace falta que envíe la cabecera                                                
+      *                                                                                             
+     C                   IF        @PCHKS=0                                                         
+     C                   CALL      'ED0015'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PLINE                                             
+     C                   PARM                    @FDEDAU                                            
+     C                   PARM      *BLANKS       @PEJOBT          18                                
+     C                   PARM      1             @PEFIN                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   SETON                                        LR                            
+      **********************************************************************                        
+      * Generar registro en fichero de control de ED                                                
+      **********************************************************************                        
+     C     CS_GENERAED   BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      @FDCIAS=T2CIAS                                                   
+     C                   EVAL      @FDDLGA=T2DLGA                                                   
+     C                   EVAL      @FDNPCO=T2NPCO                                                   
+     C                   EVAL      @FDTPED=T2TPED                                                   
+     C                   EVAL      @FDDATP=T2DATP                                                   
+     C                   EVAL      @FDNOPL=T2NOPL                                                   
+     C                   EVAL      @FDLINE=T2LINE                                                   
+     C                   EVAL      @FDCIA2=0                                                        
+     C                   EVAL      @FDDLG2=*BLANKS                                                  
+     C                   EVAL      @FDNPC2=*BLANKS                                                  
+     C                   EVAL      @FDTPE2=*BLANKS                                                  
+     C                   EVAL      @FDDAT2=0                                                        
+     C                   EVAL      @FDNOP2=0                                                        
+     C                   EVAL      @FDLIN2=0                                                        
+     C                   EVAL      @FDCUST=*BLANKS                                                  
+     C                   EVAL      @FDTDI1=*BLANKS                                                  
+     C                   EVAL      @FDLOGI=0                                                        
+     C                   EVAL      @FDERAV=*BLANKS                                                  
+     C                   EVAL      @FDTEXT=*BLANKS                                                  
+     C                   EVAL      @FDDATO=*BLANKS                                                  
+     C                   EVAL      @FDWAUD=1                                                        
+     C                   EVAL      @FDCANT=S5CANT                                                   
+      *                                                                                             
+     C                   CALL      'ED0100'                                                         
+     C                   PARM                    @FDCIAS                                            
+     C                   PARM                    @FDDLGA                                            
+     C                   PARM                    @FDNPCO                                            
+     C                   PARM                    @FDTPED                                            
+     C                   PARM                    @FDDATP                                            
+     C                   PARM                    @FDNOPL                                            
+     C                   PARM                    @FDLINE                                            
+     C                   PARM                    @FDCIA2                                            
+     C                   PARM                    @FDDLG2                                            
+     C                   PARM                    @FDNPC2                                            
+     C                   PARM                    @FDTPE2                                            
+     C                   PARM                    @FDDAT2                                            
+     C                   PARM                    @FDNOP2                                            
+     C                   PARM                    @FDLIN2                                            
+     C                   PARM                    @FDLOGI                                            
+     C                   PARM                    @FDORIG                                            
+     C                   PARM                    @FDEDAU                                            
+     C                   PARM                    @FDERAV                                            
+     C                   PARM                    @FDTEXT                                            
+     C                   PARM                    @FDDATO                                            
+     C                   PARM                    @FDWAUD                                            
+     C                   PARM                    @FDCANT                                            
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **********************************************************************                        
+      * Sincroniza el pedido de ventas con el pedido de compras                                     
+      **********************************************************************                        
+     C     CS_SINCROCOMP BEGSR                                                                      
+      *                                                                                             
+      *                                                                                             
+      * Si me viene PCHKS=1 quiere decir que me han creado una línea en                             
+      * un pedido ya confirmado con anterioridad en CO0180 o CO0181                                 
+      *                                                                                             
+     C                   IF        @PCHKS=1                                                         
+     C                   EVAL      @PEFIN=8                                                         
+     C                   ELSE                                                                       
+     C                   EVAL      @PEFIN=0                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   CALL      'ED0015'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM      T2LINE        @PLINE                                             
+     C                   PARM                    @FDEDAU                                            
+     C                   PARM      *BLANKS       @PEJOBT          18                                
+     C                   PARM                    @PEFIN                                             
+PJ933C                   PARM                    @PECABE           1                                
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **********************************************************************                        
+      * Actualiza detalle de pedido de ventas                                                       
+      **********************************************************************                        
+     C     CS_DETVTA     BEGSR                                                                      
+      *                                                                                             
+C2638C                   EVAL      ZXENTD='0'                                                       
+     C                   EVAL      S5CIAS=@PCIAS                                                    
+     C                   EVAL      S5DLGA=@PDLGA                                                    
+     C                   EVAL      S5NPCO=@PNPCO                                                    
+     C                   EVAL      S5TPED=@PTPED                                                    
+     C                   EVAL      S5DATP=@PDATP                                                    
+     C                   EVAL      S5NOPL=@PNOPL                                                    
+     C                   EVAL      S5LINE=T2LINE                                                    
+     C     KCODEPE       CHAIN     CODEPE                                                           
+     C                   IF        %FOUND(CODEPE)                                                   
+CR653C*                                                                                             
+CR653C                   CALL      'XBB001'                                                         
+CR653C                   PARM      S5CIAS        @YCIAS                                             
+CR653C                   PARM      S5ARTI        @YARTI                                             
+CR653C                   PARM      S5VARI        @YVARI                                             
+CR653C                   PARM      S5MODE        @YMODE                                             
+CR653C                   PARM      *BLANKS       @YPRVR                                             
+CR653C                   PARM      *BLANKS       @YGRUP                                             
+CR653C                   PARM      *BLANKS       @YPEVT                                             
+CR653C*                                                                                             
+     C                   IF        T2ENTD=1                                                         
+C2638 *                                                                                             
+C2638 * Solo cambiaremos ED y logisticas si la linea no está cerrada                                
+C2638C                   IF        S5STUL<>'5'AND S5CAPP=0                                          
+C2638C                   EVAL      ZXENTD='1'                                                       
+     C                   EVAL      S5TPE4='2'                                                       
+FDX01 *                                                                                             
+FDX01 * Comprobar si es conjunto de venta, y en tal caso, sólo que                                  
+FDX01 * uno de los componentes sea material propio (M5SIOL=2)                                       
+FDX01 * entonces ponemos la linea del Padre en CODEPE con Logística OL                              
+CR653 * EXCEPTO SI EL PROVEEDOR ES DE ENTREGAS EXTERNAS                                             
+FDX01 *                                                                                             
+FDX01C                   MOVE      *BLANKS       ZXSIOL            1                                
+FDX01C                   EXSR      CS_CONJUNTO                                                      
+CR653C*                  IF        ZXSIOL='2' AND @YPEVT<>'2'                                       
+FDX01C*                  EVAL      S5LOGE=ZXLOGOL                                                   
+FDX01C*                  ELSE                                                                       
+FDX01 *                                                                                             
+     C*    KMSARTI00     CHAIN     MSARTI00                                                         
+CR653C*                  IF        M5SIOL='2' AND @YPEVT<>'2'                                       
+     C*                  EVAL      S5LOGE=ZXLOGOL                                                   
+     C*                  ENDIF                                                                      
+FDX01 *                                                                                             
+FDX01C*                  ENDIF                                                                      
+FDX01 *                                                                                             
+C2426C*                                                                                             
+IT228C* SI S5LOGE ESTÁ EN LA TABLA DE OLs SE QUEDA, SI NO RECUPERAR DEFECTO                         
+IT228C                   IF        ZXSIOL='2'                                                       
+IT228C*                  EVAL      S5LOGE=ZXLOGOL                                                   
+IT228C                   EXSR      CS_LOGDFT                                                        
+C2426C                   ELSE                                                                       
+C2426C     KMSARTI00     CHAIN     MSARTI00                                                         
+C2426C                   IF        M5SIOL='2'                                                       
+IT228C*                  EVAL      S5LOGE=ZXLOGOL                                                   
+IT228C                   EXSR      CS_LOGDFT                                                        
+C2426C                   ENDIF                                                                      
+C2426C                   ENDIF                                                                      
+C2426C*                                                                                             
+     C                   ELSE                                                                       
+     C                   IF        S5TPE4='2'                                                       
+     C                   EVAL      S5TPE4=*BLANKS                                                   
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+C1369                                                                                               
+C1369C                   IF        S5TPE4='2'                                                       
+IT225 *C1369C                   IF        T3LVIR<>*BLANKS AND S5LOGE<>ZXLOGOL                       
+IT225 * Add-Begin                                                                                   
+                         auxLVIR = GetLogV (s5dlga);                                                
+                         if auxLVIR <> *blanks and %lookup(s5loge:T_logol)=0;                       
+IT225 * Add-end                                                                                     
+C1369C                   EVAL      C_M0CIAS=@PCIAS                                                  
+C1369C                   EVAL      C_M0LOGE=S5LOGE                                                  
+C1369C     KMSALMA05     CHAIN     MSALMA05                                                         
+C1369C                   IF        C_M0APPL='1' AND %FOUND(MSALMA05)                                
+C1078C                             AND C_M0TAL1<'7'                                                 
+IT225 *C1369C                   EVAL      S5LOGE=T3LVIR                                             
+IT225c                   eval      s5loge = auxLVIR                                                 
+C1369C                   ENDIF                                                                      
+C1369C                   ENDIF                                                                      
+C1369C                   ENDIF                                                                      
+C2384 *                                                                                             
+C2384 * Si el pedido FD es de consigna actualizamos con la logística de                             
+C2384 * la consigna si esta viene informada                                                         
+C2384 *                                                                                             
+C2384C                   IF        S5TPE4='2'                                                       
+C2384C                   EVAL      S0CIAS=@PCIAS                                                    
+C2384C                   EVAL      S0DLGA=@PDLGA                                                    
+C2384C                   EVAL      S0NPCO=@PNPCO                                                    
+C2384C                   EVAL      S0TPED=@PTPED                                                    
+C2384C                   EVAL      S0DATP=@PDATP                                                    
+C2384C                   EVAL      S0NOPL=@PNOPL                                                    
+C2384C     KCOCAPE       CHAIN     COCAPE                                                           
+C2384C                   IF        %FOUND(COCAPE) AND                                               
+C2384C                             S0CNSG='1' AND S0LGCG<>*BLANKS                                   
+IT225 *C2384C                   IF        S5LOGE<>ZXLOGOL                                           
+IT225c                   if        %lookup(s5loge:T_logol)=0                                        
+C2384C                   EVAL      S5LOGE=S0LGCG                                                    
+C2384C                   ENDIF                                                                      
+C2384C                   EXSR      CS_DIRCNSG                                                       
+C2384C                   ENDIF                                                                      
+C2384C                   UPDATE    RCOCAPE                                                          
+C2384C                   ENDIF                                                                      
+C1369                                                                                               
+CR964C                   EXSR      CS_BUSROTNEW                                                     
+C2638C                   ENDIF                                                                      
+C2638 *                                                                                             
+     C                   UPDATE    RCODEPE                                                          
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **********************************************************************                        
+      * Actualiza cabecera de pedido de ventas                                                      
+      **********************************************************************                        
+     C     CS_CABVTA     BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      S0CIAS=@PCIAS                                                    
+     C                   EVAL      S0DLGA=@PDLGA                                                    
+     C                   EVAL      S0NPCO=@PNPCO                                                    
+     C                   EVAL      S0TPED=@PTPED                                                    
+     C                   EVAL      S0DATP=@PDATP                                                    
+     C                   EVAL      S0NOPL=@PNOPL                                                    
+     C     KCOCAPE       CHAIN     COCAPE                                                           
+     C                   IF        %FOUND(COCAPE)                                                   
+     C                   IF        ZXEDSN=1                                                         
+     C                   EVAL      S0TPE4='2'                                                       
+     C                   ELSE                                                                       
+     C                   IF        S0TPE4='2'                                                       
+     C                   EVAL      S0TPE4=*BLANKS                                                   
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   UPDATE    RCOCAPE                                                          
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **********************************************************************                        
+      * Graba histórico algorítmo decisión ED                                                       
+      **********************************************************************                        
+     C     CS_HISALG     BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      T2DAT1=*DATE                                                     
+FQ606C**                 TIME                    T2HORA                                             
+FQ606C                   EVAL      T2HORA=ZXHORA                                                    
+     C                   EVAL      T2USUA=SDSUSR                                                    
+     C                   EVAL      T2PANT=SDSJOB                                                    
+     C                   WRITE     REDH050                                                          
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * GUARDA LOGISTICA DEL OL                                    *                                
+      *------------------------------------------------------------*                                
+     C     CS_LOGOL      BEGSR                                                                      
+      *                                                                                             
+IT225 *     C     @PCIAS        SETLL     MSALMA                                                    
+IT225 *     C     @PCIAS        READE     MSALMA                                                    
+IT225 *     C                   DOW       NOT %EOF(MSALMA)                                          
+IT225 *     C                   IF        M0TAL1='8' AND M0BAJA<>'1'                                
+IT225 *     C                   EVAL      ZXLOGOL=M0LOGS                                            
+IT225 *     C                   LEAVE                                                               
+IT225 *     C                   ENDIF                                                               
+IT225 *     C     @PCIAS        READE     MSALMA                                 84                 
+IT225 *     C                   ENDDO                                                               
+IT225 * Add-begin                                                                                   
+                  i2ol = *zero;                                                                     
+                  open msalma08;                                                                    
+                  setll (@PCIAS:'8') msalma08;                                                      
+                  reade (@PCIAS:'8') msalma08;                                                      
+                  dow not %eof(msalma08);                                                           
+                    if m0tal1 = '8' and m0baja <> '1' and                                           
+                        i2OL < %elem(T_logol) ;                                                     
+                      i2OL += 1;                                                                    
+                      T_logol(i2OL) = m0logs;                                                       
+                    endif;                                                                          
+                    reade (@PCIAS:'8') msalma08;                                                    
+                  enddo;                                                                            
+                  close msalma08;                                                                   
+IT225 * Add-end                                                                                     
+      *                                                                                             
+     C                   ENDSR                                                                      
+FDX01 **********************************************************************                        
+FDX01 * Comprobar si es conjunto y sus componentes mat. propio                                      
+FDX01 **********************************************************************                        
+FDX01C     CS_CONJUNTO   BEGSR                                                                      
+FDX01 *                                                                                             
+FDX01 * Miramos si es Conjunto de Venta                                                             
+FDX01 *                                                                                             
+FDX01C                   MOVE      *BLANKS       ZXTCOJ            1                                
+FDX01C                   EVAL      NDARTI=S5ARTI                                                    
+FDX01C                   EVAL      NDMODE=S5MODE                                                    
+FDX01C                   EVAL      NDVARI=S5VARI                                                    
+FDX01C                   EVAL      NDTCOJ='4'                                                       
+FDX01C     KMSCOJC       CHAIN     MSCOJC                                                           
+FDX01C                   IF        %FOUND(MSCOJC) AND NDBAJA<'1'                                    
+FDX01 *                                                                                             
+FDX01 * Miramos si es Conjunto de Compra                                                            
+FDX01 *                                                                                             
+FDX01C                   EVAL      NDTCOJ='1'                                                       
+FDX01C     KMSCOJC       CHAIN     MSCOJC                                                           
+FDX01C                   IF        %FOUND(MSCOJC) AND NDBAJA<'1'                                    
+FDX01 *                                                                                             
+FDX01 * Si es Conjunto de Ventas y de Compra No lo trataremos como Cjto                             
+FDX01 *                                                                                             
+FDX01C                   EVAL      ZXTCOJ=' '                                                       
+FDX01C                   ELSE                                                                       
+FDX01 *                                                                                             
+FDX01 * Si es Conjunto de Ventas y No de Compra Si lo tratamos                                      
+FDX01 *                                                                                             
+FDX01C                   EVAL      ZXTCOJ='4'                                                       
+FDX01C                   ENDIF                                                                      
+FDX01C                   ELSE                                                                       
+FDX01 *                                                                                             
+FDX01 * Si No es Conjunto de Venta , Pues no es Conjunto y punto                                    
+FDX01 *                                                                                             
+FDX01C                   EVAL      ZXTCOJ=' '                                                       
+FDX01C                   ENDIF                                                                      
+FDX01 *                                                                                             
+FDX01 * Es Conjunto                                                                                 
+FDX01 *                                                                                             
+FDX01C                   IF        ZXTCOJ='4'                                                       
+FDX01 *                                                                                             
+FDX01C                   EVAL      NDARTI=S5ARTI                                                    
+FDX01C                   EVAL      NDMODE=S5MODE                                                    
+FDX01C                   EVAL      NDVARI=S5VARI                                                    
+FDX01C                   EVAL      NDTCOJ=ZXTCOJ                                                    
+FDX01C     KMSCOJC       SETLL     MSCOJD                                                           
+FDX01C     KMSCOJC       READE     MSCOJD                                                           
+FDX01C                   DOW       NOT %EOF(MSCOJD)                                                 
+FDX01 *                                                                                             
+FDX01C                   IF        NDBAJA <> '1'                                                    
+FDX01C     KMSARTICO     CHAIN     MSARTI00                                                         
+FDX01C                   IF        %FOUND(MSARTI00) AND                                             
+CR653C                             M5SIOL='2' AND @YPEVT<>'2'                                       
+FDX01C                   EVAL      ZXSIOL='2'                                                       
+FDX01C                   LEAVE                                                                      
+FDX01C                   ENDIF                                                                      
+FDX01C                   ENDIF                                                                      
+FDX01 *                                                                                             
+FDX01C     KMSCOJC       READE     MSCOJD                                                           
+FDX01C                   ENDDO                                                                      
+FDX01 *                                                                                             
+FDX01C                   ENDIF                                                                      
+FDX01 *                                                                                             
+FDX01 * Recuperamos registro de MSARTI del Padre                                                    
+FDX01 *                                                                                             
+FDX01C                   EVAL      M5ARTI=S5ARTI                                                    
+FDX01C                   EVAL      M5VARI=S5VARI                                                    
+FDX01C                   EVAL      M5MODE=S5MODE                                                    
+FDX01C     KMSARTI00     CHAIN     MSARTI00                                                         
+FDX01 *                                                                                             
+FDX01C                   ENDSR                                                                      
+CR964 **************************************************************                                
+CR964 * COMMON SUBRUTINE (CS_) :                                   *                                
+CR964 * Recuperar CATERORIA ROTACIÓN CONSERVARLA PARA ANALISIS TCT *                                
+CR964 *------------------------------------------------------------*                                
+CR964C     CS_BUSROTNEW  BEGSR                                                                      
+CR964 * BLANQUEAMOS VALORES A BUSCAR                                                                
+CR964C                   EVAL      S5CROT=*BLANKS                                                   
+CR964C                   EVAL      S5CROP=*BLANKS                                                   
+CR964C                   EVAL      S5CROTA=*BLANKS                                                  
+CR964C                   EVAL      S5CROTB=*BLANKS                                                  
+CR964C                   EVAL      S5CROTC=*BLANKS                                                  
+CR964C                                                                                              
+CR964C                   EVAL      @QCIAS=S5CIAS                                                    
+CR964C                   EVAL      @QDLGA=S5DLGA                                                    
+CR964C                   EVAL      @QLOGE=S5LOGE                                                    
+CR964C                   EVAL      @QARTI=S5ARTI                                                    
+CR964C                   EVAL      @QVARI=S5VARI                                                    
+CR964C                   EVAL      @QMODE=S5MODE                                                    
+CR964C                   EVAL      @QTCOJ=S5TCOJ                                                    
+CR964C                   EVAL      @QCROT=*BLANKS                                                   
+CR964C                   EVAL      @QCROTA=*BLANKS                                                  
+CR964C                   EVAL      @QCROTB=*BLANKS                                                  
+CR964C                   EVAL      @QCROTC=*BLANKS                                                  
+CR964                                                                                               
+CR964C                   EVAL      @QLOFD=' '                                                       
+CR964C                   IF        S5TPE4='2'                                                       
+CR964C                   EVAL      @QLOFD='1'                                                       
+CR964C                   ENDIF                                                                      
+CR964                                                                                               
+CR964C                   CALL      'CO2755'                                                         
+CR964C                   PARM                    @QCIAS                                             
+CR964C                   PARM                    @QDLGA                                             
+CR964C                   PARM                    @QLOGE                                             
+CR964C                   PARM                    @QARTI                                             
+CR964C                   PARM                    @QVARI                                             
+CR964C                   PARM                    @QMODE                                             
+CR964C                   PARM                    @QTCOJ                                             
+CR964C                   PARM                    @QCROT                                             
+CR964C                   PARM                    @QCROTA                                            
+CR964C                   PARM                    @QCROTB                                            
+CR964C                   PARM                    @QCROTC                                            
+CR964C                   PARM                    @QLOFD                                             
+CR964 *                                                                                             
+CR964C                   EVAL      S5CROT=%SUBST(@QCROT:1:1)                                        
+CR964C                   EVAL      S5CROP=%SUBST(@QCROT:2:1)                                        
+CR964 *                                                                                             
+CR964C                   IF        S5TCOJ='4'                                                       
+CR964C                   MOVE      @QCROTA       S5CROTA                                            
+CR964C                   MOVE      @QCROTB       S5CROTB                                            
+CR964C                   MOVE      @QCROTC       S5CROTC                                            
+CR964C                   ENDIF                                                                      
+CR964                                                                                               
+CR964C                   ENDSR                                                                      
+C1078                                                                                               
+C1078 **********************************************************************                        
+C1078 * Graba histórico algorítmo decisión DOM                                                      
+C1078 **********************************************************************                        
+C1078C     CS_HISDOM     BEGSR                                                                      
+C1078C                   EXSR      CS_HISDOM_B                                                      
+C1078C                   EVAL      D2CIAS=@PCIAS                                                    
+C1078C                   EVAL      D2DLGA=@PDLGA                                                    
+C1078C                   EVAL      D2NPCO=@PNPCO                                                    
+C1078C                   EVAL      D2TPED=@PTPED                                                    
+C1078C                   EVAL      D2DATP=@PDATP                                                    
+C1078C                   EVAL      D2NOPL=@PNOPL                                                    
+C1078                                                                                               
+C1078C     KDO0050       SETLL     DO0050W                                                          
+C1078C     KDO0050       READE     DO0050W                                                          
+C1078C                   DOW       NOT%EOF                                                          
+C1078C                                                                                              
+C1078C                   EVAL      T2CIAS=D2CIAS                                                    
+C1078C                   EVAL      T2DLGA=D2DLGA                                                    
+C1078C                   EVAL      T2NPCO=D2NPCO                                                    
+C1078C                   EVAL      T2TPED=D2TPED                                                    
+C1078C                   EVAL      T2DATP=D2DATP                                                    
+C1078C                   EVAL      T2NOPL=D2NOPL                                                    
+C1078C                   EVAL      T2LINE=D2LINE                                                    
+C1078C     KED0050W      CHAIN     ED0050W                                                          
+C1078C                   IF        D2PRIO<>0                                                        
+C1078C                   EVAL      D2SELC=' '                                                       
+C1078 *                                                                                             
+C1078C     KDO0052       CHAIN     DO0052W                                                          
+C1078C                   IF        %FOUND(ED0050W) AND                                              
+C1078C                             %FOUND(DO0052W) AND                                              
+C1078C                             D2LOGE=S_D2LOGE                                                  
+M1078C                             AND D2PRIO=S_D2PRIO                                              
+C1078C                   EVAL      D2SELC='1'                                                       
+C1078C                   ENDIF                                                                      
+C1078 *                                                                                             
+C1078C                   EVAL      D2DAT1=*DATE                                                     
+C1078C                   EVAL      D2HORA=ZXHORA                                                    
+C1078C                   WRITE     RDOH050                                                          
+C1078C                   ENDIF                                                                      
+C1078C     KDO0050       READE     DO0050W                                                          
+C1078C                   ENDDO                                                                      
+C1078                                                                                               
+C1078C     KDO0050       SETLL     DO0052W                                                          
+C1078C     KDO0050       READE     DO0052W                                                          
+C1078C                   DOW       NOT%EOF                                                          
+C1078C                   EVAL      S_D2DAT1=*DATE                                                   
+C1078C                   EVAL      S_D2HORA=ZXHORA                                                  
+C1078C                   WRITE     RDOH052                                                          
+C1078C     KDO0050       READE     DO0052W                                                          
+C1078C                   ENDDO                                                                      
+C1078                                                                                               
+C1078C                   EVAL      D1CIAS=@PCIAS                                                    
+C1078C                   EVAL      D1DLGA=@PDLGA                                                    
+C1078C                   EVAL      D1NPCO=@PNPCO                                                    
+C1078C                   EVAL      D1TPED=@PTPED                                                    
+C1078C                   EVAL      D1DATP=@PDATP                                                    
+C1078C                   EVAL      D1NOPL=@PNOPL                                                    
+C1078                                                                                               
+C1078C     KDO0051       SETLL     DO0051W                                                          
+C1078C     KDO0051       READE     DO0051W                                                          
+C1078C                   DOW       NOT%EOF                                                          
+C1078C                   EVAL      D1DAT1=*DATE                                                     
+C1078C                   EVAL      D1HORA=ZXHORA                                                    
+C1078C                   WRITE     RDOH051                                                          
+C1078C     KDO0051       READE     DO0051W                                                          
+C1078C                   ENDDO                                                                      
+N1078                                                                                               
+N1078C     KDO0051       SETLL     DO0053W                                                          
+N1078C     KDO0051       READE     DO0053W                                                          
+N1078C                   DOW       NOT%EOF                                                          
+N1078C                   EVAL      D3DAT1=*DATE                                                     
+N1078C                   EVAL      D3HORA=ZXHORA                                                    
+N1078C                   WRITE     RDOH053                                                          
+N1078C     KDO0051       READE     DO0053W                                                          
+N1078C                   ENDDO                                                                      
+C1078                                                                                               
+C1078C                   ENDSR                                                                      
+C1078 **********************************************************************                        
+C1078 * BAJA  histórico algorítmo decisión DOM                                                      
+C1078 **********************************************************************                        
+C1078C     CS_HISDOM_B   BEGSR                                                                      
+C1078C                   EVAL      D2CIAS=@PCIAS                                                    
+C1078C                   EVAL      D2DLGA=@PDLGA                                                    
+C1078C                   EVAL      D2NPCO=@PNPCO                                                    
+C1078C                   EVAL      D2TPED=@PTPED                                                    
+C1078C                   EVAL      D2DATP=@PDATP                                                    
+C1078C                   EVAL      D2NOPL=@PNOPL                                                    
+C1078                                                                                               
+C1078C     KDO0050       SETLL     DOH050                                                           
+C1078C     KDO0050       READE     DOH050                                                           
+C1078C                   DOW       NOT%EOF                                                          
+C1078C                   EVAL      D2BAJA='1'                                                       
+C1078C                   UPDATE    RDOH050                                                          
+C1078C     KDO0050       READE     DOH050                                                           
+C1078C                   ENDDO                                                                      
+C1078                                                                                               
+C1078C     KDO0050       SETLL     DOH052                                                           
+C1078C     KDO0050       READE     DOH052                                                           
+C1078C                   DOW       NOT%EOF                                                          
+C1078C                   EVAL      D2BAJA='1'                                                       
+C1078C                   UPDATE    RDOH052                                                          
+C1078C     KDO0050       READE     DOH052                                                           
+C1078C                   ENDDO                                                                      
+C1078                                                                                               
+C1078C                   EVAL      D1CIAS=@PCIAS                                                    
+C1078C                   EVAL      D1DLGA=@PDLGA                                                    
+C1078C                   EVAL      D1NPCO=@PNPCO                                                    
+C1078C                   EVAL      D1TPED=@PTPED                                                    
+C1078C                   EVAL      D1DATP=@PDATP                                                    
+C1078C                   EVAL      D1NOPL=@PNOPL                                                    
+C1078                                                                                               
+C1078C     KDO0051       SETLL     DOH051                                                           
+C1078C     KDO0051       READE     DOH051                                                           
+C1078C                   DOW       NOT%EOF                                                          
+C1078C                   EVAL      D1BAJA='1'                                                       
+C1078C                   UPDATE    RDOH051                                                          
+C1078C     KDO0051       READE     DOH051                                                           
+C1078C                   ENDDO                                                                      
+C1078C                                                                                              
+C1078C                   CLEAR                   RDOH050                                            
+C1078C                   CLEAR                   RDOH051                                            
+C1078C                   CLEAR                   RDOH052                                            
+C1078C                                                                                              
+C1078                                                                                               
+C1078C                   ENDSR                                                                      
+C2384 **************************************************************                                
+C2384 * Actualizar dirección de almacén de consigna en pedido      *                                
+C2384 **************************************************************                                
+C2384C     CS_DIRCNSG    BEGSR                                                                      
+C2384 *                                                                                             
+C2384 * Si el pedido es de consigna y tiene dirección de consigna                                   
+C2384 * se actualizará en CODIPE como dirección 'Varios'                                            
+C2384 * Buscaremos el almacén de la logística de consigna para                                      
+C2384 * después buscar la dirección.                                                                
+C2384 *                                                                                             
+C2384C                   IF        S0TDIG<>*BLANKS                                                  
+C2384C                   EVAL      S2CIAS=S5CIAS                                                    
+C2384C                   EVAL      S2DLGA=S5DLGA                                                    
+C2384C                   EVAL      S2NPCO=S5NPCO                                                    
+C2384C                   EVAL      S2TPED=S5TPED                                                    
+C2384C                   EVAL      S2DATP=S5DATP                                                    
+C2384C                   EVAL      S2NOPL=S5NOPL                                                    
+C2384C                   EVAL      S2CDIR='1'                                                       
+C2384C     KCODIPE       CHAIN     CODIPE                                                           
+C2384C                   IF        %FOUND(CODIPE)                                                   
+C2384C                   EVAL      C_M0CIAS=S0CIAS                                                  
+C2384C                   EVAL      C_M0LOGE=S0LGCG                                                  
+C2384C     KMSALMA05     CHAIN     MSALMA05                                                         
+C2384C                   EVAL      D_C2CIAS=C_M0CIAS                                                
+C2384C                   EVAL      D_C2MAGA=C_M0MAGA                                                
+C2384C                   EVAL      D_C2TDIR=S0TDIG                                                  
+C2384C     KCODIMA       CHAIN     CODIMA                             81                            
+C2384C                   IF        %FOUND(CODIMA)                                                   
+C2384C                   EVAL      S2DIRE=D_C2DIRE                                                  
+C2384C                   EVAL      S2DIR2=D_C2DIR2                                                  
+C2384C                   EVAL      S2POBL=D_C2POBL                                                  
+C2384C                   EVAL      S2POST=D_C2POST                                                  
+C2384C                   EVAL      S2TELE=D_C2TELE                                                  
+C2384C                   EVAL      S2TEL2=D_C2TEL2                                                  
+C2384C                   EVAL      S2TLEX=D_C2TLEX                                                  
+C2384C                   EVAL      S2TFAX=D_C2TFAX                                                  
+C2384C                   EVAL      S2EMAI=D_C2EMAI                                                  
+C2384C                   EVAL      S2PAIS=D_C2PAIS                                                  
+C2384C                   EVAL      S2PEGE=D_C2PEGE                                                  
+C2384C                   EVAL      S2OB50=D_C2OB50                                                  
+C2384C                   EVAL      S2OB51=D_C2OB51                                                  
+C2384C                   EVAL      S2TDVA='1'                                                       
+C2384C                   UPDATE    RCODIPE                                                          
+C2384C                   ENDIF                                                                      
+C2384C                   ENDIF                                                                      
+C2384 *                                                                                             
+C2384 * Buscaremos en el cliente qué código es la dirección Varios                                  
+C2384 * para actualizarla en COCAPE.                                                                
+C2384 *                                                                                             
+C2384C                   EVAL      S2CUST=S0CUST                                                    
+C2384C     KCODIPR0      SETLL     RCODIPR                                                          
+C2384C     KCODIPR0      READE     RCODIPR                                                          
+C2384C                   DOW       NOT %EOF(CODIPR)                                                 
+C2384C                   IF        S2TDVA='1'                                                       
+C2384C                   EVAL      S0TDI1=S2TDIR                                                    
+C2384C                   LEAVE                                                                      
+C2384C                   ENDIF                                                                      
+C2384C     KCODIPR0      READE     RCODIPR                                                          
+C2384C                   ENDDO                                                                      
+C2384 *                                                                                             
+C2384C                   ENDIF                                                                      
+C2384 *                                                                                             
+C2384C                   ENDSR                                                                      
+C2384 **************************************************************                                
+      *C2384C     CS_LOGDFT     BEGSR                                                               
+      *IT228C                   IF        (%lookup(S5LOGE:T_logol)=0)                               
+      *IT228C                   EXSR      CS_LOGDFT                                                 
+      *IT228C                   ENDIF                                                               
+      *IT228C                   IF        LOEDL<>*BLANKS                                            
+      *IT228C                   EVAL      S5LOGE=loEdl                                              
+      *IT228C                   ELSE                                                                
+      *IT228C                   EVAL      S5LOGE=loEEM                                              
+      *IT228C                   ENDIF                                                               
+      *IT228C                   ENDSR                                                               
+      // it228 add                                                                                  
+           begsr  cs_logdft;                                                                        
+             if   (%lookup(S5LOGE:T_logol)=0);                                                      
+               PgmOL(@PCIAS:s5dlga:pPointer);                                                       
+               pDsPgmOl = pPointer;                                                                 
+               if loedl <> *blanks;                                                                 
+                 s5loge = loEdl;                                                                    
+               else;                                                                                
+                 s5loge = loEem;                                                                    
+               endif;                                                                               
+             endif;                                                                                 
+           endsr;                                                                                   
+      // it228 end                                                                                  
+IT225 * ----------------------------------------------------------------------------------------    
+IT225 * Add-begin  - Procedure GetLogV                                                              
+       // IT225 -> Add proc GetLogV                                                                 
+       //  Function per rucuperar la logística virtual associada al magatzem OL                     
+       //                                                                                           
+       dcl-proc GetLogV;                                                                            
+        dcl-pi *n like(T3LVIR);                                                                     
+          xdlga  like(s5dlga);                                                                      
+        end-pi;                                                                                     
+        //Vars propies                                                                              
+        dcl-s alma like(m0maga);                                                                    
+        dcl-s dlga like(s5dlga);                                                                    
+        dcl-s tipo char(1);                                                                         
+        dcl-s resp like(m0maga);                                                                    
+        dcl-s  i int(10);                                                                           
+        //-----------------------------                                                             
+        // Cerca del magatzem OL per defecte de la delegació de la comanda                          
+          PgmOL(@PCIAS:xdlga:pPointer);                                                             
+          pDsPgmOl = pPointer;                                                                      
+          // Ja tenim els magatzems OL per defecte. Cerquem la logística virtual                    
+          alma = zoldl;  //mag def deleg. Si ha d'esser el de la cia s'ha de posar zolem            
+          tipo = *blanks;                                                                           
+          dlga = *blanks;                                                                           
+          PgmOL2(@PCIAS:alma:tipo:xdlga:resp);                                                      
+          return %subst(resp:1:3);                                                                  
+                                                                                                    
+       end-proc;                                                                                    
+IT225 * Add-end    - Procedure GetLogV                                                              

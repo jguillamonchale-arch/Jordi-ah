@@ -1,0 +1,635 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE SEGURIDAD                              *                                
+      **************************************************************                                
+      * TITOL: DP0015  © FLUIDRA SERVICES                          *                                
+      * DATA CREACIO:  19/06/2010                                  *                                
+      * FUNCIO DEL PROGRAMA: DPM: CALCULAR TIPO ARTICULO Y OTROS   *                                
+      *               DATOS DE LA PRODUCTIVA                                                        
+      *                                                            *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      **************************************************************                                
+06056 * DATA DE MODIFICACIÓ: 00/00/0000  MARCA: 00000              *                                
+06056 * AUTOR:                                                     *                                
+06056 * DOCUMENTACIÓ:                                              *                                
+      **************************************************************                                
+C1489 * Modificación: CR1489         MARCA:C1489                   *                                
+C1489 *        Autor: EMORAGUES                                    *                                
+C1489 * Fecha Inicio: 21/11/2013                                   *                                
+C1489 *  Descripción: CALIFICA BIBLIOTECAS MOVEX SEGÚN ENTORNO     *                                
+C1489 **************************************************************                                
+Q0367 * Modificación: Q0367          MARCA:Q0367                   *                                
+Q0367 *        Autor: JLMARTIN                                     *                                
+Q0367 * Fecha Inicio: 04/07/2014                                   *                                
+Q0367 *  Descripción: Corrección búsqueda GXEQAR  "CLASIFIC.PROD"  *                                
+Q0367 **************************************************************                                
+C1612* Data de Modificació: 16/12/2016  Marca: C1612              *                                
+C1612* Autor: Cecilio Ruiz                                        *                                
+C1612* Documentació: Clasificación ABC articulos                  *                                
+C1612* ************************************************************                                
+69095* Data de Modificació: 22/01/2021  Marca: 69095              *                                
+69095* Autor: Vicky Garcés                                        *                                
+69095* Documentació: Clasificación articulos empresas Movex desde *                                
+69095*               As400                                        *                                
+69095* ************************************************************                                
+I0184 * Modificación: ITOM184        MARCA:I0184                   *                                
+I0184 *        Autor: Javier Arbide                                *                                
+I0184 * Fecha Inicio: 12/11/2020                                   *                                
+I0184 *  Descripción: Divisiones Multiplanta                       *                                
+I0184 **************************************************************                                
+79419 * Modificación: FSD-79419      MARCA:79419                   *                                
+79419 *        Autor: Javier Arbide                                *                                
+79419 * Fecha Inicio: 09/04/2021                                   *                                
+79419 *  Descripción: Prolemas visualización clasif. de artículos  *                                
+79419 **************************************************************                                
+08835 * DATA DE MODIFICACIÓ: 26/11/2025  MARCA: 08835              *                                
+08835 * AUTOR: Pere Vellet                                         *                                
+08835 * DOCUMENTACIÓ:SCE-104 classificació MTS/MTO incorrecta en FD*                                
+08835 **************************************************************                                
+                                                                                                    
+     H USRPRF(*OWNER) AUT(*ALL)                                                                     
+     H DFTACTGRP(*NO) ACTGRP(*NEW)                                                                  
+     H DATEDIT(*YMD/)                                                                               
+     H DECEDIT(',')                                                                                 
+                                                                                                    
+     FMSARTI00  if   E           K DISK    ExtFile(File_MSARTI00)                                   
+     F                                     UsrOpn                                                   
+     FGXEQAR    IF   E           K DISK                                                             
+     FGXEQAR03  IF   E           K DISK    RENAME(RGXEQAR:RGXEQAR03)                                
+     FDPMART02  IF   E           K DISK                                                             
+     FDPMENT    IF   E           K DISK                                                             
+     FEQTABL10  IF   E           K DISK                                                             
+     FPUPROV    IF   E           K DISK                                                             
+     FPMLIBL    IF   E           K DISK                                                             
+     FZAQBAL00  IF   E           K DISK    EXTFILE(FILE_ZAQBAL00)                                   
+     F                                     UsrOpn                                                   
+     FAQPEDI00  IF   E           K DISK    EXTFILE(FILE_AQPEDI00)                                   
+     F                                     UsrOpn                                                   
+     FMITBAL10  IF   E           K DISK    EXTFILE(FILE_MITBAL10)                                   
+     F                                     UsrOpn                                                   
+     FMITFAC00  IF   E           K DISK    EXTFILE(FILE_MITFAC00)                                   
+     F                                     UsrOpn                                                   
+I0184FZAQITN00  IF   E           K DISK    EXTFILE(FILE_ZAQITN00)                                   
+I0184F                                     UsrOpn                                                   
+I0184FGMTABD01  IF   E           K DISK    ExtFile(FILE_GMTABD01)                                   
+I0184F                                     USROPN RENAME(GMTABD:RGMTABD01)                          
+I0184FCFACIL00  IF   E           K DISK    EXTFILE(FILE_CFACIL00)                                   
+I0184F                                     UsrOpn                                                   
+REDI FDPMENC    IF   E           K DISK                                                             
+                                                                                                    
+     FCMNDIV00  IF   E           K DISK    EXTFILE(FILE_CMNDIV00)                                   
+     F                                     UsrOpn                                                   
+C1489FPMTAB2    IF   E           K DISK                                                             
+79419FMSSTOK    if   E           K DISK    ExtFile(File_MSSTOK) UsrOpn                              
+79419FMSSTST    if   E           K DISK    ExtFile(File_MSSTST) UsrOpn                              
+79419FPMTABD    if   E           K DISK    ExtFile(File_PMTABD) UsrOpn                              
+79419FMSALMA    if   E           K DISK    ExtFile(File_MSALMA) UsrOpn                              
+79419 *                                                                                             
+      * ESTRUCTURA DE LA INFDS                                                                      
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D    CCCPGM                     10    OVERLAY(SDSPGM)                                          
+     D  SDSJOB               244    253                                                             
+     D    CCCJOB                     10    OVERLAY(SDSJOB)                                          
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+                                                                                                    
+      * Campos                                                                                      
+     D  @PCIAS         S                   LIKE(M5CIAS)                                             
+     D  @PARTI         S                   LIKE(M5ARTI)                                             
+     D  @PVARI         S                   LIKE(M5VARI)                                             
+     D  @PMODE         S                   LIKE(M5MODE)                                             
+     D  @PCLAS         S              2                                                             
+     D  @PENTO         S                   LIKE(C9ENTO)                                             
+     D  @PENTD         S             40                                                             
+08835D  @PLOGE         S              3                                                             
+     d File_MSARTI00   s             21    INZ('MSARTI00')                                          
+79419d File_MSSTOK     s             21    INZ('MSSTOK  ')                                          
+79419d File_MSSTST     s             21    INZ('MSSTST  ')                                          
+79419d File_PMTABD     s             21    INZ('PMTABD  ')                                          
+79419d File_MSALMA     s             21    INZ('MSALMA  ')                                          
+C1489d*                                                                                             
+C1489d*File_ZAQBAL00   S             21    INZ('AQAJDTA/ZAQBAL00')                                  
+C1489d File_ZAQBAL00   S             21    INZ('/ZAQBAL00')                                         
+C1489d*File_AQPEDI00   S             21    INZ('AQAJDTA/AQPEDI00')                                  
+C1489d File_AQPEDI00   S             21    INZ('/AQPEDI00')                                         
+C1489d*File_MITBAL10   S             21    INZ('M3EDBPRD/MITBAL10')                                 
+C1489d File_MITBAL10   S             21    INZ('/MITBAL10')                                         
+C1489d*File_MITFAC00   S             21    INZ('M3EDBPRD/MITFAC00')                                 
+C1489d File_MITFAC00   S             21    INZ('/MITFAC00')                                         
+I0184d File_ZAQITN00   S             21    INZ('/ZAQITN00')                                         
+I0184d File_GMTABD01   S             21    INZ('/GMTABD01')                                         
+I0184d File_CFACIL00   S             21    INZ('/CFACIL00')                                         
+C1489d*File_CMNDIV00   S             21    INZ('M3EDBPRD/CMNDIV00')                                 
+C1489d File_CMNDIV00   S             21    INZ('/CMNDIV00')                                         
+C1489d File_BIBAQA     s             21                                                             
+C1489d File_BIBMVX     s             21                                                             
+C1489d File_BIBM3A     s             21                                                             
+C1489d File_BIBM3E     s             21                                                             
+                                                                                                    
+     d ZXCIAS          s              3                                                             
+     d ZXCIA2          s              3                                                             
+     D ZXAVAL          S             10                                                             
+     D ZXMVAL          S             10                                                             
+                                                                                                    
+MOVEXD  @PEDIVI        S              3                                                             
+MOVEXD  @PEUSER        S             10                                                             
+MOVEXD  @PEVAL         S            250                                                             
+     D  ZXVAL          DS                                                                           
+     D    MXCONO               1      3                                                             
+     D    MXDIVI               4      6                                                             
+     D    MXIDIO               7      8                                                             
+     D    MXMONE               9     11                                                             
+     D    MXRESTO             12    250                                                             
+79419 *                                                                                             
+79419 * Almacén y Dlga del almacén de Trace                                                         
+79419D   zxMagaTr      S              5                                                             
+79419D   zxDlgaTr      S              5                                                             
+79419 *                                                                                             
+79419 * Nivel de red de la empresa (FAB/OL)                                                         
+79419D   zxFABOL       S               N                                                            
+I0184                                                                                               
+I0184D  ZXMULTIPLA     S               N                                                            
+I0184 *                                                                                             
+I0184D  GET_FACI       PR                  LIKE(MMCIAS)                                             
+I0184D    @DIVI                            LIKE(MMPROP) VALUE                                       
+I0184D    @FACI                            LIKE(MMCIAS) VALUE                                       
+I0184D    @ITNO                            LIKE(MMITNO) VALUE                                       
+      **************************************************************                                
+      * RUTINA PRINCIPAL DEL PGM : DISTRIBUCIÓ DEL PAS PELS 3 SFL  *                                
+      *------------------------------------------------------------*                                
+     C                   EXSR      PROCESO                                                          
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+                                                                                                    
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PARTI                                             
+     C                   PARM                    @PVARI                                             
+     C                   PARM                    @PMODE                                             
+     C                   PARM                    @PENTO                                             
+     C                   PARM                    @PENTD                                             
+     C                   PARM                    @PCLAS                                             
+08835C                   PARM                    @PLOGE                                             
+      * DEFINICIO DE LES KLIST DEL PGM                                                              
+     C     KMSARTI00     KLIST                                                                      
+     C                   KFLD                    M5CIAS                                             
+     C                   KFLD                    M5ARTI                                             
+     C                   KFLD                    M5VARI                                             
+     C                   KFLD                    M5MODE                                             
+     C     KPUPROV       KLIST                                                                      
+     C                   KFLD                    C0CIAS                                             
+     C                   KFLD                    C0PRVR                                             
+     C     KEQTABL10     KLIST                                                                      
+     C                   KFLD                    EQMCOD                                             
+     C                   KFLD                    EQACOD                                             
+     C                   KFLD                    EQACIA                                             
+     C                   KFLD                    EQAVAL                                             
+     C     KGXEQAR       KLIST                                                                      
+     C                   KFLD                    Q1CIAS                                             
+     C                   KFLD                    Q1ARVM                                             
+     C     KGXEQAR03     KLIST                                                                      
+     C                   KFLD                    Q1PROP                                             
+     C                   KFLD                    Q1ARES                                             
+     C                   KFLD                    Q1CIAS                                             
+     C     KDPMART02     KLIST                                                                      
+     C                   KFLD                    C9ITEM                                             
+     C                   KFLD                    C9CIAS                                             
+     C     KZAQBAL00     KLIST                                                                      
+     C                   KFLD                    MBCONO                                             
+     C                   KFLD                    MBWHLO                                             
+     C                   KFLD                    MBITNO                                             
+REDI C     KDPMENC       KLIST                                                                      
+REDI C                   KFLD                    C2ENTO                                             
+REDI C                   KFLD                    C2CIAS                                             
+                                                                                                    
+     C     KAQPEDI00     KLIST                                                                      
+     C                   KFLD                    Z1CONO                                             
+     C                   KFLD                    Z1DIVI                                             
+                                                                                                    
+     C     KMITFAC00     KLIST                                                                      
+     C                   KFLD                    M9CONO                                             
+     C                   KFLD                    M9FACI                                             
+     C                   KFLD                    M9ITNO                                             
+I0184 *                                                                                             
+I0184C     KZAQITN00     KLIST                                                                      
+I0184C                   KFLD                    MMCONO                                             
+I0184C                   KFLD                    MMITNO                                             
+I0184 *                                                                                             
+I0184C     KGMTABD01     KLIST                                                                      
+I0184C                   KFLD                    T1CTAB                                             
+I0184C                   KFLD                    T1DESC                                             
+I0184 *                                                                                             
+I0184C     KCFACIL00     KLIST                                                                      
+I0184C                   KFLD                    CFCONO                                             
+I0184C                   KFLD                    CFFACI                                             
+I0184 *                                                                                             
+     C     KMITBAL10     KLIST                                                                      
+     C                   KFLD                    MBCONO                                             
+     C                   KFLD                    MBITNO                                             
+     C                   KFLD                    MBWHLO                                             
+     C     KCMNDIV00     KLIST                                                                      
+     C                   KFLD                    CCCONO                                             
+     C                   KFLD                    CCDIVI                                             
+C1489 *                                                                                             
+C1489C     KPMTAB2       KLIST                                                                      
+C1489C                   KFLD                    PECTAB                                             
+C1489C                   KFLD                    PECLTA                                             
+79419 *                                                                                             
+79419C     KMSSTOK       KLIST                                                                      
+79419C                   KFLD                    M1CIAS                                             
+79419C                   KFLD                    M1MAGA                                             
+79419C                   KFLD                    M1ARTI                                             
+79419C                   KFLD                    M1VARI                                             
+79419C                   KFLD                    M1MODE                                             
+79419 *                                                                                             
+79419C     KMSSTST       KLIST                                                                      
+79419C                   KFLD                    M6CIAS                                             
+79419C                   KFLD                    M6DLGA                                             
+79419C                   KFLD                    M6ARTI                                             
+79419C                   KFLD                    M6VARI                                             
+79419C                   KFLD                    M6MODE                                             
+79419C                   KFLD                    M6NETL                                             
+79419 *                                                                                             
+79419C     KPMTABD       KLIST                                                                      
+79419C                   KFLD                    PECIAS                                             
+79419C                   KFLD                    PECTAB                                             
+79419C                   KFLD                    PECLTA                                             
+79419 *                                                                                             
+79419C     KMSALMA       KLIST                                                                      
+79419C                   KFLD                    M0CIAS                                             
+79419C                   KFLD                    M0MAGA                                             
+79419 *                                                                                             
+C1489 * CARREGA ENTORN BIBLIOTEQUES MOVEX                                                           
+C1489C                   EXSR      CS_EXTFILE                                                       
+C1489 *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PRINCIPAL                                        *                                
+      *------º-----------------------------------------------------*                                
+     C     PROCESO       BEGSR                                                                      
+     C                   EXSR      CS_CIAL                                                          
+     C                   EXSR      CS_PROD                                                          
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PRINCIPAL                                        *                                
+      *------º-----------------------------------------------------*                                
+     C     CS_CIAL       BEGSR                                                                      
+     C                   OPEN(E)   MSARTI00                                                         
+     C                   EVAL      M5CIAS=@PCIAS                                                    
+     C                   EVAL      M5ARTI=@PARTI                                                    
+     C                   EVAL      M5VARI=@PVARI                                                    
+     C                   EVAL      M5MODE=@PMODE                                                    
+     C     KMSARTI00     CHAIN     MSARTI00                                                         
+     C                   EVAL      C0CIAS=M5CIAS                                                    
+     C                   EVAL      C0PRVR=M5PRVR                                                    
+     C     KPUPROV       CHAIN     PUPROV                                                           
+     C                   IF        %SUBST(C0AMP2:2:5)='00000'                                       
+     C                   EVAL      ZXCIAS=%SUBST(C0AMP2:8:11)                                       
+                                                                                                    
+     C                   EVAL      Q1CIAS=M5CIAS                                                    
+     C                   EVAL      Q1ARVM=@PARTI+@PVARI+@PMODE                                      
+     C     KGXEQAR       CHAIN     GXEQAR                                                           
+     C                                                                                              
+     C                   ENDIF                                                                      
+     C                   CLOSE     MSARTI00                                                         
+08835                                                                                               
+08835C                   CLEAR                   ZXLOGE            3                                
+08835C                   IF        %PARMS>7                                                         
+08835C                   EVAL      ZXLOGE=@PLOGE                                                    
+08835C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PRINCIPAL                                        *                                
+      *------º-----------------------------------------------------*                                
+     C     CS_PROD       BEGSR                                                                      
+     C                   EVAL      EQMCOD='DIVI'                                                    
+     C                   EVAL      EQACOD='CIAS'                                                    
+     C                   EVAL      EQACIA=0                                                         
+     C                   MOVEL     ZXCIAS        ZXAVAL                                             
+     C                   EVAL      EQAVAL=ZXAVAL                                                    
+     C                   MOVEL     ZXAVAL        EQAVAL                                             
+     C     KEQTABL10     CHAIN     EQTABL10                                                         
+     C                   MOVEL     EQMVAL        ZXCIA2                                             
+     C                   MOVEL     ZXCIA2        Q1CIAS                                             
+     C     KGXEQAR03     CHAIN     GXEQAR03                                                         
+Q0367C                   IF        %found(GXEQAR03)and Q1FBAJ<>0                                    
+Q0367C     KGXEQAR03     READE     GXEQAR03                                                         
+Q0367C                   DOW       NOT %EOF(GXEQAR03)                                               
+Q0367C                   IF        Q1FBAJ=0                                                         
+Q0367C                   LEAVE                                                                      
+Q0367C                   ENDIF                                                                      
+Q0367C     KGXEQAR03     READE     GXEQAR03                                                         
+Q0367C                   ENDDO                                                                      
+Q0367C                   ENDIF                                                                      
+     C                   MOVEL     ZXCIA2        PPCIAS                                             
+     C     PPCIAS        CHAIN     PMLIBL                                                           
+     C                   IF        %SUBST(PPBL10:9:1)='V'                                           
+     C                   EXSR      CS_CLAS_MVX                                                      
+     C                   ELSE                                                                       
+     c                   Eval      File_MSARTI00 = %Trim(PPBICC) +                                  
+     c                                              '/MSARTI00'                                     
+     C                   OPEN(E)   MSARTI00                                                         
+     C                   EVAL      M5CIAS=Q1CIAS                                                    
+     C                   EVAL      M5ARTI=%SUBST(Q1ARVM:1:15)                                       
+     C                   EVAL      M5VARI=%SUBST(Q1ARVM:16:3)                                       
+     C                   EVAL      M5MODE=%SUBST(Q1ARVM:19:3)                                       
+C1666C     KMSARTI00     CHAIN     MSARTI00                                                         
+C1666C*    KMSARTI00     SETLL     MSARTI00                                                         
+C1666C*    KMSARTI00     READE     MSARTI00                                                         
+C1666C*                  DOW       NOT%EOF(MSARTI00) AND M5BAJA<>'1'                                
+C1666C*    KMSARTI00     READE     MSARTI00                                                         
+C1666C*                  ENDDO                                                                      
+C1666C                   IF        %FOUND                                                           
+C1666C*                  IF        NOT %EOF(MSARTI00)                                               
+79419C**                 EVAL      @PCLAS=%SUBST(M5AMPL:60:2)                                       
+79419C                   exsr      CS_CLAS_AS                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   EVAL      C9CIAS=Q1CIAS                                                    
+     C                   EVAL      C9ITEM=Q1ARVM                                                    
+     C     KDPMART02     CHAIN     DPMART02                                                         
+     C                   IF        %FOUND                                                           
+     C                   EVAL      @PENTO=C9ENTO                                                    
+     C     C9ENTO        CHAIN     DPMENT                                                           
+     C                   EVAL      @PENTD=C0DESC                                                    
+                                                                                                    
+     C                   ENDIF                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PRINCIPAL                                        *                                
+      *------º-----------------------------------------------------*                                
+     C     CS_CLAS_MVX   BEGSR                                                                      
+MOVEXC                   MOVEL     PPCIAS        ZXCIAS                                             
+MOVEXC                   MOVEL     ZXCIAS        @PEDIVI                                            
+MOVEXC                   CALL      'GX0150'                                                         
+MOVEXC                   PARM                    @PEDIVI                                            
+MOVEXC                   PARM      *blanks       @PEUSER                                            
+MOVEXC                   PARM      *BLANKS       @PEVAL                                             
+MOVEXC                   EVAL      ZXVAL=@PEVAL                                                     
+     C                   OPEN(E)   ZAQBAL00                                                         
+     C                   OPEN(E)   AQPEDI00                                                         
+     C                   OPEN(E)   MITFAC00                                                         
+I0184C                   OPEN(E)   ZAQITN00                                                         
+I0184C                   OPEN(E)   GMTABD01                                                         
+I0184C                   OPEN(E)   CFACIL00                                                         
+     C                   OPEN(E)   MITBAL10                                                         
+     C                   OPEN(E)   CMNDIV00                                                         
+MOVEXC                   MOVEL(P)  MXCONO        Z1CONO                                             
+MOVEXC                   MOVEL(P)  MXCONO        MBCONO                                             
+MOVEXC                   MOVEL(P)  MXCONO        M9CONO                                             
+MOVEXC                   MOVEL(P)  MXCONO        CCCONO                                             
+I0184C                   MOVEL(P)  MXCONO        MMCONO                                             
+I0184C                   MOVEL(P)  MXCONO        CFCONO                                             
+MOVEXC                   MOVEL(P)  MXDIVI        Z1DIVI                                             
+     C                   MOVEL(P)  MXDIVI        CCDIVI                                             
+      *Recuperar planta de la división(CCFACI)                                                      
+     C     KCMNDIV00     CHAIN     CMNDIV00                                                         
+I0184c**                 EVAL      M9FACI=CCFACI                                                    
+     C     KAQPEDI00     CHAIN     AQPEDI00                                                         
+I0184c**                 EVAL      MBWHLO=Z1WHLO                                                    
+I0184 * Ver si estamos en una división Multiplanta                                                  
+I0184C                   EVAL      ZXMULTIPLA = %FOUND(AQPEDI00)                                    
+I0184C                                          AND  Z1L101 = '1'                                   
+I0184C                   EVAL      M9FACI = GET_FACI(MXDIVI:CCFACI:Q1ARVM)                          
+     C                   EVAL      M9ITNO=Q1ARVM                                                    
+     C     KMITFAC00     CHAIN     MITFAC00                                                         
+79419C*I0184                EVAL      CFFACI=M9FACI                                                 
+79419C*I0184  KCFACIL00     CHAIN     CFACIL00                                                      
+79419c*I0184                EVAL      MBWHLO=CFWHLO                                                 
+79419c                   EVAL      MBWHLO=Z1WHLO                                                    
+08835                                                                                               
+08835C                   IF        ZXLOGE<>*BLANKS                                                  
+08835C                   EVAL      PECIAS=@PCIAS                                                    
+08835C                   EVAL      PECTAB='INO2'                                                    
+08835C                   EVAL      PECLTA='MAGA'+ZXLOGE                                             
+08835 *                                                                                             
+08835C                   Eval      File_PMTABD = 'PMTABD  '                                         
+08835C                   Open(E)   PMTABD                                                           
+08835 *                                                                                             
+08835C     KPMTABD       CHAIN     PMTABD                                                           
+08835C                   IF        %FOUND AND PEDESC<>''                                            
+08835C                   EVAL      MBWHLO=PEDESC                                                    
+08835C                   ENDIF                                                                      
+08835C                   ENDIF                                                                      
+08835C                   Close(E)  PMTABD                                                           
+08835                                                                                               
+     C                   EVAL      MBITNO=Q1ARVM                                                    
+     C     KMITBAL10     CHAIN     MITBAL10                                                         
+     C     KZAQBAL00     CHAIN     ZAQBAL00                                                         
+     C                   IF        NOT %FOUND                                                       
+     C                   EVAL      MBWHLO=M9REWH                                                    
+     C     KMITBAL10     CHAIN     MITBAL10                                                         
+     C     KZAQBAL00     CHAIN     ZAQBAL00                                                         
+     C                   ENDIF                                                                      
+69095C*                  IF        (MBTCON=0    AND MBOPLC=1  )                                     
+69095C                   IF        (MBMTSO='MTS' AND MBOPLC=1  )                                    
+     C                                OR MBOPLC=2                                                   
+     C                   EVAL      @PCLAS='A'                                                       
+     C                   ELSE                                                                       
+     C                   EVAL      @PCLAS='B'                                                       
+     C                   ENDIF                                                                      
+C1612*                                                                                             
+79419c*C1612             if        z1l100 = '1'                                                     
+79419c*C1612             if        mbmtso = 'MTS'                                                   
+79419c*C1612             eval      @pclas = 'A'                                                     
+79419c*C1612             else                                                                       
+79419c*C1612             eval      @pclas = 'B'                                                     
+79419c*C1612             endif                                                                      
+79419c*C1612             endif                                                                      
+C1612*                                                                                             
+     C                   ENDSR                                                                      
+79419 **************************************************************                                
+79419 * BUSCAR CLASIFICACION EMPRESA AS400                         *                                
+79419 *------------------------------------------------------------*                                
+79419c     CS_CLAS_AS    Begsr                                                                      
+79419c                   eval      @PCLAS = *blanks                                                 
+79419 *                                                                                             
+79419 * Miramos nivel de red de la empresa (Si trabaja con FAB/OL)                                  
+79419 *                                                                                             
+79419c                   eval      zxFABOL = *off                                                   
+79419c                   If        %subst(ppampl:46:1) = '1'                                        
+79419c                   eval      zxFABOL = *on                                                    
+79419c                   endif                                                                      
+79419 *                                                                                             
+79419 * Buscamos el almacén de Trace y la delegación del almacén de Trace                           
+79419 *                                                                                             
+79419c                   eval      zxMagaTr = *blanks                                               
+79419c                   eval      zxDlgaTr = *blanks                                               
+79419 *                                                                                             
+79419c                   Eval      File_PMTABD = %Trim(PPBICC) + '/PMTABD  '                        
+79419c                   Eval      File_MSALMA = %Trim(PPBICC) + '/MSALMA  '                        
+79419 *                                                                                             
+79419c                   Open(E)   PMTABD                                                           
+79419c                   Open(E)   MSALMA                                                           
+79419 *                                                                                             
+79419c                   If        Not %ERROR                                                       
+79419c                   Eval      PECIAS = M5CIAS                                                  
+79419c                   Eval      PECTAB = 'INO2'                                                  
+79419c                   Eval      PECLTA = 'MAGA'                                                  
+79419c     KPmtabd       Chain     Pmtabd                                                           
+79419c                   if        %found(Pmtabd)                                                   
+79419c                   movel(p)  pedesc        zxMagaTr                                           
+79419c                   Eval      M0CIAS = M5CIAS                                                  
+79419c                   Eval      M0MAGA = zxMagaTr                                                
+79419c     KMsalma       Chain     Msalma                                                           
+79419c                   if        %found(Msalma)                                                   
+79419c                   movel(p)  m0dlga        zxDlgaTr                                           
+79419c                   if        m0dlga =  *blanks and                                            
+79419c                             m0m003 <> *blanks                                                
+79419c                   movel(p)  m0m003        zxDlgaTr                                           
+79419c                   endif                                                                      
+79419c                   endif                                                                      
+79419c                   endif                                                                      
+79419c                   endif                                                                      
+79419 *                                                                                             
+79419 * Buscamos la clasificación en función del método de replanificación                          
+79419c                   Eval      File_MSSTOK = %Trim(PPBICC) + '/MSSTOK  '                        
+79419c                   Eval      File_MSSTST = %Trim(PPBICC) + '/MSSTST  '                        
+79419 *                                                                                             
+79419c                   Open(E)   MSSTOK                                                           
+79419c                   Open(E)   MSSTST                                                           
+79419 *                                                                                             
+79419c                   if        Not %ERROR                                                       
+79419 *                                                                                             
+79419c                   If        %subst(ppampl:6:1) = '1'                                         
+79419 *===  Por Propuesta de compra                                                                 
+79419c                   Eval      M1CIAS = M5CIAS                                                  
+79419c                   Eval      M1MAGA = zxMagaTr                                                
+79419c                   Eval      M1ARTI = M5ARTI                                                  
+79419c                   Eval      M1VARI = M5VARI                                                  
+79419c                   Eval      M1MODE = M5MODE                                                  
+79419c     KMsstok       Chain     Msstok                                                           
+79419c                   if        %found(Msstok)                                                   
+79419c                   eval      @PCLAS = M1CROT                                                  
+79419c                   endif                                                                      
+79419 *                                                                                             
+79419c                   else                                                                       
+79419 *===  Por MRP                                                                                 
+79419c                   Eval      M6CIAS = M5CIAS                                                  
+79419c                   Eval      M6ARTI = M5ARTI                                                  
+79419c                   Eval      M6VARI = M5VARI                                                  
+79419c                   Eval      M6MODE = M5MODE                                                  
+79419c                   if        zxFABOL = *on                                                    
+79419c                   Eval      M6DLGA = *blanks                                                 
+79419c                   Eval      M6NETL = 2                                                       
+79419c                   Else                                                                       
+79419c                   Eval      M6DLGA = zxDlgaTr                                                
+79419c                   Eval      M6NETL = 1                                                       
+79419c                   endif                                                                      
+79419c     KMsstst       Chain     Msstst                                                           
+79419c                   if        %found(Msstst) And m6omit <> '1'                                 
+79419c                   eval      @PCLAS = M6CLAS                                                  
+79419c                   endif                                                                      
+79419 *                                                                                             
+79419c                   endif                                                                      
+79419c                   endif                                                                      
+79419 *                                                                                             
+79419c                   Close(E)  MSSTOK                                                           
+79419c                   Close(E)  MSSTST                                                           
+79419c                   Close(E)  PMTABD                                                           
+79419c                   Close(E)  MSALMA                                                           
+79419 *                                                                                             
+79419c                   Endsr                                                                      
+C1489 **************************************************************                                
+C1489 * CARREGA DE LA BIBLIOTECA DE MOVEX DEL PARÀMETRE            *                                
+C1489 *------------------------------------------------------------*                                
+C1489C     CS_EXTFILE    BEGSR                                                                      
+C1489C*                                                                                             
+C1489C                   EVAL      PECTAB='A400'                                                    
+C1489C                   EVAL      PECLTA='AQA'                                                     
+C1489C     KPMTAB2       CHAIN     PMTAB2                                                           
+C1489C                   IF        %FOUND(PMTAB2)                                                   
+C1489C                   EVAL      FILE_BIBAQA=%TRIM(PEDESC)                                        
+C1489C                   ENDIF                                                                      
+C1489C                   EVAL      PECLTA='MVX'                                                     
+C1489C     KPMTAB2       CHAIN     PMTAB2                                                           
+C1489C                   IF        %FOUND(PMTAB2)                                                   
+C1489C                   EVAL      FILE_BIBMVX=%TRIM(PEDESC)                                        
+C1489C                   ENDIF                                                                      
+C1489C                   EVAL      PECLTA='M3A'                                                     
+C1489C     KPMTAB2       CHAIN     PMTAB2                                                           
+C1489C                   IF        %FOUND(PMTAB2)                                                   
+C1489C                   EVAL      FILE_BIBM3A=%TRIM(PEDESC)                                        
+C1489C                   ENDIF                                                                      
+C1489C                   EVAL      PECLTA='M3E'                                                     
+C1489C     KPMTAB2       CHAIN     PMTAB2                                                           
+C1489C                   IF        %FOUND(PMTAB2)                                                   
+C1489C                   EVAL      FILE_BIBM3E=%TRIM(PEDESC)                                        
+C1489C                   ENDIF                                                                      
+C1489 *                                                                                             
+I0184C                   EVAL       FILE_ZAQITN00=%TRIM(FILE_BIBAQA)+                               
+I0184C                                            %TRIM(FILE_ZAQITN00)                              
+I0184C                   EVAL       FILE_GMTABD01=%TRIM(FILE_BIBAQA)+                               
+I0184C                                            %TRIM(FILE_GMTABD01)                              
+I0184C                   EVAL       FILE_CFACIL00=%TRIM(FILE_BIBM3E)+                               
+I0184C                                            %TRIM(FILE_CFACIL00)                              
+C1489C                   EVAL       FILE_ZAQBAL00=%TRIM(FILE_BIBAQA)+                               
+C1489C                                            %TRIM(FILE_ZAQBAL00)                              
+C1489C                   EVAL       FILE_AQPEDI00=%TRIM(FILE_BIBAQA)+                               
+C1489C                                            %TRIM(FILE_AQPEDI00)                              
+C1489C                   EVAL       FILE_MITBAL10=%TRIM(FILE_BIBM3E)+                               
+C1489C                                            %TRIM(FILE_MITBAL10)                              
+C1489C                   EVAL       FILE_MITFAC00=%TRIM(FILE_BIBM3E)+                               
+C1489C                                            %TRIM(FILE_MITFAC00)                              
+C1489C                   EVAL       FILE_CMNDIV00=%TRIM(FILE_BIBM3E)+                               
+C1489C                                            %TRIM(FILE_CMNDIV00)                              
+C1489C*                                                                                             
+C1489C     CS_EXTFILET   ENDSR                                                                      
+C1489 **************************************************************                                
+I0184 * OBTENER PLANTA PARA ACCEDER A DATOS DEL ARTÍCULO                                            
+I0184 ******************************************************************************************    
+I0184 *                                                                                             
+I0184P GET_FACI        B                                                                            
+I0184D GET_FACI        PI                  LIKE(MMCIAS)                                             
+I0184D   @DIVI                             LIKE(MMPROP) VALUE                                       
+I0184D   @FACI                             LIKE(MMCIAS) VALUE                                       
+I0184D   @ITNO                             LIKE(MMITNO) VALUE                                       
+I0184 *                                                                                             
+I0184C                   IF        ZXMULTIPLA                                                       
+I0184 *                                                                                             
+I0184 * Si existe registro en ZAQITN en el que la división es propietaria, entonces                 
+I0184 * se devuelve la planta propietaria del artículo.                                             
+I0184 *                                                                                             
+I0184C                   EVAL      MMITNO = @ITNO                                                   
+I0184C     KZAQITN00     CHAIN     ZAQITN00                                                         
+I0184C                   IF        %FOUND  AND  MMPROP = @DIVI  AND                                 
+I0184C                             MMCIAS <> *BLANKS                                                
+I0184C                   RETURN    MMCIAS                                                           
+I0184C                   ENDIF                                                                      
+I0184 *                                                                                             
+I0184 * Si la división no es la propietaria, se hace bucle sobre la tabla FACP y                    
+I0184 * se devuelve la primera para la que exista MITFAC                                            
+I0184 *                                                                                             
+I0184C                   MOVEL(P)  MXCONO        M9CONO                                             
+I0184C                   EVAL      M9ITNO = @ITNO                                                   
+I0184 *                                                                                             
+I0184C                   EVAL      T1CTAB = 'FACP'                                                  
+I0184C                   EVAL      T1DESC = @DIVI                                                   
+I0184C     KGMTABD01     SETLL     GMTABD01                                                         
+I0184C     KGMTABD01     READE     GMTABD01                                                         
+I0184 *                                                                                             
+I0184C                   DOW       NOT %EOF                                                         
+I0184 *                                                                                             
+I0184C                   EVAL      M9FACI = T1CELE                                                  
+I0184C     KMITFAC00     SETLL     MITFAC00                                                         
+I0184C                   IF        %EQUAL                                                           
+I0184C                   RETURN    M9FACI                                                           
+I0184C                   ENDIF                                                                      
+I0184 *                                                                                             
+I0184C     KGMTABD01     READE     GMTABD01                                                         
+I0184C                   ENDDO                                                                      
+I0184 *                                                                                             
+I0184C                   ENDIF                                                                      
+I0184 *                                                                                             
+I0184 * Si la división no es multiplanta, o la búsqueda anterior no ha dado frutos,                 
+I0184 * devolver la planta entrada                                                                  
+I0184 *                                                                                             
+I0184C                   RETURN    @FACI                                                            
+I0184 *                                                                                             
+I0184P                 E                                                                            

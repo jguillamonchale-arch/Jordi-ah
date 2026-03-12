@@ -1,0 +1,1398 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      *------------------------------------------------------------*                                
+      * TITOL: PU2519  © AQUAPOINT S.A.                           *                                 
+      * DATA CREACIO:  17/10/1997                                  *                                
+      * AUTOR: DPTO. INFORMATICA                                   *                                
+      * FUNCIO DEL PROGRAMA: LANZAMIENTO ORDENES DE COMPRA         *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      * ZXOPT1 = NOM DEL PROCÉS                                    *                                
+      *        - WN = FINESTRA  N.          N=[01,02,...,99]       *                                
+      *        - N TAMBÉ EQUIVAL AL NÚMERO DE FORMAT DEL SFL       *                                
+      *          I COINCIDEIX AMB EL Nº DE LÒGIC (ESSENT N=00 EL   *                                
+      *          FITXER FÍSIC)                                     *                                
+      * ZXOPT2 = RUTINA DINTRE DEL PROCÉS                          *                                
+      *        - 'INZ'= INICILITZAR                                *                                
+      *        - 'DSP'= VISUALITZA DE PANTALLA                     *                                
+      *        - 'CHK'= VALIDACIÓ DE LA PANTALLA                   *                                
+      *        - 'CLR'= NETEJA DEL SFL                             *                                
+      *        - 'UPD'= ACTUALITZACIONS DELS FITXERS               *                                
+      *                                                            *                                
+      **************************************************************                                
+      * OBSERVACIONES:                                             *                                
+      * El programa se basa en el homólogo PRD535 de PRDLIB para   *                                
+      * la búsqueda de números de órdenes de compra, para ello     *                                
+      * se toma la tabla NPCO, la cuál contiene detalles para todas*                                
+      * las posibilidades de combinaciones de CIAS+DLGA+TPED en la *                                
+      * clave de PECLTA:                                           *                                
+      *     - Los 3 1ºs dígitos de la CIA.                         *                                
+      *     - Los 5 2ºs dígitos de la Delegación.                  *                                
+      *     - Los 2 últimos con el Tipo de pedido.                 *                                
+      * 1º se busca con CIAS+DLGA+TPED, si no se encuentra se      *                                
+      * intenta seguidamente con CIAS+DLGA y si tampoco se accede  *                                
+      * se prueba con CIAS+TPED y si no se encuentra, se intenta   *                                
+      * con CIAS                                                   *                                
+      * DATA DE MODIFICACIÓ: DD/MM/AAAA  MARCA: DDMMA              *                                
+      * AUTOR:                                                     *                                
+      * DOCUMENTACIÓ:                                              *                                
+      *    Recibo:                                                 *                                
+      *    - @PERRO  - Crear nº de orden                           *                                
+      *    - @PERRO 1- Lanzar orden                                *                                
+      *    - @PERRO 2- Crear nº de orden y Lanzar orden            *                                
+      *    Devuelvo:                                               *                                
+      *    - @PERRO 1- No se ha podido localizar el nº             *                                
+      **************************************************************                                
+C0088 * Modificación: C0088                                        *                                
+C0088 *        Autor: Carlos del Valle                             *                                
+C0088 * Fecha Inicio: 12/01/2006                                   *                                
+C0088 *  Descripción: Nuevo campo Referencia Presupuestos          *                                
+C0088 *               Si hay Ref. A un Presupuesto, no se debe     *                                
+C0088 *               confirmar Automático ya que el Proveedor     *                                
+C0088 *               debe casar con el presupuesto inicial        *                                
+C0088 **************************************************************                                
+C0035 * Modificación: C0035                                        *                                
+C0035 *        Autor: Josep Aragonès                               *                                
+C0035 * Fecha Inicio: 23/05/2006                                   *                                
+C0035 *  Descripción: Pedidos de compras a 3 os en OL              *                                
+C0035 **************************************************************                                
+C0144 * Modificación: C0144                                        *                                
+C0144 *        Autor: Josep Aragonès                               *                                
+C0144 * Fecha Inicio: 05/06/2006                                   *                                
+C0144 *  Descripción: Nuevo campo Para no enviar pedido a Proveedor*                                
+C0144 **************************************************************                                
+      * Modificación: FQ284                                        *                                
+      *        Autor: Carlos del Valle                             *                                
+      * Fecha Inicio: 28/01/2010                                   *                                
+      *  Descripción: Fluidra direct                               *                                
+      **************************************************************                                
+In195 * Modificación: FQ722                                        *                                
+In195 *        Autor: Vicky Garcés                                 *                                
+In195 * Fecha Inicio: 22/10/2010                                   *                                
+In195 *  Descripción: No encriptar/deserncriptar los campos        *                                
+In195 *  S2PEGE,S2TELE,S2TFAX,S2TLEX,S2TEL2 DE CODEPE              *                                
+In195 **************************************************************                                
+      * Modificación: DPMCT                                        *                                
+      *        Autor: KIKE                                         *                                
+      * Fecha Inicio: 28/01/2010                                   *                                
+      *  Descripción: CONTROL DPM PEDIDOS DE COMPRAS               *                                
+      **************************************************************                                
+      * Modificación: 28022                                        *                                
+      *        Autor: V.Garces                                     *                                
+      * Fecha Inicio: 28/02/2012                                   *                                
+      *  Descripción: Error encriptacion con destino MOVEX         *                                
+      **************************************************************                                
+      * DATA DE MODIFICACIÓ: 26/08/2014  MARCA: C1631              *                                
+      * AUTOR: JMARTINEZP                                          *                                
+      * DOCUMENTACIÓ: ESTANDARIZAMOS PERSONALIZACION DE GRE        *                                
+      * ************************************************************                                
+I0155 * DATA DE MODIFICACIÓ: 05/06/2020  MARCA: I0155  (ITOM155)                                    
+I0155 * AUTOR: JCAMPILLO                                                                            
+I0155 * DOCUMENTACIÓ: ALMACEN NWE PEDIDOS COMERCIALES                                               
+I0155 *****************************************************************                             
+      *                                                                                             
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FPMTABL    IF   E           K DISK                                         Maestro de tabla    
+     FPMTABD    UF   E           K DISK                                                             
+     FPUCAPE    UF   E           K DISK                                                             
+     FMSPAIS    UF   E           K DISK                                                             
+     FCOCAPE    UF   E           K DISK                                                             
+     FCODEPE12  UF   E           K DISK                                                             
+     FPUDIPE    UF   E           K DISK                                                             
+     FPUOBPE    UF   E           K DISK                                                             
+     FPUPECO    UF   E           K DISK                                                             
+     FPUDEPE    UF   E           K DISK                                                             
+     F*USDEP    O    E           K DISK                                                             
+     FPUCAIM    UF   E           K DISK                                                             
+     FUTCOM0    IF   E           K DISK                                                             
+     FPMTAB2    IF   E           K DISK                                                             
+     FUTDEST    IF   E           K DISK                                                             
+     FMSLOGI    IF   E           K DISK                                                             
+     FTR0035    O  A E           K DISK                                                             
+     FTR0036    O  A E           K DISK                                                             
+     FTR0037    O  A E           K DISK                                                             
+     FTR0038    O  A E           K DISK                                                             
+28022FPMLIBL    IF   E           K DISK                                                             
+I0155FMSALMA05  IF   E           K DISK                                                             
+                                                                                                    
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXOPT                  1      6                                                             
+     D  ZXOPT1                 1      3                                                             
+     D  ZXOPT2                 4      6                                                             
+                                                                                                    
+     D DSLDA         E DS                  EXTNAME(PURLDADS)                                        
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D     ERRWRITE  E                     EXTFLD(WRK94)                                            
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXNORT                 1     21                                                             
+     D  ZXNODE                 1     10                                                             
+     D  ZXNOHA                12     21                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXCLTA                 1     10                                                             
+     D    ZXCIAS2              1      3                                                             
+     D    ZXDLGA2              4      8                                                             
+     D    ZXTPED2              9     10                                                             
+                                                                                                    
+     D    @PCIAS       S                   LIKE(PECIAS)                                             
+     D    @PDLGA       S                   LIKE(ZZDLGA)                                             
+     D    @PNPCO       S             10                                                             
+     D    @PTPED       S                   LIKE(C0TPED)                                             
+     D    @PDATP       S                   LIKE(C0DAT1)                                             
+     D    @PNOPL       S                   LIKE(PEHORA)                                             
+     D    @PERRO       S              1                                                             
+     D  @PFILE         S             10                                                             
+     D  @PPGM          S             10                                                             
+     D    ZXERRO       S              1                                                             
+     D    ZXERR2       S              1                                                             
+     D  ZXNORD         S             10  0                                                          
+     D  ZXNORH         S             10  0                                                          
+     D  ZXPTRETORN     S              6A   INZ                                                      
+     D  ZXCLTA1        S             10                                                             
+     D  ZXCLTA2        S             10                                                             
+     D  ZXCLTA3        S             10                                                             
+     D  ZXUTCOMU       S              1  0                                                          
+     D  ZXEVR0         S                   LIKE(C0EVR0)                                             
+     D  ZXTIME         S                   LIKE(C0HORA)                                             
+     D  ZXCI01         S                   LIKE(S5CI01)                                             
+                                                                                                    
+     D  ZXCIAS         S                   LIKE(C0CIAS) INZ                                         
+     D  ZXDLGA         S                   LIKE(C0DLGA) INZ                                         
+     D  ZXNPCO         S                   LIKE(C0NPCO) INZ                                         
+     D  ZXTPED         S                   LIKE(C0TPED) INZ                                         
+     D  ZXDATP         S                   LIKE(C0DATP) INZ                                         
+     D  ZXNOPL         S                   LIKE(C0NOPL) INZ                                         
+     D  ZXUPDAT1       S              1  0 INZ(0)                                                   
+     D  ZXCHKS         S              3  0                                                          
+C0035D  ZXTENV1        S                   LIKE(C0TENV)                                             
+C0035D  ZXDEST1        S                   LIKE(C0DEST)                                             
+C0035D  ZXTDES1        S                   LIKE(C0TDES)                                             
+C0035D  ZXCIA11        S                   LIKE(C0CIDT)                                             
+C0035D  ZXCLP11        S                   LIKE(C0CLDT)                                             
+C0035D  ZXTENV5        S                   LIKE(C0TENV)                                             
+C0035D  ZXDEST5        S                   LIKE(C0DEST)                                             
+C0035D  ZXTDES5        S                   LIKE(C0TDES)                                             
+C0035D  ZXCIA15        S                   LIKE(C0CIDT)                                             
+C0035D  ZXCLP15        S                   LIKE(C0CLDT)                                             
+C0035D  ZXEVOL5        S                   LIKE(C0EVOL)                                             
+C0035D  ZXUTCOMU5      S              1  0                                                          
+      * DEFINICIO DE CAMPS DE PARÀMETRES PER CALL (SENSE IMPORT/EXPORT)                             
+      * PARÀMETRES PEL PRD650 I CAMPS DE TREBALL ASSOCIATS                                          
+      * VALOR NUMÈRIC                                                                               
+     D   PXNUM         S             29  9                                                          
+      * VALOR ALFANUMÈRIC                                                                           
+     D   PXALPH        S             29                                                             
+      * LONGITUD TOTAL DEL CAMP (Nº CARÀCTERS INCLÒS CODI EDICIÓ)                                   
+     D   PXFLDD        S              2  0 INZ(20)                                                  
+      * Nº DE DECIMALS DEL CAMP                                                                     
+     D  PXDCCD         S              1  0 INZ(0)                                                   
+      * TIPUS DE FORMAT DECIMAL (.,)                                                                
+     D  PXFMD1         S                   LIKE(ZZFMD1)INZ                                          
+      * CODI D'EDICIÓ (4,M,Q,Z)                                                                     
+     D  PXEDTC         S                   LIKE(ZZEDTC)INZ('Z')                                     
+      * RETORN CODI D'ERROR                                                                         
+     D  PXNMER         S              1  0 INZ(0)                                                   
+      * TIPUS D'AJUST DECIMAL (0=MIG 1=PER SOBRE 2=PER SOTA)                                        
+     D  PXTIPA         S                   LIKE(ZZAJUD)                                             
+                                                                                                    
+     D  ZX             S              2  0                                                          
+     DSSSNUME          S              1A   DIM(10)                                                  
+                                                                                                    
+     D  @PECADENA      S            120                                                             
+     D  @PEACCION      S              1                                                             
+     D  @PEERROR       S              1                                                             
+      *                                                                                             
+C0088D  C0AMPL         DS                                                                           
+C0088D    C0COEN               1      1                                                             
+C0088D    C0REFP               2     26                                                             
+C0035D    C0EALB              28     28                                                             
+C0088D    C0RESTO             29    100                                                             
+      *                                                                                             
+FQ284D                 DS                                                                           
+FQ284D  ZEAMPL                 1    100                                                             
+FQ284D    ZEEDV2              47     47                                                             
+      *                                                                                             
+28022D  PPBL10         DS                                                                           
+28022D  PPMVXV                 9      9                                                             
+DPMCT *________________________________________________________________                             
+DPMCT * Parámetros de llamada a DP0250                                                              
+DPMCTD  @PECIAS        S                   LIKE(C5CIAS)                                             
+DPMCTD  @PETPNE        S              1                                                             
+DPMCTD  @PEDLGA        S                   LIKE(C5DLGA)                                             
+DPMCTD  @PENPCO        S                   LIKE(C5NPCO)                                             
+DPMCTD  @PEDATP        S                   LIKE(C5DATP)                                             
+DPMCTD  @PETPED        S                   LIKE(C5TPED)                                             
+DPMCTD  @PENOPL        S                   LIKE(C5NOPL)                                             
+DPMCTD  @PENORD        S              8  0                                                          
+DPMCTD  @PEINDX        S              4  0                                                          
+C1631D  @PEPRVR        S             10                                                             
+C1631D  @PEPANT        S              1                                                             
+I0155D  ZXLOGE         S                   LIKE(C5LOGE)                                             
+      **************************************************************                                
+      * RUTINA  PRINCIPAL DEL PROGRAMA                             *                                
+      *------------------------------------------------------------*                                
+     C                   DOW       ZXOPT1 <> 'END'                                                  
+     C     ZXOPT1        CASEQ     'CHK'         SUBCHK                                             
+     C     ZXOPT1        CASEQ     'UP1'         SUBUP1                                             
+     C     ZXOPT1        CASEQ     'UP2'         SUBUP2                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+      *                                                                                             
+     C     KPMTABL       KLIST                                                  *KL PMTABD   2      
+     C                   KFLD                    PDCIAS                         Empresa             
+     C                   KFLD                    PDCTAB                         Clase de tabla      
+     C     KPMTABD       KLIST                                                  *KL PMTABD   3      
+     C                   KFLD                    PECIAS                         Empresa             
+     C                   KFLD                    PECTAB                         Clase de tabla      
+     C                   KFLD                    PECLTA                         Clave de tabla      
+     C     KPUCAPEX      KLIST                                                  *KL PMTABD   3      
+     C                   KFLD                    ZXCIAS                         Empresa             
+     C                   KFLD                    ZXDLGA                         Clase de tabla      
+     C                   KFLD                    ZXNPCO                         Clase de tabla      
+     C                   KFLD                    ZXTPED                         Clase de tabla      
+     C                   KFLD                    ZXDATP                         Clase de tabla      
+     C                   KFLD                    ZXNOPL                         Clase de tabla      
+     C     KMSPAIS       KLIST                                                  *KL PMTABD   3      
+     C                   KFLD                    MECIAS                         Empresa             
+     C                   KFLD                    MEPAIS                         Empresa             
+     C     KCOCAPE0      KLIST                                                                      
+     C                   KFLD                    S0CIAS                                             
+     C                   KFLD                    S0DLGA                                             
+     C                   KFLD                    S0NPCO                                             
+     C                   KFLD                    S0TPED                                             
+     C     KCODEPE120    KLIST                                                                      
+     C                   KFLD                    S5CIAS                                             
+     C                   KFLD                    S5CUST                                             
+     C                   KFLD                    S5NPCO                                             
+     C                   KFLD                    S5TPED                                             
+     C                   KFLD                    S5LINE                                             
+     C     KUTCOM0       KLIST                                                                      
+     C                   KFLD                    U0CIAS                                             
+     C                   KFLD                    U0TENV                                             
+     C                   KFLD                    U0CLP0                                             
+     C                   KFLD                    U0CLP2                                             
+     C     KPMTAB2       KLIST                                                                      
+     C                   KFLD                    PECTAB                                             
+     C                   KFLD                    PECLTA                                             
+                                                                                                    
+     C     KMSLOGI       KLIST                                                                      
+     C                   KFLD                    MICIAS                                             
+     C                   KFLD                    MIDLGA                                             
+     C                   KFLD                    MILGCA                                             
+                                                                                                    
+I0155C     KMSALMA05     KLIST                                                                      
+I0155C                   KFLD                    M0CIAS                                             
+I0155C                   KFLD                    M0LOGE                                             
+I0155 *                                                                                             
+      * RECUPERACIÓ DE LA LDA DE COMPRES                                                            
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+FQ284C                   EVAL      ZEAMPL=ZZAMPL                                                    
+                                                                                                    
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PERRO                                             
+                                                                                                    
+     C                   EVAL      PXFMD1=ZZFMD1                                                    
+     C                   EVAL      ZXERRO=@PERRO                                                    
+     C                   EVAL      ZXERR2=ZXERRO                                                    
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   EVAL      PECIAS=@PCIAS                                                    
+     C                   EVAL      PECTAB='NPCO'                                                    
+     C                   EVAL      PDCIAS=@PCIAS                                                    
+     C                   EVAL      PDCTAB='NPCO'                                                    
+     C                   MOVE      @PCIAS        ZXCIAS2                                            
+     C                   EVAL      ZXDLGA2=@PDLGA                                                   
+     C                   EVAL      ZXTPED2=@PTPED                                                   
+     C                   EVAL      PECLTA=ZXCLTA                                                    
+      * Guardo las clave original                                                                   
+     C                   EVAL      ZXCIAS=@PCIAS                                                    
+     C                   EVAL      ZXDLGA=@PDLGA                                                    
+     C                   EVAL      ZXNPCO=@PNPCO                                                    
+     C                   EVAL      ZXTPED=@PTPED                                                    
+     C                   EVAL      ZXDATP=@PDATP                                                    
+     C                   EVAL      ZXNOPL=@PNOPL                                                    
+                                                                                                    
+     C                   EVAL      ZXOPT1='CHK'                                                     
+                                                                                                    
+     C     TINZSR        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CHECK. DEFINICIO DE TOTS ELS PARÀMETRES          *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     SUBCHK        BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      ZXOPT='UP1'                                                      
+     C                   IF        ZXERR2='1'                                                       
+     C                   EVAL      ZXOPT='UP2'                                                      
+     C                   ENDIF                                                                      
+     C     TSUBCHK       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA QUE CONTROLA ELS POSSIBLES ERRORS DE PROGRAMA    *                                
+      *------------------------------------------------------------*                                
+     C     CHKTABD       BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      ERRGRL=*OFF                                                      
+                                                                                                    
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPMTABD       CHAIN     PMTABD                             8180                          
+     C                   ENDDO                                                                      
+     C                   IF        CHAIN=*ON OR PEBAJA=*ON                                PMTABD    
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TCHKTABD                                           
+                                                                                                    
+     C                   MOVEL     PEDESC        ZXNORT                                             
+     C     ZXNODE        IFEQ      *BLANKS                                                          
+     C                   MOVE      *ZEROS        ZXNODE                                             
+     C                   MOVEL     UYEAR         ZXNODE                                             
+     C                   ENDIF                                                                      
+     C     ZXNOHA        IFEQ      *BLANKS                                                          
+     C                   MOVE      *ALL'9'       ZXNOHA                                             
+     C                   MOVEL     UYEAR         ZXNOHA                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXALPH=ZXNODE                                                    
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM                    PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   EVAL      ZXNORD=PXNUM                                                     
+      *                                                                                             
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXALPH=ZXNOHA                                                    
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM                    PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   EVAL      ZXNORH=PXNUM                                                     
+                                                                                                    
+     C                   ADD       1             ZXNORD                                             
+     C     ZXNORD        IFGT      ZXNORH                                                           
+     C                   MOVE      '3'           @PERRO                                             
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TCHKTABD                                           
+     C     TCHKTABD      ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA UPDATE                                           *                                
+      *------------------------------------------------------------*                                
+     C     SUBUP1        BEGSR                                                                      
+      * Da nº a @PNPCO                                                                              
+     C                   EVAL      ZXOPT='END'                                                      
+     C                   IF        ZXERR2='2'                                                       
+     C                   EVAL      ZXOPT='UP2'                                                      
+     C                   ENDIF                                                                      
+      * Si ya tiene nº de salida no continuo en esta subrutina                                      
+     C                   IF        @PNPCO<>*BLANKS                                                  
+     C                   GOTO      TFIN                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * @PERRO DE SALIDA:                                                                           
+      * @PERRO='1' ==> NO SE HA ENCONTRADO TABLA O SON BAJA                                         
+      * @PERRO='2' ==> Nº DE ORDEN YA EXISTE                                                        
+      * @PERRO='3' ==> NO QUEDAN MAS NUMEROS PARA OTORGAR                                           
+     C                   MOVE      ZXERRO        ZXINBA            1                                
+     C     KPMTABL       CHAIN     PMTABL                             8180                          
+     C                   IF        CHAIN=*ON                                          PMTABL        
+     C                   MOVE      '1'           @PERRO                                             
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ELSE                                                                       
+     C                   IF        PDBAJA=*ON                                                       
+     C                   MOVE      '1'           @PERRO                                             
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TFIN                                               
+      * 1º intento con todos los valores de parámetros CIAS+DLGA+TPED                               
+     C                   EVAL      ZXCLTA1=*BLANKS                                                  
+     C                   EXSR      CHKTABD                                                          
+     C                   EVAL      ZXCLTA1=PECLTA                                                   
+     C                   IF        ERRGRL=*OFF                                                      
+     C                   GOTO      TFI9                                                             
+     C                   ENDIF                                                                      
+                                                                                                    
+      * SI NO CONSEGUIMOS CON TODOS LOS CIAS+DLGA+TPED, se intenta según                            
+      * CIAS+DLGA si DLGA ES<>*BLANKS                                                               
+     C                   MOVE      *BLANKS       @PERRO                                             
+     C                   EVAL      ZXCLTA2=*BLANKS                                                  
+     C                   IF        @PDLGA<>*BLANKS                                                  
+     C                   EVAL      ZXTPED2=*BLANKS                                                  
+     C                   EVAL      PECLTA=ZXCLTA                                                    
+     C                   IF        PECLTA<>ZXCLTA1                                                  
+     C                   EXSR      CHKTABD                                                          
+     C                   EVAL      ZXCLTA2=PECLTA                                                   
+     C                   IF        ERRGRL=*OFF                                                      
+     C                   GOTO      TFI9                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+      * SI NO CONSEGUIMOS CON CIAS+DLGA SE INTENTARA CON CIAS+TPED                                  
+     C                   MOVE      *BLANKS       @PERRO                                             
+     C                   EVAL      ZXCLTA3=*BLANKS                                                  
+     C                   IF        @PTPED<>*BLANKS                                                  
+     C                   EVAL      ZXDLGA2=*BLANKS                                                  
+     C                   EVAL      ZXTPED2=@PTPED                                                   
+     C                   EVAL      PECLTA=ZXCLTA                                                    
+     C                   IF        PECLTA<>ZXCLTA1 AND PECLTA<>ZXCLTA2                              
+     C                   EXSR      CHKTABD                                                          
+     C                   EVAL      ZXCLTA3=PECLTA                                                   
+     C                   IF        ERRGRL=*OFF                                                      
+     C                   GOTO      TFI9                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+      * SI NO CONSEGUIMOS CON CIAS+TPED SE INTENTARA CON CIAS                                       
+     C                   MOVE      *BLANKS       @PERRO                                             
+     C                   EVAL      ZXDLGA2=*BLANKS                                                  
+     C                   EVAL      ZXTPED2=*BLANKS                                                  
+     C                   EVAL      PECLTA=ZXCLTA                                                    
+     C                   IF        PECLTA<>ZXCLTA1 AND PECLTA<>ZXCLTA2                              
+     C                             AND PECLTA<>ZXCLTA3                                              
+     C                   EXSR      CHKTABD                                                          
+     C                   IF        ERRGRL=*OFF                                                      
+     C                   GOTO      TFI9                                                             
+     C                   ENDIF                                                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+      * Si llega hasta aquí es que no ha podido recoger nº                                          
+     C                   IF        ERRGRL=*ON                                                       
+     C                   MOVE      '1'           @PERRO                                             
+     C                   GOTO      TFIN                                                             
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     TFI9          TAG                                                                        
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXNUM=ZXNORD                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM                    PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   MOVE      PXALPH        ZXNODE                                             
+      * Si el nº es menor de 9999 le pondremos ceros delante                                        
+      * por similitud al traspaso realizado desde la antigua aplicación                             
+     C                   IF        PXNUM<=9999                                                      
+     C                   Z-ADD     PXNUM         ZXNODEN           5 0                              
+     C                   MOVE      ZXNODEN       ZXNODE                                             
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXNUM=ZXNORH                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM                    PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   MOVE      PXALPH        ZXNOHA                                             
+                                                                                                    
+     C                   MOVEA     ZXNODE        SSSNUME                                            
+     C                   MOVE      *BLANKS       ZXNODE                                             
+     C                   DO        10            ZX                                                 
+     C                   IF        SSSNUME(ZX)<>*BLANKS                                             
+     C                   MOVEA     SSSNUME(ZX)   ZXNODE                                             
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   MOVEA     ZXNOHA        SSSNUME                                            
+     C                   MOVE      *BLANKS       ZXNOHA                                             
+     C                   DO        10            ZX                                                 
+     C                   IF        SSSNUME(ZX)<>*BLANKS                                             
+     C                   MOVEA     SSSNUME(ZX)   ZXNOHA                                             
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   MOVEL     ZXNORT        PEDESC                                             
+     C  N81              UPDATE    RPMTABD                                      *UPD PMTABD         
+     C                   MOVEL     ZXNODE        @PNPCO                                             
+      * Si el numerador contiene letras, entonces modifico                                          
+     C                   IF        PEBL65<>*BLANKS                                                  
+     C     PEBL65        CAT       @PNPCO:0      @PNPCO                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     TFIN          TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     TSUBUP1       ENDSR                                                                      
+                                                                                                    
+      **************************************************************                                
+      * SUBRUTINA UPDATE                                           *                                
+      *------------------------------------------------------------*                                
+     C     SUBUP2        BEGSR                                                                      
+     C* Aquí viene la actualización de PUCAPE, PUDEPE, estatus, PUDIPE                              
+     C* PUPECO, PUOBPE ,etc.                                                                        
+     C                   EVAL      ZXUTCOMU=0                                                       
+     C                   EVAL      ZXOPT='END'                                                      
+                                                                                                    
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      CHAIN     PUCAPE                             8180                          
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   MOVE      'R'           C0STCO                                             
+     C                   IF        ZXERRO='1'                                                       
+     C                   EVAL      C0STCO='20'                                                      
+     C                   ENDIF                                                                      
+     C                   UPDATE    RPUCAPE                              80                          
+      * Actualización del resto de ficheros asociados al pedido                                     
+     C                   EVAL      ZXUPDAT1=0                                                       
+     C                   IF        ZXERRO='2'OR (ZZEPP1>='1' AND ZZALOL<'1' )                       
+     C                             OR (ZZEPP6>='1' AND ZZALOL>='1')                                 
+     C                             OR (ZZEPP8>='1' AND ZZALOL<'1')                                  
+     C                   IF        ZXERRO='2'                                                       
+     C                   EVAL      ZXUPDAT1=1                                                       
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_UPDATE                                                        
+DPMCTC                   EXSR      CS_DPM                                                           
+C1631C                   EXSR      CS_EDICOM                                                        
+     C                   ENDIF                                                                      
+     C     TSUBUP2       ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA UPDATE                                           *                                
+      *------------------------------------------------------------*                                
+     C     CS_UPDATE     BEGSR                                                                      
+      * Si el proveedor con el que trabajan es para grabación, entonces                             
+      * marco para que grabe                                                                        
+     C                   IF        (ZZEPP6>='1' AND ZZALOL>='1')                                    
+     C                   EVAL      ZXEVR0='2'                                                       
+      * Busqueda Cias OL                                                                            
+     C                   EVAL      PECTAB='INOL'                                                    
+     C                   EVAL      PECLTA='DESTSGA   '                                              
+     C     KPMTAB2       CHAIN     PMTAB2                             81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   EVAL      U1DEST=PEDESC                                                    
+     C     U1DEST        CHAIN     UTDEST                             81                            
+     C                   IF        CHAIN=*OFF AND U1DSGA='1'                                        
+     C                   EVAL      U0DEST=U1DEST                                                    
+     C                   EVAL      U0TENV='9'                                                       
+     C                   EVAL      U0CLP0=*BLANKS                                                   
+      *****              EVAL      ZXUTCOMU=1                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ZZALOL<'1'                                                       
+     C                   EVAL      MICIAS=C0CIAS                                                    
+     C                   EVAL      MIDLGA=C0DLGA                                                    
+     C                   EVAL      MILGCA=C0LOGE                                                    
+     C     KMSLOGI       CHAIN     MSLOGI                             81                            
+     C                   IF        MIALOL='1'                                                       
+     C                   EVAL      ZXEVR0=' '                                                       
+     C                   EVAL      U0TENV='1'                                                       
+     C                   ELSE                                                                       
+     C                   EVAL      U0TENV='5'                                                       
+     C                   EVAL      ZXEVR0='5'                                                       
+     C                   ENDIF                                                                      
+     C                   IF        ZZEPP1>='1' OR ZZEPP8>='1'                                       
+     C                   EVAL      U0CIAS=C0CIAS                                                    
+     C                   EVAL      U0CLP0=C0PRVR                                                    
+      * El registro no debe ser baja ni puede estar desactivado y                                   
+      * debe permitir traspaso automatico de pedidos                                                
+     C     KUTCOM0       CHAIN     UTCOM0                             81                            
+     C                   IF        (CHAIN=*OFF AND U0BAJA<='0' AND                                  
+     C                             U0ACTI<='0')AND (U0EPP1>='1')                                    
+C0144C                   IF        C0EVPR>='1' And U0TENV='5'                                       
+C0144C                             Or U0TENV<>'5'                                                   
+     C                   EVAL      ZXUTCOMU=1                                                       
+C0144C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+C0035 * Si enviamos pedido a OL también lo hacemos a productiva                                     
+C0144C                   IF        U0TENV='1' and C0EVPR>='1'                                       
+C0035C                   EVAL      ZXTENV1=U0TENV                                                   
+C0035C                   EVAL      ZXDEST1=U0DEST                                                   
+C0035C                   EVAL      ZXTDES1=U0TDES                                                   
+C0035C                   EVAL      ZXCIA11=U0CIA1                                                   
+C0035C                   EVAL      ZXCLP11=U0CLP1                                                   
+C0035C                   EVAL      U0TENV='5'                                                       
+C0035C     KUTCOM0       CHAIN     UTCOM0                             81                            
+C0035C                   IF        (CHAIN=*OFF AND U0BAJA<='0' AND                                  
+C0035C                             U0ACTI<='0')AND (U0EPP1>='1')                                    
+C0035C                   EVAL      ZXUTCOMU5=1                                                      
+C0035C                   EVAL      ZXTENV5=U0TENV                                                   
+C0035C                   EVAL      ZXDEST5=U0DEST                                                   
+C0035C                   EVAL      ZXTDES5=U0TDES                                                   
+C0035C                   EVAL      ZXCIA15=U0CIA1                                                   
+C0035C                   EVAL      ZXCLP15=U0CLP1                                                   
+22037C                   ENDIF                                                                      
+C0035C                   EVAL      U0TENV=ZXTENV1                                                   
+C0035C                   EVAL      U0DEST=ZXDEST1                                                   
+C0035C                   EVAL      U0TDES=ZXTDES1                                                   
+C0035C                   EVAL      U0CIA1=ZXCIA11                                                   
+C0035C                   EVAL      U0CLP1=ZXCLP11                                                   
+22037C**                 ENDIF                                                                      
+C0035C                   ENDIF                                                                      
+C0035 *                                                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *PRIMERO GRABAMOS REGISTRO ENVIO PUCAPE                                                       
+      ***************************************************************                               
+      * Si está activado el envío de pedidos a proveedor grabo en                                   
+      * el fichero para traspaso de pedidos a proveedor                                             
+     C                   IF        ZXUTCOMU=1                                                       
+     C                   IF        ZXUPDAT1=1                                                       
+     C                   EVAL      C0NPCO=@PNPCO                                                    
+     C                   ENDIF                                                                      
+     C                   EVAL      C0OPC0='1'                                                       
+     C                   EVAL      C0EVR0=ZXEVR0                                                    
+     C                   EVAL      C0TENV=U0TENV                                                    
+     C                   EVAL      C0DEST=U0DEST                                                    
+     C                   EVAL      C0TDES=U0TDES                                                    
+     C                   EVAL      C0CIDT=U0CIA1                                                    
+     C                   EVAL      C0CLDT=U0CLP1                                                    
+     C                   EVAL      C0USU0=SDSUSR                                                    
+     C                   EVAL      C0PAN0=ZZPANT                                                    
+     C                   EVAL      C0DAT0=ZZDATS                                                    
+     C                   TIME                    ZXTIME                                             
+     C                   MOVEL     ZXTIME        C0HOR0                                             
+      *  Activaremos el campo de CHEKSUM                                                            
+     C                   EXSR      CS_CHKSUM                                                        
+     C                   EVAL      C0CHKS=ZXCHKS                                                    
+                                                                                                    
+     C                   DOU       LCKRCD=*OFF                                                      
+     C                   EVAL      C0HOR0=C0HOR0+1                                                  
+     C                   EVAL      C0PROG=SDSPGM                                                    
+C0088 *                                                                                             
+C0088C                   IF        C0REFP<>*BLANKS AND                                              
+FQ284C                             ZEEDV2<>'1' AND C0TPE4<>'2'                                      
+C0088C                   EVAL      C0CAUT=*BLANKS                                                   
+C0088C                   ENDIF                                                                      
+C0088 *                                                                                             
+I0155C                   EXSR      CS_BUSLOG2                                                       
+     C                   WRITE     RTR0035                              80                          
+I0155C                   eval      C0LOGE=ZXLOGE                                                    
+     C                   ENDDO                                                                      
+C0035C                   IF        ZXUTCOMU5>=1                                                     
+C0035C                   EVAL      C0TENV=ZXTENV5                                                   
+C0035C                   EVAL      C0DEST=ZXDEST5                                                   
+C0035C                   EVAL      C0TDES=ZXTDES5                                                   
+C0035C                   EVAL      C0CIDT=ZXCIA15                                                   
+C0035C                   EVAL      C0CLDT=ZXCLP15                                                   
+C0035C                   EVAL      C0EVR0='5'                                                       
+C0035C                   EVAL      ZXEVOL5=C0EVOL                                                   
+C0035C                   EVAL      C0EVOL=' '                                                       
+C0035C                   EVAL      C0EALB='1'                                                       
+C0035C                   DOU       LCKRCD=*OFF                                                      
+C0035C                   EVAL      C0HOR0=C0HOR0+1                                                  
+C0035C                   EVAL      C0PROG=SDSPGM                                                    
+I0155C                   EXSR      CS_BUSLOG2                                                       
+C0035C                   WRITE     RTR0035                              80                          
+I0155C                   eval      C0LOGE=ZXLOGE                                                    
+C0035C                   ENDDO                                                                      
+C0035C                   EVAL      C0EVOL=ZXEVOL5                                                   
+C0035C                   EVAL      C0EALB=' '                                                       
+C0035C                   ENDIF                                                                      
+      * ACTUALIZAMOS EVOL O EVPR SEGÚN TOQUE                                                        
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      CHAIN     PUCAPE                             8180                          
+     C                   ENDDO                                                                      
+                                                                                                    
+17076 **                 IF        U0TENV='1'                                                       
+17076C                   IF        MIALOL='1'                                                       
+     C                   EVAL      C0EVOL='1'                                                       
+     C                   ELSE                                                                       
+     C                   IF        U0TENV='5'                                                       
+C0144 **                 EVAL      C0EVPR='1'                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+      * Cambio de nº de orden en detalle                                                            
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      CHAIN     PUDEPE                             8180                          
+     C                   ENDDO                                                                      
+     C                   DOW       CHAIN=*OFF                                                       
+     C                   IF        ZXUTCOMU=1                                                       
+17076 **                 IF        U0TENV='1'                                                       
+17076C                   IF        MIALOL='1'                                                       
+     C                   EVAL      C5EVOL='1'                                                       
+     C                   ELSE                                                                       
+     C                   IF        U0TENV='5'                                                       
+     C                   EVAL      C5EVPR='1'                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   IF        ZXUPDAT1=1                                                       
+     C                   EVAL      C5NPCO=@PNPCO                                                    
+     C                   UPDATE    RPUDEPE                                                          
+      **** Actualizaciones de pedidos de ventas relacionados.                                       
+      * Si proviene de una orden de ventas, asocio en la orden de ventas                            
+      * la orden de compras                                                                         
+     C                   IF        C5NPVE<>*BLANKS                                                  
+                                                                                                    
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXALPH=C5CIVE                                                    
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM      0             PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   EVAL      S5CIAS=PXNUM                                                     
+                                                                                                    
+     C                   EVAL      S5CUST=C5CUST                                                    
+     C                   EVAL      S5DLGA=C5DLVE                                                    
+     C                   EVAL      S5NPCO=C5NPVE                                                    
+      **                 EVAL      S5TPED=C5TPED                                                    
+      **                 EVAL      S5LINE=C5LINE                                                    
+     C                   EVAL      S5TPED=C5TPVE                                                    
+     C                   EVAL      S5LINE=C5LIVE                                                    
+                                                                                                    
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KCODEPE120    CHAIN     CODEPE12                           8180                          
+     C                   ENDDO                                                                      
+     C                   IF        (CHAIN=*OFF)                                                     
+      * Si no tiene grabados datos , la informacion de ventas contiene                              
+     C**                 IF        ((C5DAVE<>*ZEROS AND C5DAVE=S5DATP) OR                           
+     C**                           (C5DAVE<=*ZEROS)) AND (C5LINE=S5LINE)                            
+      * Si el sistema no tiene pedido asociado o este es de la misma                                
+      * empresa (puede ocurrir que haga referencia al pedido de compra                              
+      * de la empresa origen -traspasos automaticos comercial-productiva)                           
+      * y por tanto no puede machacarse.                                                            
+     C                   MOVEL     C5CIAS        ZXCI01                                             
+     C                   IF        (S5CI01=*BLANKS OR S5CI01=ZXCI01)                                
+     C                   EVAL      S5PR01=C5PRVR                                                    
+     C                   MOVEL     C5CIAS        S5CI01                                             
+     C                   EVAL      S5DL01=C5DLGA                                                    
+     C                   EVAL      S5NP01=C5NPCO                                                    
+     C                   EVAL      S5DA01=C5DATP                                                    
+     C                   EVAL      S5NO01=C5NOPL                                                    
+     C                   EVAL      S5LI01=C5LINE                                                    
+     C                   ENDIF                                                                      
+     C                   UPDATE    RCODEPE                                                          
+     C                   ENDIF                                                                      
+      **** Fin Actualizaciones de pedidos de ventas relacionados.                                   
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      ***************************************************************                               
+      * Si está activado el envío de pedidos a proveedor grabo en                                   
+      * el fichero para traspaso de pedidos a proveedor                                             
+     C                   IF        ZXUTCOMU=1                                                       
+     C                   EVAL      C5CUSF=C0CUST                                                    
+     C                   EVAL      C5OPC0='1'                                                       
+     C                   EVAL      C5EVR0=ZXEVR0                                                    
+     C                   EVAL      C5TENV=U0TENV                                                    
+     C                   EVAL      C5DEST=U0DEST                                                    
+     C                   EVAL      C5TDES=U0TDES                                                    
+     C                   EVAL      C5CIDT=U0CIA1                                                    
+     C                   EVAL      C5CLDT=U0CLP1                                                    
+     C                   EVAL      C5USU0=SDSUSR                                                    
+     C                   EVAL      C5PAN0=ZZPANT                                                    
+     C                   EVAL      C5DAT0=ZZDATS                                                    
+     C                   TIME                    ZXTIME                                             
+     C                   MOVEL     ZXTIME        C5HOR0                                             
+     C                   DOU       LCKRCD=*OFF                                                      
+     C                   EVAL      C5HOR0=C5HOR0+1                                                  
+     C                   EVAL      C5PROG=SDSPGM                                                    
+I0155C                   EXSR      CS_BUSLOG                                                        
+     C                   WRITE     RTR0036                              80                          
+I0155C                   eval      C5LOGE=ZXLOGE                                                    
+     C                   ENDDO                                                                      
+C0035C                   IF        ZXUTCOMU5>=1                                                     
+C0035C                   EVAL      C5TENV=ZXTENV5                                                   
+C0035C                   EVAL      C5DEST=ZXDEST5                                                   
+C0035C                   EVAL      C5TDES=ZXTDES5                                                   
+C0035C                   EVAL      C5CIDT=ZXCIA15                                                   
+C0035C                   EVAL      C5CLDT=ZXCLP15                                                   
+C0035C                   EVAL      C5EVR0='5'                                                       
+C0035C                   EVAL      ZXEVOL5=C5EVOL                                                   
+C0035C                   EVAL      C5EVOL=' '                                                       
+C0035C                   DOU       LCKRCD=*OFF                                                      
+C0035C                   EVAL      C5HOR0=C5HOR0+1                                                  
+C0035C                   EVAL      C5PROG=SDSPGM                                                    
+I0155C                   EXSR      CS_BUSLOG                                                        
+C0035C                   WRITE     RTR0036                              80                          
+I0155C                   eval      C5LOGE=ZXLOGE                                                    
+C0035C                   ENDDO                                                                      
+C0035C                   EVAL      C5EVOL=ZXEVOL5                                                   
+C0035C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      ***************************************************************                               
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      READE     PUDEPE                               8081                        
+     C                   ENDDO                                                                      
+     C                   ENDDO                                                                      
+      *                                                                                             
+      * Cambio de nº de orden en observaciones                                                      
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      CHAIN     PUOBPE                             8180                          
+     C                   ENDDO                                                                      
+     C                   DOW       CHAIN=*OFF                                                       
+     C                   IF        ZXUPDAT1=1                                                       
+     C                   EVAL      C0NPCO=@PNPCO                                                    
+     C                   ENDIF                                                                      
+     C                   IF        ZXUTCOMU=1                                                       
+17076 **                 IF        U0TENV='1'                                                       
+17076C                   IF        MIALOL='1'                                                       
+     C                   EVAL      C0EVOL='1'                                                       
+     C                   ELSE                                                                       
+     C                   IF        U0TENV='5'                                                       
+C0144 **                 EVAL      C0EVPR='1'                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   UPDATE    RPUOBPE                                                          
+     C                   DOU       LCKRCD=*OFF                                                      
+      * Si está activado el envío de pedidos a proveedor grabo en                                   
+      * el fichero para traspaso de pedidos a proveedor                                             
+     C                   IF        ZXUTCOMU=1                                                       
+     C                   EVAL      C0OPC0='1'                                                       
+     C                   EVAL      C0EVR0=ZXEVR0                                                    
+     C                   EVAL      C0TENV=U0TENV                                                    
+     C                   EVAL      C0DEST=U0DEST                                                    
+     C                   EVAL      C0TDES=U0TDES                                                    
+     C                   EVAL      C0CIDT=U0CIA1                                                    
+     C                   EVAL      C0CLDT=U0CLP1                                                    
+     C                   EVAL      C0USU0=SDSUSR                                                    
+     C                   EVAL      C0PAN0=ZZPANT                                                    
+     C                   EVAL      C0DAT0=ZZDATS                                                    
+     C                   TIME                    ZXTIME                                             
+     C                   MOVEL     ZXTIME        C0HOR0                                             
+     C                   DOU       LCKRCD=*OFF                                                      
+     C                   EVAL      C0HOR0=C0HOR0+1                                                  
+     C                   EVAL      C0PROG=SDSPGM                                                    
+     C                   WRITE     RTR0037                              80                          
+     C                   ENDDO                                                                      
+C0035C                   IF        ZXUTCOMU5>=1                                                     
+C0035C                   EVAL      C0TENV=ZXTENV5                                                   
+C0035C                   EVAL      C0DEST=ZXDEST5                                                   
+C0035C                   EVAL      C0TDES=ZXTDES5                                                   
+C0035C                   EVAL      C0CIDT=ZXCIA15                                                   
+C0035C                   EVAL      C0CLDT=ZXCLP15                                                   
+C0035C                   EVAL      C0EVR0='5'                                                       
+C0035C                   EVAL      ZXEVOL5=C0EVOL                                                   
+C0035C                   EVAL      C0EVOL=' '                                                       
+C0035C                   DOU       LCKRCD=*OFF                                                      
+C0035C                   EVAL      C0HOR0=C0HOR0+1                                                  
+C0035C                   EVAL      C0PROG=SDSPGM                                                    
+C0035C                   WRITE     RTR0037                              80                          
+C0035C                   ENDDO                                                                      
+C0035C                   EVAL      C0EVOL=ZXEVOL5                                                   
+C0035C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     KPUCAPEX      READE     PUOBPE                               8081                        
+     C                   ENDDO                                                                      
+     C                   ENDDO                                                                      
+      * Cambio de nº de orden en direcciones                                                        
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      CHAIN     PUDIPE                             8180                          
+     C                   ENDDO                                                                      
+     C                   DOW       CHAIN=*OFF                                                       
+     C                   IF        ZXUPDAT1=1                                                       
+     C                   EVAL      C2NPCO=@PNPCO                                                    
+     C                   ENDIF                                                                      
+     C                   IF        ZXUTCOMU=1                                                       
+     C*                  IF        C2TDVA>='1'                                                      
+17076 **                 IF        U0TENV='1'                                                       
+17076C                   IF        MIALOL='1'                                                       
+     C                   EVAL      C2EVOL='1'                                                       
+     C                   ELSE                                                                       
+     C                   IF        U0TENV='5'                                                       
+     C                   EVAL      C2EVPR='1'                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C*                  ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   UPDATE    RPUDIPE                                                          
+      * Si está activado el envío de pedidos a proveedor grabo en                                   
+      * el fichero para traspaso de pedidos a proveedor                                             
+     C                   IF        ZXUTCOMU=1 AND C2TDVA>='1'                                       
+     C                   EVAL      C2OPC0='1'                                                       
+     C                   EVAL      C2EVR0=ZXEVR0                                                    
+     C                   EVAL      C2TENV=U0TENV                                                    
+     C                   EVAL      C2DEST=U0DEST                                                    
+     C                   EVAL      C2TDES=U0TDES                                                    
+     C                   EVAL      C2CIDT=U0CIA1                                                    
+     C                   EVAL      C2CLDT=U0CLP1                                                    
+     C                   EVAL      C2USU0=SDSUSR                                                    
+     C                   EVAL      C2PAN0=ZZPANT                                                    
+     C                   EVAL      C2DAT0=ZZDATS                                                    
+     C                   TIME                    ZXTIME                                             
+     C                   MOVEL     ZXTIME        C2HOR0                                             
+     C                   DOU       LCKRCD=*OFF                                                      
+     C                   EVAL      C2HOR0=C2HOR0+1                                                  
+     C                   EVAL      C2PROG=SDSPGM                                                    
+     C                   EXSR      CS_ENCRIP                                                        
+     C                   WRITE     RTR0038                              80                          
+     C                   ENDDO                                                                      
+C0035C                   IF        ZXUTCOMU5>=1                                                     
+C0035C                   EVAL      C2TENV=ZXTENV5                                                   
+C0035C                   EVAL      C2DEST=ZXDEST5                                                   
+C0035C                   EVAL      C2TDES=ZXTDES5                                                   
+C0035C                   EVAL      C2CIDT=ZXCIA15                                                   
+C0035C                   EVAL      C2CLDT=ZXCLP15                                                   
+C0035C                   EVAL      C2EVR0='5'                                                       
+C0035C                   EVAL      ZXEVOL5=C2EVOL                                                   
+C0035C                   EVAL      C2EVOL=' '                                                       
+C0035C                   DOU       LCKRCD=*OFF                                                      
+C0035C                   EVAL      C2HOR0=C2HOR0+1                                                  
+C0035C                   EVAL      C2PROG=SDSPGM                                                    
+C0035C                   WRITE     RTR0038                              80                          
+C0035C                   ENDDO                                                                      
+C0035C                   EVAL      C2EVOL=ZXEVOL5                                                   
+C0035C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      READE     PUDIPE                               8081                        
+     C                   ENDDO                                                                      
+     C                   ENDDO                                                                      
+      * SI NO TIENE QUE CONTINUAR ACTUALIZANDO PORQUE SOLO TIENE QUE                                
+      * QUE GRABAR PSUDEP, ENTONCES ACABO EL BUCLE                                                  
+     C     ZXUPDAT1      CABEQ     0             UPDATET                                            
+      * Cambio de nº de orden en cuentas contables                                                  
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      CHAIN     PUPECO                             8180                          
+     C                   ENDDO                                                                      
+     C                   DOW       CHAIN=*OFF                                                       
+     C                   EVAL      CUNPCO=@PNPCO                                                    
+     C                   UPDATE    RPUPECO                                                          
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      READE     PUPECO                               8081                        
+     C                   ENDDO                                                                      
+     C                   ENDDO                                                                      
+                                                                                                    
+      * Cambio de nº de orden de los importes                                                       
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      CHAIN     PUCAIM                             8180                          
+     C                   ENDDO                                                                      
+     C                   DOW       CHAIN=*OFF                                                       
+     C                   EVAL      CYNPCO=@PNPCO                                                    
+     C                   UPDATE    RPUCAIM                                                          
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      READE     PUCAIM                               8081                        
+     C                   ENDDO                                                                      
+     C                   ENDDO                                                                      
+                                                                                                    
+      * Cambio de nº de orden de compra en la cabecera de orden                                     
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KPUCAPEX      CHAIN     PUCAPE                             8180                          
+     C                   ENDDO                                                                      
+17076 **                 IF        U0TENV='1'                                                       
+17076C                   IF        MIALOL='1'                                                       
+     C                   EVAL      C0EVOL='1'                                                       
+     C                   ELSE                                                                       
+     C                   IF        U0TENV='5'                                                       
+C0144 **                 EVAL      C0EVPR='1'                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   EVAL      C0STCO='20'                                                      
+     C                   EVAL      C0NPCO=@PNPCO                                                    
+     C                   UPDATE    RPUCAPE                                                          
+      **** Actualizaciones de pedidos de ventas relacionados.                                       
+      * Si proviene de una orden de ventas, asocio en la orden de ventas                            
+      * la orden de compras                                                                         
+     C                   IF        C0NPVE<>*BLANKS                                                  
+                                                                                                    
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXALPH=C0CIVE                                                    
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM      0             PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   EVAL      S0CIAS=PXNUM                                                     
+                                                                                                    
+     C                   EVAL      S0DLGA=C0DLVE                                                    
+     C                   EVAL      S0NPCO=C0NPVE                                                    
+     C                   EVAL      S0TPED=C0TPED                                                    
+                                                                                                    
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KCOCAPE0      CHAIN     COCAPE                             8180                          
+     C                   ENDDO                                                                      
+     C                   DOW       (CHAIN=*OFF)                                                     
+     C                   IF        (C0CUST=S0CUST)                                                  
+     C**                 IF        (C0DAVE<>*ZEROS AND C0DAVE=S0DATP) OR                            
+     C**                           (C0DAVE<=*ZEROS)                                                 
+      * Si el sistema no tiene pedido asociado o este es de la misma                                
+      * empresa (puede ocurrir que haga referencia al pedido de compra                              
+      * de la empresa origen -traspasos automaticos comercial-productiva)                           
+      * y por tanto no puede machacarse.                                                            
+     C                   MOVEL     C0CIAS        ZXCI01                                             
+     C                   IF        (S0CI01=*BLANKS OR S0CI01=ZXCI01)                                
+     C                   EVAL      S0PR01=C0PRVR                                                    
+     C                   MOVEL     C0CIAS        S0CI01                                             
+     C                   EVAL      S0DL01=C0DLGA                                                    
+     C                   EVAL      S0NP01=C0NPCO                                                    
+     C                   EVAL      S0DA01=C0DATP                                                    
+     C                   EVAL      S0NO01=C0NOPL                                                    
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   UPDATE    RCOCAPE                                                          
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KCOCAPE0      READE     COCAPE                               8081                        
+     C                   ENDDO                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+      **** Fin Actualizaciones de pedidos de ventas relacionados.                                   
+      *                                                                                             
+     C     UPDATET       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE CALCULO DE CHECKSUM                           *                                
+      *------------------------------------------------------------*                                
+     C     CS_CHKSUM     BEGSR                                                                      
+     C                   EVAL      ZXCHKS=0                                                         
+     C     KPUCAPEX      SETLL     PUDEPE                                                           
+     C     KPUCAPEX      READE(N)  PUDEPE                                 83                        
+     C                   DOW       READ1=*OFF                                                       
+     C                   EVAL      ZXCHKS=ZXCHKS+1                                                  
+     C     KPUCAPEX      READE(N)  PUDEPE                                 83                        
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * ENCRIPTADOR DE DIRECCIONES                                 *                                
+      *------------------------------------------------------------*                                
+     C     CS_ENCRIP     BEGSR                                                                      
+      *                                                                                             
+      * Se encriptan los Datos de la Dirección de Envío si la Empresa                               
+      * lo tiene como Parámetro y si la Dirección es para Cliente Terceros                          
+      * y el País Destino es de la CEE.                                                             
+      *                                                                                             
+28022 *                                                                                             
+28022 * Las empresas con ERP Movex tampoco se encriptan porque no las ven                           
+28022 *                                                                                             
+28022C                   MOVEL(P)  C2CIDT        PPCIAS                                             
+28022C     PPCIAS        CHAIN     PMLIBL                                                           
+28022C                   IF        %FOUND(PMLIBL) AND PPMVXV<>'V'                                   
+     C                   IF        (ZZENCR='1' AND C0TPE4='2' AND C2CDIR='1')                       
+     C                             OR (ZZENCR='1' AND C0EDET='1' AND C2CDIR='1')                    
+      *                                                                                             
+     C                   EVAL      MECIAS=C2CIAS                                                    
+     C                   EVAL      MEPAIS=C2PAIS                                                    
+     C     KMSPAIS       CHAIN     MSPAIS                                                           
+     C                   IF        (%FOUND(MSPAIS) AND MEPCEE='1' AND                               
+     C                              C0TPE4='2')                                                     
+     C                             OR (C0EDET='1' AND C0TPE4<>'2')                                  
+      *                                                                                             
+     C                   IF        C2RAOS<>*BLANKS                                                  
+     C                   EVAL      @PECADENA=*BLANKS                                                
+     C                   EVAL      @PECADENA=C2RAOS                                                 
+     C                   CALL      'UT2570'                                                         
+     C                   PARM                    @PECADENA                                          
+     C                   PARM      '1'           @PEACCION                                          
+     C                   PARM      *BLANKS       @PEERROR                                           
+     C                   IF        @PEERROR=*BLANKS                                                 
+     C                   EVAL      C2RAOS=@PECADENA                                                 
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        C2RAO2<>*BLANKS                                                  
+     C                   EVAL      @PECADENA=*BLANKS                                                
+     C                   EVAL      @PECADENA=C2RAO2                                                 
+     C                   CALL      'UT2570'                                                         
+     C                   PARM                    @PECADENA                                          
+     C                   PARM      '1'           @PEACCION                                          
+     C                   PARM      *BLANKS       @PEERROR                                           
+     C                   IF        @PEERROR=*BLANKS                                                 
+     C                   EVAL      C2RAO2=@PECADENA                                                 
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        C2DIRE<>*BLANKS                                                  
+     C                   EVAL      @PECADENA=*BLANKS                                                
+     C                   EVAL      @PECADENA=C2DIRE                                                 
+     C                   CALL      'UT2570'                                                         
+     C                   PARM                    @PECADENA                                          
+     C                   PARM      '1'           @PEACCION                                          
+     C                   PARM      *BLANKS       @PEERROR                                           
+     C                   IF        @PEERROR=*BLANKS                                                 
+     C                   EVAL      C2DIRE=@PECADENA                                                 
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        C2DIR2<>*BLANKS                                                  
+     C                   EVAL      @PECADENA=*BLANKS                                                
+     C                   EVAL      @PECADENA=C2DIR2                                                 
+     C                   CALL      'UT2570'                                                         
+     C                   PARM                    @PECADENA                                          
+     C                   PARM      '1'           @PEACCION                                          
+     C                   PARM      *BLANKS       @PEERROR                                           
+     C                   IF        @PEERROR=*BLANKS                                                 
+     C                   EVAL      C2DIR2=@PECADENA                                                 
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        C2POBL<>*BLANKS                                                  
+     C                   EVAL      @PECADENA=*BLANKS                                                
+     C                   EVAL      @PECADENA=C2POBL                                                 
+     C                   CALL      'UT2570'                                                         
+     C                   PARM                    @PECADENA                                          
+     C                   PARM      '1'           @PEACCION                                          
+     C                   PARM      *BLANKS       @PEERROR                                           
+     C                   IF        @PEERROR=*BLANKS                                                 
+     C                   EVAL      C2POBL=@PECADENA                                                 
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        C2POST<>*BLANKS                                                  
+     C                   EVAL      @PECADENA=*BLANKS                                                
+     C                   EVAL      @PECADENA=C2POST                                                 
+     C                   CALL      'UT2570'                                                         
+     C                   PARM                    @PECADENA                                          
+     C                   PARM      '1'           @PEACCION                                          
+     C                   PARM      *BLANKS       @PEERROR                                           
+     C                   IF        @PEERROR=*BLANKS                                                 
+     C                   EVAL      C2POST=@PECADENA                                                 
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+FQ722C*                  IF        C2TELE<>*BLANKS                                                  
+FQ722C*                  EVAL      @PECADENA=*BLANKS                                                
+FQ722C*                  EVAL      @PECADENA=C2TELE                                                 
+FQ722C*                  CALL      'UT2570'                                                         
+FQ722C*                  PARM                    @PECADENA                                          
+FQ722C*                  PARM      '1'           @PEACCION                                          
+FQ722C*                  PARM      *BLANKS       @PEERROR                                           
+FQ722C*                  IF        @PEERROR=*BLANKS                                                 
+FQ722C*                  EVAL      C2TELE=@PECADENA                                                 
+FQ722C*                  ENDIF                                                                      
+FQ722C*                  ENDIF                                                                      
+      *                                                                                             
+FQ722C*                  IF        C2TEL2<>*BLANKS                                                  
+FQ722C*                  EVAL      @PECADENA=*BLANKS                                                
+FQ722C*                  EVAL      @PECADENA=C2TEL2                                                 
+FQ722C*                  CALL      'UT2570'                                                         
+FQ722C*                  PARM                    @PECADENA                                          
+FQ722C*                  PARM      '1'           @PEACCION                                          
+FQ722C*                  PARM      *BLANKS       @PEERROR                                           
+FQ722C*                  IF        @PEERROR=*BLANKS                                                 
+FQ722C*                  EVAL      C2TEL2=@PECADENA                                                 
+FQ722C*                  ENDIF                                                                      
+FQ722C*                  ENDIF                                                                      
+      *                                                                                             
+FQ722C*                  IF        C2TLEX<>*BLANKS                                                  
+FQ722C*                  EVAL      @PECADENA=*BLANKS                                                
+FQ722C*                  EVAL      @PECADENA=C2TLEX                                                 
+FQ722C*                  CALL      'UT2570'                                                         
+FQ722C*                  PARM                    @PECADENA                                          
+FQ722C*                  PARM      '1'           @PEACCION                                          
+FQ722C*                  PARM      *BLANKS       @PEERROR                                           
+FQ722C*                  IF        @PEERROR=*BLANKS                                                 
+FQ722C*                  EVAL      C2TLEX=@PECADENA                                                 
+FQ722C*                  ENDIF                                                                      
+FQ722C*                  ENDIF                                                                      
+      *                                                                                             
+FQ722C*                  IF        C2TFAX<>*BLANKS                                                  
+FQ722C*                  EVAL      @PECADENA=*BLANKS                                                
+FQ722C*                  EVAL      @PECADENA=C2TFAX                                                 
+FQ722C*                  CALL      'UT2570'                                                         
+FQ722C*                  PARM                    @PECADENA                                          
+FQ722C*                  PARM      '1'           @PEACCION                                          
+FQ722C*                  PARM      *BLANKS       @PEERROR                                           
+FQ722C*                  IF        @PEERROR=*BLANKS                                                 
+FQ722C*                  EVAL      C2TFAX=@PECADENA                                                 
+FQ722C*                  ENDIF                                                                      
+FQ722C*                  ENDIF                                                                      
+      *                                                                                             
+     C                   IF        C2EMAI<>*BLANKS                                                  
+     C                   EVAL      @PECADENA=*BLANKS                                                
+     C                   EVAL      @PECADENA=C2EMAI                                                 
+     C                   CALL      'UT2570'                                                         
+     C                   PARM                    @PECADENA                                          
+     C                   PARM      '1'           @PEACCION                                          
+     C                   PARM      *BLANKS       @PEERROR                                           
+     C                   IF        @PEERROR=*BLANKS                                                 
+     C                   EVAL      C2EMAI=@PECADENA                                                 
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        C2DPTO<>*BLANKS                                                  
+     C                   EVAL      @PECADENA=*BLANKS                                                
+     C                   EVAL      @PECADENA=C2DPTO                                                 
+     C                   CALL      'UT2570'                                                         
+     C                   PARM                    @PECADENA                                          
+     C                   PARM      '1'           @PEACCION                                          
+     C                   PARM      *BLANKS       @PEERROR                                           
+     C                   IF        @PEERROR=*BLANKS                                                 
+     C                   EVAL      C2DPTO=@PECADENA                                                 
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+FQ722C*                  IF        C2PEGE<>*BLANKS                                                  
+FQ722C*                  EVAL      @PECADENA=*BLANKS                                                
+FQ722C*                  EVAL      @PECADENA=C2PEGE                                                 
+FQ722C*                  CALL      'UT2570'                                                         
+FQ722C*                  PARM                    @PECADENA                                          
+FQ722C*                  PARM      '1'           @PEACCION                                          
+FQ722C*                  PARM      *BLANKS       @PEERROR                                           
+FQ722C*                  IF        @PEERROR=*BLANKS                                                 
+FQ722C*                  EVAL      C2PEGE=@PECADENA                                                 
+FQ722C*                  ENDIF                                                                      
+FQ722C*                  ENDIF                                                                      
+      *                                                                                             
+     C***                IF        C2PAIS<>*BLANKS                                                  
+     C***                EVAL      @PECADENA=*BLANKS                                                
+     C***                EVAL      @PECADENA=C2PAIS                                                 
+     C***                CALL      'UT2570'                                                         
+     C***                PARM                    @PECADENA                                          
+     C***                PARM      '1'           @PEACCION                                          
+     C***                PARM      *BLANKS       @PEERROR                                           
+     C***                IF        @PEERROR=*BLANKS                                                 
+     C***                EVAL      C2PAIS=@PECADENA                                                 
+     C***                ENDIF                                                                      
+     C***                ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+28022C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+DPMCT **************************************************************                                
+DPMCT * CONTROL DPM                                                *                                
+DPMCT *------------------------------------------------------------*                                
+DPMCTC     CS_DPM        BEGSR                                                                      
+DPMCTC                                                                                              
+DPMCTc                   EVAL      @PECIAS=C5CIAS                                                   
+DPMCTc                   EVAL      @PETPNE='1'                                                      
+DPMCTc                   EVAL      @PEDLGA=C5DLGA                                                   
+DPMCTc                   EVAL      @PENPCO=C5NPCO                                                   
+DPMCTc                   EVAL      @PEDATP=C5DATP                                                   
+DPMCTc                   EVAL      @PETPED=C5TPED                                                   
+DPMCTc                   EVAL      @PENOPL=C5NOPL                                                   
+DPMCTC                   CALL      'DP0250'                                                         
+DPMCTC                   PARM                    @PECIAS                        CAMP NUMÈRIC        
+DPMCTC                   PARM      '1'           @PETPNE                        CAMP ALFANUMÈRIC    
+DPMCTC                   PARM                    @PEDLGA                        Nº CARACT. VISUA    
+DPMCTC                   PARM                    @PENPCO                        Nº DECIMALS         
+DPMCTC                   PARM                    @PEDATP                        AJUST DECIMAL (.    
+DPMCTC                   PARM                    @PETPED                        CODI EDICIO(4,M,    
+DPMCTC                   PARM                    @PENOPL                                            
+DPMCTC                   PARM                    @PENORD                                            
+DPMCTC                   PARM                    @PEINDX                                            
+DPMCTC                   ENDSR                                                                      
+C1631                                                                                               
+C1631 **************************************************************                                
+C1631 * SUBRUTINA EDICOM                                           *                                
+C1631 *------------------------------------------------------------*                                
+C1631C     CS_EDICOM     BEGSR                                                                      
+C1631c                   EVAL      @PECIAS=C5CIAS                                                   
+C1631c                   EVAL      @PETPNE='1'                                                      
+C1631c                   EVAL      @PEDLGA=C5DLGA                                                   
+C1631c                   EVAL      @PENPCO=C5NPCO                                                   
+C1631c                   EVAL      @PEDATP=C5DATP                                                   
+C1631c                   EVAL      @PETPED=C5TPED                                                   
+C1631c                   EVAL      @PENOPL=C5NOPL                                                   
+C1631C                   CALL      'EI0200'                                                         
+C1631C                   PARM                    @PECIAS                        CAMP NUMÈRIC        
+C1631C                   PARM                    @PEDLGA                        Nº CARACT. VISUA    
+C1631C                   PARM                    @PENPCO                        Nº DECIMALS         
+C1631C                   PARM                    @PETPED                        CODI EDICIO(4,M,    
+C1631C                   PARM                    @PEDATP                        AJUST DECIMAL (.    
+C1631C                   PARM                    @PENOPL                                            
+C1631C                   PARM      '1'           @PEPANT                                            
+C1631C                   PARM                    @PEPRVR                                            
+C1631C                   PARM                    @PERRO                                             
+C1631C                   ENDSR                                                                      
+I0155 **************************************************************                                
+I0155 * SUBRUTINA QUE BUSCA LA LOGISTICA                           *                                
+I0155 *------------------------------------------------------------*                                
+I0155C     CS_BUSLOG     BEGSR                                                                      
+I0155C                   eval      ZXLOGE=C5LOGE                                                    
+I0155C                   eval      M0CIAS=ZZCIAS                                                    
+I0155C                   eval      M0LOGE=C5LOGE                                                    
+I0155C     Kmsalma05     Chain (N) Msalma05                           81                            
+I0155C                   IF        CHAIN=*OFF                                                       
+I0155C                   IF        C5TPE4='2'                                                       
+I0155C                   EVAL      PECIAS=ZZCIAS                                                    
+I0155C                   EVAL      PECTAB='INO2'                                                    
+I0155C                   EVAL      PECLTA='MAGD' + %trim(M0MAGA)                                    
+I0155C     KPMTABD       CHAIN     PMTABD                             81                            
+I0155C                   IF        CHAIN=*OFF                                                       
+I0155C                   EVAL      C5LOGE=PEDESC                                                    
+I0155C                   ENDIF                                                                      
+I0155C                   ELSE                                                                       
+I0155C                   EVAL      PECIAS=ZZCIAS                                                    
+I0155C                   EVAL      PECTAB='INO2'                                                    
+I0155C                   EVAL      PECLTA='MAGP' + %trim(C0PRVR)                                    
+I0155C     KPMTABD       CHAIN     PMTABD                             81                            
+I0155C                   IF        CHAIN=*OFF                                                       
+I0155C                   EVAL      C5LOGE=PEDESC                                                    
+I0155C                   ENDIF                                                                      
+I0155C                   ENDIF                                                                      
+I0155C                   ENDIF                                                                      
+I0155C                   ENDSR                                                                      
+I0155 **************************************************************                                
+I0155 * SUBRUTINA QUE BUSCA LA LOGISTICA                           *                                
+I0155 *------------------------------------------------------------*                                
+I0155C     CS_BUSLOG2    BEGSR                                                                      
+I0155C                   eval      ZXLOGE=C0LOGE                                                    
+I0155C                   eval      M0CIAS=ZZCIAS                                                    
+I0155C                   eval      M0LOGE=C0LOGE                                                    
+I0155C     Kmsalma05     Chain (N) Msalma05                           81                            
+I0155C                   IF        CHAIN=*OFF                                                       
+I0155C                   IF        C0TPE4='2'                                                       
+I0155C                   EVAL      PECIAS=ZZCIAS                                                    
+I0155C                   EVAL      PECTAB='INO2'                                                    
+I0155C                   EVAL      PECLTA='MAGD' + %trim(M0MAGA)                                    
+I0155C     KPMTABD       CHAIN     PMTABD                             81                            
+I0155C                   IF        CHAIN=*OFF                                                       
+I0155C                   EVAL      C0LOGE=PEDESC                                                    
+I0155C                   ENDIF                                                                      
+I0155C                   ELSE                                                                       
+I0155C                   EVAL      PECIAS=ZZCIAS                                                    
+I0155C                   EVAL      PECTAB='INO2'                                                    
+I0155C                   EVAL      PECLTA='MAGP' + %trim(C0PRVR)                                    
+I0155C     KPMTABD       CHAIN     PMTABD                             81                            
+I0155C                   IF        CHAIN=*OFF                                                       
+I0155C                   EVAL      C0LOGE=PEDESC                                                    
+I0155C                   ENDIF                                                                      
+I0155C                   ENDIF                                                                      
+I0155C                   ENDIF                                                                      
+I0155C                   ENDSR                                                                      

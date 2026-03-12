@@ -1,0 +1,216 @@
+     ************************************************************************                      
+     * FECHA: 10/11/2021                                          (ITOM227) *                      
+     * AUTOR: Manuel Alonso                                                 *                      
+     * DOCU.: Búsqueda de excepciones de expedición M3.                     *                      
+     *                                                                      *                      
+     *        Parámetros:                                                   *                      
+     *                                                                      *                      
+     *        - @pCias:        Compañía en el pedido de compra (Entrada).   *                      
+     *        - @pProveedor:   Proveedor en el pedido de compra (Entrada).  *                      
+     *        - @pArticulo:    Código de artículo para el proveedor, en     *                      
+     *                         fichero PUPRP0 (Entrada).                    *                      
+     *        - @pAlmOriginal: Almacén que aparece originalmente en el      *                      
+     *                         pedido (Entrada).                            *                      
+     *        - @pAlmServicio: Almacén que se indique en la excepción de    *                      
+     *                         proveedor o en la de artículo, en ese orden. *                      
+     *                         Si no hay excepciones se devuelve el         *                      
+     *                         almacén original (Salida).                   *                      
+     *        - @pInfo       : Información adicional (Salida, Opcional):    *                      
+     *                   'A' : El almacén devuelto corresponde a expepción  *                      
+     *                         por artículo.                                *                      
+     *                   'P' : El almacén devuelto corresponde a expepción  *                      
+     *                         por proveedor.                               *                      
+     *                   '1' : Error, no se ha podido encontrar la empresa  *                      
+     *                         correspondiente al proveedor (no existe el   *                      
+     *                         registro en UTCOM0).                         *                      
+     *                   '2' : Error, el artículo no existe en el maestro   *                      
+     *                         (MITMAS).                                    *                      
+     *                   ' ' : Cualquier otra situación.                    *                      
+     ************************************************************************                      
+IT228* FECHA: 02/02/2022                                          (ITOM228) *                      
+IT228* AUTOR: JCAMPILLO                                                     *                      
+IT228* DOCU.: ACCEDER A EXCEPCION CON ALMACEN POR DEFECTO M3                *                      
+IT228************************************************************************                      
+                                                                                                    
+     H DatEdit(*YMD/)                                                                               
+     H Option(*NoDebugIO:*SrcStmt)                                                                  
+                                                                                                    
+                                                                                                    
+     FDom00500  IF   E           K Disk                                                             
+     FDom00600  IF   E           K Disk                                                             
+     FDom00700  IF   E           K Disk                                                             
+     FDom00800  IF   E           K Disk                                                             
+     FMitmas00  IF   E           K Disk                                                             
+     FUtcom0    IF   E           K Disk                                                             
+IT228FCCUDIV00  IF   E           K DISK    RENAME(CCUDIV:RCCUDIV00)                                 
+                                                                                                    
+                                                                                                    
+      *                                                                                             
+      * Parámetros de entrada                                                                       
+      *                                                                                             
+     D  @pCias         S                   Like(u0cias)                                             
+     D  @pProveedor    S                   Like(d5suno)                                             
+     D  @pArticulo     S                   Like(mmitno)                                             
+     D  @pAlmOriginal  S                   Like(d5whlo)                                             
+     D  @pAlmServicio  S                   Like(d6ewlo)                                             
+     D  @pInfo         S              1                                                             
+      *                                                                                             
+      * Parámetros para GX0150                                                                      
+      *                                                                                             
+     D  @peUser        S             10                                                             
+     D  @peVal         S            250                                                             
+     D  @peDivi        S              3                                                             
+                                                                                                    
+      *                                                                                             
+      * Entorno de Movex                                                                            
+      *                                                                                             
+     D  zxVal          DS                                                                           
+     D    mxCono               1      3S 0                                                          
+     D    mxDivi               4      6                                                             
+     D    mxResto              7    250                                                             
+                                                                                                    
+                                                                                                    
+     D  aInfo          S              1    Inz(*Blanks)                                             
+                                                                                                    
+                                                                                                    
+      **************************************************************************                    
+      * PROGRAMA PRINCIPAL                                                                          
+      **************************************************************************                    
+      *                                                                                             
+      * Obtener compañía de destino para el proveedor del pedido de compra                          
+      *                                                                                             
+     C                   Eval      u0cias = @pCias                                                  
+     C                   Eval      u0tenv = '5'                                                     
+     C                   Eval      u0clp0 = @pProveedor                                             
+     C     kUtcom0       Chain     utcom0                                                           
+      *                                                                                             
+     C                   If        %Found                                                           
+      *                                                                                             
+      * Obtener división correspondiente a la compañía destino                                      
+      *                                                                                             
+     C                   Call      'GX0150'                                                         
+     C                   Parm      u0cia1        @peDivi                                            
+     C                   Parm      *Blanks       @peUser                                            
+     C     zxVal         Parm      *Blanks       @peVal                                             
+      *                                                                                             
+      * Buscar proveedor del artículo                                                               
+      *                                                                                             
+     C                   Eval      mmcono = mxCono                                                  
+     C                   Eval      mmitno = @pArticulo                                              
+     C     kMitmas00     Chain     mitmas00                                                         
+      *                                                                                             
+     C                   If        %Found                                                           
+      *                                                                                             
+      * Buscar excepción por proveedor                                                              
+      *                                                                                             
+     C                   Eval      d5cono = mxCono                                                  
+     C                   Eval      d5divi = mxDivi                                                  
+IT22BC*IT228             Exsr      CS_CCUDIV                                                        
+     C                   Eval      d5whlo = @pAlmOriginal                                           
+     C                   Eval      d5suno = mmsuno                                                  
+     C     kDom00500     Chain     dom00500                                                         
+      *                                                                                             
+     C                   If        %Found                                                           
+     C     kDom00500     Chain     dom00600                                                         
+     C                   If        %Found                                                           
+     C                   Eval      @pAlmServicio = d6ewlo                                           
+     C                   Eval      aInfo = 'P'                                                      
+     C                   EndIf                                                  %Found(dom00600)    
+     C                   EndIf                                                  %Found(dom00500)    
+      *                                                                                             
+      * Buscar excepción por artículo                                                               
+      *                                                                                             
+     C                   If        Not %Found(dom00500)  Or                                         
+     C                             Not %Found(dom00600)                                             
+      *                                                                                             
+IT22BC*IT228             Exsr      CS_CCUDIV                                                        
+     C                   Eval      d7cono = mxCono                                                  
+     C                   Eval      d7divi = mxDivi                                                  
+     C                   Eval      d7whlo = @pAlmOriginal                                           
+     C                   Eval      d7itno = @pArticulo                                              
+     C     kDom00700     Chain     dom00700                                                         
+      *                                                                                             
+     C                   If        %Found                                                           
+     C     kDom00700     Chain     dom00800                                                         
+     C                   If        %Found                                                           
+     C                   Eval      @pAlmServicio = d8ewlo                                           
+     C                   Eval      aInfo = 'A'                                                      
+     C                   EndIf                                                  %Found(dom00800)    
+     C                   EndIf                                                  %Found(dom00700)    
+      *                                                                                             
+     C                   EndIf                                                  Not %Found...       
+      *                                                                                             
+     C                   Else                                                                       
+     C                   Eval      aInfo = '2'                                                      
+     C                   EndIf                                                  %Found(mitmas00)    
+      *                                                                                             
+     C                   Else                                                                       
+     C                   Eval      aInfo = '1'                                                      
+     C                   EndIf                                                  %Found(utcom0)      
+      *                                                                                             
+      * Informar código Informativo si se ha solicitado en la llamada (es opcional)                 
+      *                                                                                             
+     C                   If        %Addr(@pInfo) <> *Null                                           
+     C                   Eval      @pInfo = aInfo                                                   
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   Eval      *InLR = *On                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************************                    
+      * INICIALIZACIONES                                                                            
+      **************************************************************************                    
+      *                                                                                             
+     C     *InzSR        BegSR                                                                      
+      *                                                                                             
+     C     *Entry        PList                                                                      
+     C                   Parm                    @pCias                         Entrada             
+     C                   Parm                    @pProveedor                    Entrada             
+     C                   Parm                    @pArticulo                     Entrada             
+     C                   Parm                    @pAlmOriginal                  Entrada             
+     C                   Parm                    @pAlmServicio                  Salida              
+     C                   Parm                    @pInfo                         Salida (Opc)        
+      *                                                                                             
+     C     kDom00500     KList                                                                      
+     C                   KFld                    d5cono                                             
+     C                   KFld                    d5divi                                             
+     C                   KFld                    d5whlo                                             
+     C                   KFld                    d5suno                                             
+      *                                                                                             
+     C     kDom00700     KList                                                                      
+     C                   KFld                    d7cono                                             
+     C                   KFld                    d7divi                                             
+     C                   KFld                    d7whlo                                             
+     C                   KFld                    d7itno                                             
+      *                                                                                             
+     C     kMitmas00     KList                                                                      
+     C                   KFld                    mmcono                                             
+     C                   KFld                    mmitno                                             
+      *                                                                                             
+     C     kUtcom0       KList                                                                      
+     C                   KFld                    u0cias                                             
+     C                   KFld                    u0tenv                                             
+     C                   KFld                    u0clp0                                             
+IT228                                                                                               
+IT228C     KCCUDIV00     KLIST                                                                      
+IT228C                   KFLD                    OKCONO                                             
+IT228C                   KFLD                    OKCUNO                                             
+IT228C                   KFLD                    OKDIVI                                             
+      *                                                                                             
+     C                   Eval      @pAlmServicio = @pAlmOriginal                                    
+      *                                                                                             
+     C                   EndSr                                                                      
+IT228 **************************************************************************                    
+IT228 * RECUPERAR ALMACEN DFTO CLIENTE                                                              
+IT228 **************************************************************************                    
+IT228C     CS_CCUDIV     BegSR                                                                      
+IT228C                   Eval      OKcono = mxCono                                                  
+IT228C                   Eval      OKdivi = mxDivi                                                  
+IT228C                   Eval      OKCUNO = U0CLP1                                                  
+IT228C     KCCUDIV00     CHAIN     CCUDIV00                           81                            
+IT228C                   If        %Found                                                           
+IT228C                   Eval      @pAlmOriginal = OKWHLO                                           
+IT228C                   ELSE                                                   %Found(dom00800)    
+IT228C                   Eval      d7whlo = @pAlmOriginal                                           
+IT228C                   EndIf                                                  %Found(dom00800)    
+IT228C                   EndSR                                                  %Found(dom00800)    

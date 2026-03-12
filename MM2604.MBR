@@ -1,0 +1,333 @@
+     H/TITLE Búsqueda del pendiente de servir.                                                      
+     H DECEDIT('0,') DATEDIT(*YMD/)                                                                 
+      *-----------------------------------------------------------------------------------          
+      *  Programa................ PRD700      Búsqueda del pendiente de servir.                     
+      *  Aplicacion.............. PRD         ASTRAL Grup, S.A. PR                                  
+      *  Empresa................. Astral      VERSION PARA AQUAPOINT S.A.                           
+      *  Usuario................. JESUS                                                             
+      *  Generado por ADP 400.... 20/02/98    20:20    Ver:96/09/25                                 
+      *-----------------------------------------------------------------------------------          
+      * RESUMEN AUTOMATICO DE FUNCIONES DEL PROGRAMA (SINOPSIS):                                    
+      *  usa File MSPEDD11   fichero detalles de movim. com para INP                                
+      *  se han tratado 00069 lineas desde puntos de Usuario y Logic en .@                          
+      *-----------------------------------------------------------------------------------          
+      *  OPTIMIZAR LECTURA MSALDD                                                                   
+      *  JMARTINEZ                                                                                  
+      *  15070           15/07/2010                                                                 
+      **************************************************************                                
+      * DATA DE MODIFICACIÓ: 15/07/2010      Incid: 98769          *                                
+      * MARCA:        15070                                        *                                
+      * AUTOR:        JMARTINEZP                                   *                                
+      * DOCUMENTACIÓN: OPTIMIZAR ACUMULADO COJTOS                  *                                
+      **************************************************************                                
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FMSPEDD11  IF   E           K DISK                                         fichero detalles    
+     FMSPEDC    IF   E           K DISK                                         fichero detalles    
+     F*SLOAD    IF   E           K DISK                                         fichero detalles    
+     FMSARTI00  IF   E           K DISK                                         fichero detalles    
+     FPMUNAL    IF   E           K DISK                                         fichero detalles    
+15070F*SALDD07  IF   E           K DISK                                         fichero detalles    
+15070FMSALDD05  IF   E           K DISK                                         fichero detalles    
+     FMSALDC    IF   E           K DISK                                         fichero detalles    
+     D PET             S              2    DIM(4)                               TIPO PEDIDO         
+     D                UDS                                                                           
+     D  UDSEMP                 3     32                                                             
+     D  UDSCEM                 1      2  0                                                          
+     D                SDS                                                       Datos               
+     D  @PGM                   1     10                                         Progra              
+     D  @JOB                 244    253                                         Id Job              
+     D  @USER                254    263                                         Id Usu              
+     D  @JNBR                264    269                                         Id Usu              
+     D  @SDS81                81    269                                         Contro              
+     D @MSGFA          C                   CONST('ASGMSG    ')                  MSG-File Aplicac    
+     DSDE              S              1A   DIM(10)                                                  
+      * Calculos Previos a Todo. Punto 01A.                                                         
+     C     *LIKE         DEFINE    NXCIAS        @PEMPR                                             
+     C     *LIKE         DEFINE    NXDAT8        @PDATD                                             
+     C     *LIKE         DEFINE    NXDAT8        @PDATH                                             
+     C     *LIKE         DEFINE    NXARTI        @PCODA                                             
+     C     *LIKE         DEFINE    NXVARI        @PVARX                                             
+     C     *LIKE         DEFINE    NXMODE        @PMODX                                             
+     C     *LIKE         DEFINE    NWDLG1        @PDLGA                                             
+     C     *LIKE         DEFINE    NXTCOJ        @PTCOJ                                             
+     C     *LIKE         DEFINE    NXDAT8        ZXDATH                                             
+     C     *LIKE         DEFINE    NXDAT8        ZXDATD                                             
+     C     *LIKE         DEFINE    NXCANT        ZXCANT                                             
+     C     *LIKE         DEFINE    NXCANT        ZXCAN1                                             
+     C     *LIKE         DEFINE    XZAUXI        ZXAUXIBS                                           
+     C     *LIKE         DEFINE    P6ARTI        ZXARTIBS                                           
+     C     *LIKE         DEFINE    P6VARI        ZXVARIBS                                           
+     C     *LIKE         DEFINE    P6MODE        ZXMODEBS                                           
+     C     *LIKE         DEFINE    P6UNIM        ZXUNIMBS                                           
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PEMPR                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PCODA                                             
+     C                   PARM                    @PVARX                                             
+     C                   PARM                    @PMODX                                             
+     C                   PARM                    @PTCOJ                                             
+     C                   PARM                    @PDATD                                             
+     C                   PARM                    @PDATH                                             
+     C                   PARM                    @PCANT           15 5                              
+     C                   PARM                    @PCAN1           15 5                              
+     C                   PARM                    @PMAGA            5                                
+     C                   PARM                    @PTISE            4                                
+     C                   PARM                    @PERRO            1                                
+      *                                                                                             
+     C                   EXSR      SR01                                         Proceso Inicial     
+     C     LR            TAG                                                    Fin Programa        
+     C                   MOVE      '1'           *INLR                          Fin Programa        
+     C*- - - - - - - - - - - - - - - - - - - - - - - - - -                                          
+     C     SR01          BEGSR                                                  Proceso Inicial     
+     C                   MOVE      'ADP0050'     @MSGMO            7            MIC Cabecera Pan    
+     C                   MOVE      '2'           XXTERR            1            Modo Control Err    
+     C                   MOVE      'ADP0050'     @MSGER            7            Desactiva Error     
+      *                                                                                             
+     C                   Z-ADD     @PEMPR        NXCIAS                                             
+     C                   MOVEL     @PCODA        NXARTI                                             
+     C                   MOVEL     @PTCOJ        NXTCOJ                                             
+     C     @PVARX        IFNE      *BLANKS                                                          
+     C                   MOVEL     @PVARX        NXVARI                                             
+     C                   MOVEL     @PMODX        NXMODE                                             
+     C                   ELSE                                                                       
+     C                   MOVE      *BLANKS       NXVARI                                             
+     C                   MOVE      *BLANKS       NXMODE                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   Z-ADD     @PDATD        ZXDATD                                             
+     C     ZXDATD        IFEQ      0                                                                
+     C                   Z-ADD     UDATE         ZXDATD                                             
+     C     UYEAR         IFGT      50                                                               
+     C                   MOVEL     '19'          ZXDATD                                             
+     C                   ELSE                                                                       
+     C                   MOVEL     '20'          ZXDATD                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   Z-ADD     @PDATH        ZXDATH                                             
+     C     ZXDATH        IFEQ      0                                                                
+     C                   Z-ADD     UDATE         ZXDATH                                             
+     C     UYEAR         IFGT      50                                                               
+     C                   MOVEL     '19'          ZXDATD                                             
+     C                   ELSE                                                                       
+     C                   MOVEL     '20'          ZXDATD                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+15070C                   EVAL      M5CIAS=NXCIAS                                                    
+15070C                   EVAL      M5ARTI=NXARTI                                                    
+15070C                   EVAL      M5VARI=NXVARI                                                    
+15070C                   EVAL      M5MODE=NXMODE                                                    
+15070C     KMSARTI00     CHAIN     MSARTI00                           81                            
+      *                                                                                             
+     C**         @PTISE    IFEQ *BLANKS                                                             
+     C**                   MOVEL'BC'      @PTISE                                                    
+     C**                   ENDIF                                                                    
+     C                   MOVEA     @PTISE        PET                                                
+      *                                                                                             
+     C     KDET60        SETLL     MSPEDD11                                                         
+     C                   MOVE      '0'           *IN81                          off indic lectur    
+     C     KDET60        READE     MSPEDD11                             8081                        
+     C                   MOVE      *IN81         FI@F01            1            Control file COD    
+     C     FI@F01        DOWNE     '1'                                          MSPEDD11            
+      *                                                                                             
+     C     NXSTUL        IFGE      '5'                                                              
+     C                   GOTO      TNEXT                                                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KCAPE         CHAIN     MSPEDC                             81                            
+     C                   IF        *IN81=*ON                                                        
+     C                   GOTO      TNEXT                                                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        NWSTUA<='10'                                                     
+     C                   GOTO      TNEXT                                                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     NWFREP        IFLT      ZXDATD                                                           
+     C     NWFREP        ORGT      ZXDATH                                                           
+     C                   GOTO      TNEXT                                                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C*                  IF        @PDLGA=*BLANKS                                                   
+     C*                  EVAL      MIDLGA=NWDLG1                                                    
+     C*                  EVAL      MILGCA=NXLOGS                                                    
+     C*                  ELSE                                                                       
+     C*                  EVAL      MIDLGA=NWDLG2                                                    
+     C*                  EVAL      MILGCA=NXLOGE                                                    
+     C*                  ENDIF                                                                      
+      * Si el almacén no es blancos:                                                                
+     C     @PMAGA        IFNE      *BLANKS                                                          
+     C*                  EVAL      MICIAS=NXCIAS                                                    
+     C*                  IF        @PDLGA=*BLANKS                                                   
+     C*                  EVAL      MIDLGA=NWDLG1                                                    
+     C*                  EVAL      MILGCA=NXLOGS                                                    
+     C*                  ELSE                                                                       
+     C*                  EVAL      MIDLGA=NWDLG2                                                    
+     C*                  EVAL      MILGCA=NXLOGE                                                    
+     C*                  ENDIF                                                                      
+      *                                                                                             
+     C*    KMSLOAD       CHAIN     MSLOAD                             81                            
+     C*****              IF        *IN81=*ON OR NWMAOR<>@PMAGA                                      
+     C                   IF        NWMAOR<>@PMAGA AND NWMADE<>@PMAGA                                
+     C                   GOTO      TNEXT                                                            
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+                                                                                                    
+     C                   EVAL      P6CIAS=NXCIAS                                                    
+15070C*                  EVAL      M5CIAS=NXCIAS                                                    
+15070C*                  EVAL      M5ARTI=NXARTI                                                    
+15070C*                  EVAL      M5VARI=NXVARI                                                    
+15070C*                  EVAL      M5MODE=NXMODE                                                    
+15070C*    KMSARTI00     CHAIN     MSARTI00                           81                            
+     C                   Z-ADD     NXCANT        ZXCANT                                             
+     C                   SUB       NXCANS        ZXCANT                                             
+     C                   SUB       NXCARE        ZXCANT                                             
+     C                   IF        @PTISE<>'1'                                                      
+     C                   SUB       NXCANR        ZXCANT                                             
+     C                   ENDIF                                                                      
+     C                   IF        ZXCANT<=0                                                        
+     C                   Z-ADD     0             ZXCANT                                             
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        NWMAOR=@PMAGA AND NWMADE=@PMAGA                                  
+     C                   Z-ADD     0             ZXCANT                                             
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        NWMADE=@PMAGA                                                    
+     C                   Z-SUB     ZXCANT        ZXCANT                                             
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        M5UNIM<>NXUNIM                                                   
+     C                                                                                              
+     C                   EVAL      ZXAUXIBS=ZXCANT                                                  
+     C                   EVAL      ZXARTIBS=M5ARTI                                                  
+     C                   EVAL      ZXVARIBS=M5VARI                                                  
+     C                   EVAL      ZXMODEBS=M5MODE                                                  
+     C                   EVAL      ZXUNIMBS=NXUNIM                                                  
+     C                   EXSR      CS_CNVUBS                                                        
+     C                   EVAL      ZXCANT=ZXAUXIBS                                                  
+     C                                                                                              
+     C                   EVAL      ZXAUXIBS=ZXCAN1                                                  
+     C                   EVAL      ZXARTIBS=M5ARTI                                                  
+     C                   EVAL      ZXVARIBS=M5VARI                                                  
+     C                   EVAL      ZXMODEBS=M5MODE                                                  
+     C                   EVAL      ZXUNIMBS=NXUNIM                                                  
+     C                   EXSR      CS_CNVUBS                                                        
+     C                   EVAL      ZXCAN1=ZXAUXIBS                                                  
+     C                                                                                              
+     C                   ENDIF                                                                      
+     C                                                                                              
+      *                                                                                             
+     C*    ZXCANT        IFGT      0                                                                
+     C                   ADD       ZXCANT        @PCANT                                             
+     C                   ADD       ZXCAN1        @PCAN1                                             
+     C*                  ENDIF                                                                      
+      * ENLAZO CON EL DETALLE                                                                       
+     C     TNEXT         TAG                                                                        
+     C                   MOVE      '0'           *IN81                          off indic lectur    
+     C     KDET60        READE     MSPEDD11                             8081                        
+     C                   MOVE      *IN81         FI@F01            1            Control file COD    
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C     TFIN          TAG                                                                        
+     C                   EVAL      ZXCAN1=0                                                         
+     C                   EXSR      CS_TRANSITO                                                      
+     C                   ADD       ZXCAN1        @PCAN1                                             
+     C     KPMUNAL       KLIST                                                                      
+     C                   KFLD                    P6CIAS                                             
+     C                   KFLD                    P6ARTI                                             
+     C                   KFLD                    P6VARI                                             
+     C                   KFLD                    P6MODE                                             
+     C                   KFLD                    P6UNIM                                             
+     C     KMSARTI00     KLIST                                                                      
+     C                   KFLD                    M5CIAS                                             
+     C                   KFLD                    M5ARTI                                             
+     C                   KFLD                    M5VARI                                             
+     C                   KFLD                    M5MODE                                             
+     C*    KMSLOAD       KLIST                                                                      
+     C*                  KFLD                    MICIAS                                             
+     C*                  KFLD                    MIDLGA                                             
+     C*                  KFLD                    MILGCA                                             
+     C     KDET60        KLIST                                                  *KL MSPEDD11 4      
+     C                   KFLD                    NXCIAS                         CODIGO EMPRESA      
+     C                   KFLD                    NXARTI                         CODIGO ARTICULO     
+     C                   KFLD                    NXVARI                         BLANCOS             
+     C                   KFLD                    NXMODE                         BLANCOS             
+     C                   KFLD                    NXTCOJ                         BLANCOS             
+     C     KCAPE         KLIST                                                  *KL MSPEDD11 4      
+     C                   KFLD                    NXCIAS                         CODIGO EMPRESA      
+     C                   KFLD                    NXNPED                         CODIGO ARTICULO     
+     C                   KFLD                    NXDATP                         BLANCOS             
+     C                   KFLD                    NXNOPL                         BLANCOS             
+     C     KMSALDD07     KLIST                                                  *KL MSPEDD11 4      
+     C                   KFLD                    CECIAS                         CODIGO EMPRESA      
+     C                   KFLD                    CEARTI                         BLANCOS             
+     C                   KFLD                    CEVARI                         BLANCOS             
+     C                   KFLD                    CEMODE                         BLANCOS             
+     C     KMSALDC       KLIST                                                  *KL MSPEDD11 4      
+     C                   KFLD                    CECIAS                         CODIGO EMPRESA      
+     C                   KFLD                    CEDLG1                         BLANCOS             
+     C                   KFLD                    CEALBA                         BLANCOS             
+     C                   ENDSR                                                  Fin Subrutina       
+      **************************************************************                                
+      * SUBRUTINA PARA CONVERTIR UNIDADES PEDIDO A UNIDADES STOCK  *                                
+      **************************************************************                                
+     C     CS_CNVUBS     BEGSR                                                                      
+     C                   EVAL      XZAUXI=ZXAUXIBS                                                  
+     C                   MOVE      ZXARTIBS      P6ARTI                                             
+     C                   MOVE      ZXVARIBS      P6VARI                                             
+     C                   MOVE      ZXMODEBS      P6MODE                                             
+     C                   MOVE      ZXUNIMBS      P6UNIM                                             
+     C                   MOVE      '0'           P6TCOF                                             
+     C                   Z-ADD     0             P6COFA                                             
+     C     KPMUNAL       CHAIN     PMUNAL                             81                            
+     C                   IF        *IN81=*ON                                                        
+     C                   EVAL      P6VARI=*BLANKS                                                   
+     C                   EVAL      P6MODE=*BLANKS                                                   
+     C     KPMUNAL       CHAIN     PMUNAL                             81                            
+     C                   ENDIF                                                                      
+     C                   IF        P6TCOF<>'1'                                                      
+     C                   MULT      P6COFA        XZAUXI                                             
+     C                   ELSE                                                                       
+     C                   IF        P6COFA<>0                                                        
+     C                   DIV       P6COFA        XZAUXI                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   MOVE      '0'           XZDECI                                             
+     C                   MOVE      '0'           XZAJUD                                             
+      * AJUSTE Y DECIMALES                                                                          
+     C/COPY *LIBL/QSRDSRC,SRD001                                                                    
+      * OBTENGO LA CANTIDAD EN UNIDAD BASICA DEL ARTICULO                                           
+     C                   EVAL      ZXAUXIBS=XZAUXI                                                  
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PARA CONVERTIR UNIDADES PEDIDO A UNIDADES STOCK  *                                
+      **************************************************************                                
+     C     CS_TRANSITO   BEGSR                                                                      
+     C* BUSCO SI TIENE TRANSITO                                                                     
+     C                   EVAL      CECIAS=@PEMPR                                                    
+     C                   EVAL      CEARTI=@PCODA                                                    
+     C                   EVAL      CEVARI=@PVARX                                                    
+     C                   EVAL      CEMODE=@PMODX                                                    
+     C                   SETOFF                                       88                            
+15070C*    KMSALDD07     SETLL     MSALDD07                                                         
+15070C     KMSALDD07     SETLL     MSALDD05                                                         
+     C                   DO        *HIVAL                                                           
+15070C*    KMSALDD07     READE     MSALDD07                               88                        
+15070C     KMSALDD07     READE     MSALDD05                               88                        
+     C   88              LEAVE                                                                      
+     C                   IF        CESTUL='2'                                                       
+     C     KMSALDC       CHAIN     MSALDC                             81                            
+     C                   IF        CEMADE=@PMAGA  AND *IN81=*OFF                                    
+     C                   EVAL      ZXCAN1=ZXCAN1+CECANS                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+                                                                                                    

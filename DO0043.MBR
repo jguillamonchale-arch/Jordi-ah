@@ -1,0 +1,1450 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      **************************************************************                                
+      * TITOL: DO0043  © ASTRAL GRUP                               *                                
+      * DATA CREACIO:  04/08/1997    AUTOR: DEPARTAMENTO INFORMATICA*                               
+      * FUNCIO DEL PROGRAMA: MANTENIMIENTO INTERDELEGACIONES       *                                
+      * (DSP/CRT/DLT/CPY/CHG)                                      *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      * ZXOPT1 = NOM DEL PROCÉS                                    *                                
+      *        - PN = FORMAT DE PANTALLA N.(N=[01,02,...,99])      *                                
+      *        - WN = WINDOWS N.(N=[01,02,...,99])                 *                                
+      * ZXOPT2 = RUTINA DINTRE DEL PROCÉS                          *                                
+      *        - 'INZ'= INICILITZAR                                *                                
+      *        - 'DSP'= VISUALITZAR LA PANTALLA                    *                                
+      *        - 'CMD'= VALIDACIÓ DE LES TECLES DE FUNCIÓ          *                                
+      *        - 'CHK'= VALIDACIÓ DE LA PANTALLA                   *                                
+      *        - 'CLR'= NETEJA LA PANTALLA                         *                                
+      *        - 'UPD'= ACTUALITZACIONS DELS FITXERS               *                                
+      *                                                            *                                
+      **************************************************************                                
+      * DATA DE MODIFICACIÓ: 01/09/2014  MARCA: L1078              *                                
+      * AUTOR: JMARTINEZP                                          *                                
+      * DOCUMENTACIÓ: INCIDENCIA MANTENIMIENTO EXCEPCIONES         *                                
+      **************************************************************                                
+                                                                                                    
+     H DATEDIT(*YMD/)                                                                               
+                                                                                                    
+     FDO0043FM  CF   E             WORKSTN INFDS(FMTDS)                                             
+     FPMTABD    IF   E           K DISK    INFDS(FMFDS) INFSR(*PSSR)                                
+     FMSDDOM    UF A E           K DISK                                                             
+     FPMTABL    IF   E           K DISK                                                             
+     FPMSETP    IF   E           K DISK                                                             
+     FPMEMPR    IF   E           K DISK                                                             
+                                                                                                    
+     D* AREA DE DADES DE PROGRAMA I INICIALITZACIO DE VALORS COMUNS                                 
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D    CCCPGM                     10    OVERLAY(SDSPGM)                                          
+     D  SDSJOB               244    253                                                             
+     D    CCCJOB                     10    OVERLAY(SDSJOB)                                          
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+                                                                                                    
+     D* AREA DE DADES D'INFORMACIÓ ARXIU                                                            
+     D  FMTDS          DS                                                                           
+     D    FMTPOCUR           370    371B 0                                                          
+     D    FMTPOS             378    379B 0                                                          
+     D    FMTRCD         *RECORD                                                                    
+     D  FMFDS          DS                                                                           
+     D    FMFFILE        *FILE                                                                      
+     D    FMFSTS         *STATUS                                                                    
+                                                                                                    
+     D* AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                       
+     D  DSLDA        E DS                  EXTNAME(PURLDADS)                                        
+     D    CCCDEEM                    30    OVERLAY(ZZDEEM)                                          
+                                                                                                    
+     D* AREA DE PARAMETRES DE PROGRAMA                                                              
+     D CN0040        E DS                  EXTNAME(CN0040DS)                                        
+     D* CONTROL DEL FLUXE DEL PROGRAMA                                                              
+     D                 DS                                                                           
+     D  ZXOPT                  1      6                                                             
+     D    ZXOPT1               1      3                                                             
+     D    ZXOPT2               4      6                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXBL62                 1     10                                                             
+     D   ZXDESDE               1      5                                                             
+     D   ZXHASTA               6     10                                                             
+     D                 DS                                                                           
+     D  ZXBL63                 1     15                                                             
+     D   ZXFMAXI               1      5                                                             
+     D   ZXFMINI               6     10                                                             
+     D   ZXMESSS              12     13                                                             
+     D   ZXSSTOK              14     15                                                             
+     D                 DS                                                                           
+     D  ZXBL65                 1      5                                                             
+     D   ZXCENT                1      1                                                             
+     D   ZXMPLA                2      3                                                             
+     D                 DS                                                                           
+     D  ZXBL61                 1      5                                                             
+     D   ZXTEND                1      1                                                             
+     D                 DS                                                                           
+     D  ZXBL64                 1     10                                                             
+     D   ZXMAXI                1      5                                                             
+     D   ZXMINI                6     10                                                             
+     D* Descomposicion de FIELD para tomar la parte del diccionario                                 
+     D                 DS                                                                           
+     D  FIELD                  1     10                                                             
+     D    ZXFMTO               1      3                                                             
+     D    ZXFIE2               2      5                                                             
+     D    ZXFIE4               4      7                                                             
+     D* SERIES A UTILITZAR EN PROGRAMA                                                              
+     DSSSECPA          S              1A   DIM(10)                                                  
+     DSSSEC            S              1A   DIM(10)                                                  
+      * PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                               
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D    INDCHG                      1    OVERLAY(WRK25)                                           
+     D    INDCPY                      1    OVERLAY(WRK26)                                           
+     D    INDDLT                      1    OVERLAY(WRK27)                                           
+     D    INDDSP                      1    OVERLAY(WRK28)                                           
+     D    INDCRT                      1    OVERLAY(WRK29)                                           
+     D    INDPROT                     1    OVERLAY(SETL00)                                          
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXPOSCUR               1      4  2                                                          
+     D    ZXPOSX               1      2  0                                                          
+     D    ZXPOSY               3      4  0                                                          
+      * Definicion de algunas constantes                                                            
+     D  ZXZERO10       C                   '0000000000'                                             
+      *IMPORTACIÓ DE PARÀMETRES                                                                     
+     D  @PCIAS         S                   LIKE(PECIAS)                                             
+     D  @POPCI         S              2                                                             
+     D  @PERRO         S              1                                                             
+     D  @PDAT8         S                   LIKE(PEDAT8)                                             
+     D  @PDLGA         S                   LIKE(ZZDLGA)                                             
+     D  @PCLAB         S                   LIKE(XADLG2)                                             
+     D  @PHORA         S                   LIKE(PEHORA)                                             
+                                                                                                    
+     D    @PEOPT       S              2                                                             
+     D    @PEPGM       S                   LIKE(SDSPGM) INZ                                         
+     D    @PEFMT       S                   LIKE(RECORD) INZ                                         
+     D    @PEFLD       S                   LIKE(FIELD)  INZ                                         
+     D    @PEERR       S              1                 INZ                                         
+     D    @PCLTA       S                   LIKE(PECLTA)                                             
+     D    @PCTAB       S                   LIKE(PECTAB)                                             
+     D    @PCLT2       S                   LIKE(PECLTA)                                             
+     D    @PCTA2       S                   LIKE(PECTAB)                                             
+     D  @PFILE         S             10                                                             
+     D  @PPGM          S             10                                                             
+                                                                                                    
+                                                                                                    
+     D* DEFINICIO DE CAMPS DE TREBALL                                                               
+     D  ZXDESD         S              5  0                                                          
+     D  ZXHAST         S              5  0                                                          
+     D  Z_P            S              2  0 INZ(1)                                                   
+     D  ZXPTRETORN     S              6A   INZ                                                      
+                                                                                                    
+      * DEFINICIO DE CAMPS DE PARÀMETRES PER CALL (SENSE IMPORT/EXPORT)                             
+      * PARÀMETRES PEL PRD650 I CAMPS DE TREBALL ASSOCIATS                                          
+      * VALOR NUMÈRIC                                                                               
+     D   PXNUM         S             29  9                                                          
+      * VALOR ALFANUMÈRIC                                                                           
+     D   PXALPH        S             29                                                             
+      * LONGITUD TOTAL DEL CAMP (Nº CARÀCTERS INCLÒS CODI EDICIÓ)                                   
+     D   PXFLDD        S              2  0 INZ(20)                                                  
+      * Nº DE DECIMALS DEL CAMP                                                                     
+     D  PXDCCD         S              1  0 INZ(0)                                                   
+      * TIPUS DE FORMAT DECIMAL (.,)                                                                
+     D  PXFMD1         S                   LIKE(ZZFMD1)INZ                                          
+      * CODI D'EDICIÓ (4,M,Q,Z)                                                                     
+     D  PXEDTC         S                   LIKE(ZZEDTC)INZ(' ')                                     
+      * RETORN CODI D'ERROR                                                                         
+     D  PXNMER         S              1  0 INZ(0)                                                   
+      * TIPUS D'AJUST DECIMAL (0=MIG 1=PER SOBRE 2=PER SOTA)                                        
+     D  PXTIPA         S              1                                                             
+     D  ZXDESC         S                   LIKE(PEDESC)                                             
+     D                 DS                                                                           
+     D  ZXCLTAX                1     10                                                             
+     D    ZXDLGA               1      5                                                             
+     D    ZXPRVR               6     10                                                             
+     D  ZXMAX          S              5  0                                                          
+     D  ZXMIN          S              5  0                                                          
+     D   ZXCLTAP       S                   LIKE(PECLTA)                                             
+     D   ZXCLAB        S                   LIKE(XADLG2)                                             
+      *                                                                                             
+     D  XAAMPL         DS                                                                           
+     D     XAPSMA              1      5                                                             
+      *                                                                                             
+     D  ZXPSMA         S              5  2                                                          
+      **************************************************************                                
+      * RUTINA PRINCIPAL DEL PGM : DISTRIBUCIÓ DEL PAS PELS FMTS   *                                
+      *------------------------------------------------------------*                                
+     C     ZXOPT1        DOWNE     'END'                                                            
+     C     ZXOPT1        CASEQ     'P10'         P10MAIN                                            
+     C     ZXOPT1        CASEQ     'P2A'         P2AMAIN                                            
+     C     ZXOPT1        CASEQ     'P30'         P30MAIN                                            
+     C     ZXOPT1        CASEQ     'P40'         P40MAIN                                            
+     C                   CAS                     PANNEXT                                            
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL                                          *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+                                                                                                    
+      * DEFINICIO DE LES KLIST DEL PGM                                                              
+                                                                                                    
+     C     KPMTABL       KLIST                                                                      
+     C                   KFLD                    PDCIAS                                             
+     C                   KFLD                    PDCTAB                                             
+     C     KPMTABD       KLIST                                                                      
+     C                   KFLD                    PECIAS                                             
+     C                   KFLD                    PECTAB                                             
+     C                   KFLD                    PECLTA                                             
+     C     KPMTABD_S     KLIST                                                                      
+     C                   KFLD                    PECIAS                                             
+     C                   KFLD                    PECTAB                                             
+                                                                                                    
+     C     KMSDDOM       KLIST                                                                      
+     C                   KFLD                    XACIAS                                             
+     C                   KFLD                    XADLGA                                             
+     C                   KFLD                    XADLG2                                             
+                                                                                                    
+     C     KMSDDOM0      KLIST                                                                      
+     C                   KFLD                    XACIAS                                             
+     C                   KFLD                    XADLGA                                             
+                                                                                                    
+     C     KMSSETP       KLIST                                                                      
+     C                   KFLD                    PICIAS                                             
+     C                   KFLD                    PIPROG                                             
+     C                   KFLD                    PIUSU1                                             
+                                                                                                    
+     C     KPMEMPR       KLIST                                                                      
+     C                   KFLD                    P7CIAS                                             
+     C                   KFLD                    P7DLGA                                             
+                                                                                                    
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+      * Entrada de parámetros                                                                       
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PCLAB                                             
+     C                   PARM                    @POPCI                                             
+     C                   PARM                    @PERRO                                             
+                                                                                                    
+     C                   EVAL      PXFMD1=ZZFMD1                                                    
+     C* TITOLS DE PANTALLES (CODIS D'ARXIU DE MISSATGES)                                            
+     C                   EVAL      CCCCTIT='TDO0042'                                                
+      * BUSQUEDA DE PARAMETROS DE SETUP                                                             
+     C                   EVAL      PICIAS=ZZCIAS                                                    
+     C                   EVAL      PIPROG='CN0040    '                                              
+     C                   EVAL      PIUSU1=ZZUSUA                                                    
+     C     KMSSETP       CHAIN     PMSETP                             81                            
+     C                   CLEAR                   CN0040                                             
+     C     PIDATR        CAT       CN0040:0      CN0040                                             
+     C                   MOVEA     MÑSECP        SSSECPA                                            
+     C                   IF        MÑSECP=*BLANKS OR @POPCI='1 ' OR                                 
+     C                             @POPCI=' 1' OR @POPCI='3 ' OR                                    
+     C                             @POPCI=' 3' OR @POPCI='1B'                                       
+     C                   EVAL      SSSECPA(1)='A'                                                   
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      PDCIAS=@PCIAS                                                    
+     C                   EVAL      PDCTAB='PCOM'                                                    
+     C                   EVAL      PECIAS=@PCIAS                                                    
+     C                   EVAL      PECTAB='PCOM'                                                    
+     C                   EVAL      XACIAS=@PCIAS                                                    
+     C                   EVAL      XADLGA=@PDLGA                                                    
+     C                   EVAL      XADLG2=@PCLAB                                                    
+                                                                                                    
+      * ENS POSICIONEM EN EL FORMAT DE PANT. SEGONS NECESSITAT.                                     
+      * POR DEFECTO IREMOS A LA 2ª PANTALLA                                                         
+     C                   EVAL      INDCHG=*ON                                                       
+     C                   EVAL      ZXOPT='P2ACLR'                                                   
+     C                   IF        SSSECPA(1)='A'                                                   
+     C                   EVAL      ZXOPT='P2ACLR'                                                   
+     C                   ENDIF                                                                      
+     C                   SELECT                                                                     
+      * CRT                                                                                         
+     C                   WHEN      @POPCI=' 1' OR @POPCI='1 '                                       
+     C                   EVAL      ZXOPT='P10CLR'                                                   
+     C                   EVAL      INDCRT=*ON                                                       
+                                                                                                    
+     C                   WHEN      @POPCI='1B'                                                      
+     C                   EVAL      ZXOPT='P2ACLR'                                                   
+     C                   EVAL      INDCRT=*ON                                                       
+      * CPY                                                                                         
+     C                   WHEN      @POPCI=' 3' OR @POPCI='3 '                                       
+     C                   EVAL      ZXOPT='P30CLR'                                                   
+     C                   EVAL      INDCPY=*ON                                                       
+      * DLT                                                                                         
+     C                   WHEN      @POPCI=' 4' OR @POPCI='4 '                                       
+     C                   EVAL      ZXOPT='P40CLR'                                                   
+     C                   EVAL      INDDLT=*ON                                                       
+      * DSP                                                                                         
+     C                   WHEN      @POPCI=' 5' OR @POPCI='5 '                                       
+     C                   EVAL      INDDSP=*ON                                                       
+     C                   EVAL      INDPROT=*ON                                                      
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C                   EVAL      P7CIAS=@PCIAS                                                    
+     C                   EVAL      P7DLGA=@PDLGA                                                    
+     C     KPMEMPR       CHAIN     PMEMPR                                                           
+      *                                                                                             
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL FMT P10                              *                                
+      *------------------------------------------------------------*                                
+     C     P10MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='P10'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         P10CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         P10INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         P10DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         P10CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         P10CHK                                             
+     C     ZXOPT2        CASEQ     'UPD'         P10UPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P10                       *                                
+      *------------------------------------------------------------*                                
+     C     P10CLR        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI VISUALITZAR P10                                     
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C                   RESET                   Z_P                                                
+     C     P10CLRT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P10                       *                                
+      *------------------------------------------------------------*                                
+     C     P10INZ        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI VISUALITZAR P10                                     
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     P10INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DEL FMT P10                        *                                
+      *------------------------------------------------------------*                                
+     C     P10DSP        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI COMPROVAR ENTRADA CMD                               
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD7801'                                                
+     C                   EVAL      P10DLGA=@PDLGA                                                   
+     C                   EXFMT     P10                                                              
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C     P10DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P10                 *                                
+      *------------------------------------------------------------*                                
+     C     P10CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+      *VALIDACIONES TECLAS DE FUNCION                                                               
+     C                   SELECT                                                                     
+      * FINALITZAR EL PROGRAMA                                                                      
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+      * SOL·LICITUD AJUDA D'ARTICLES                                                                
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_POCUR2                                                        
+     C                   EXSR      P10F4                                                            
+                                                                                                    
+     C                   WHEN      RETRO=*ON                                                        
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDSL                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P10                 *                                
+      *------------------------------------------------------------*                                
+     C     P10CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='UPD'                                                     
+     C                   EVAL      XACIAS=@PCIAS                                                    
+     C                   EVAL      XADLG2=P10DLG2                                                   
+     C                   EVAL      XADLGA=P10DLGA                                                   
+     C     KMSDDOM       CHAIN     MSDDOM                             81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK31=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP10CHK                                            
+      * LA DELEGACIÓN DEBE EXISTIR                                                                  
+      *                                                                                             
+     C                   IF        P10DLG2='*ALL'                                                   
+     C                   ELSE                                                                       
+     C                   EVAL      PECIAS=@PCIAS                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C                   EVAL      PECLTA=P10DLG2                                                   
+     C     KPMTABD       CHAIN (N) PMTABD                             81                            
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP10CHK                                            
+     C                   EVAL      ZXDESC=PEDESC                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     TP10CHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P10CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE ACTUALIZACION DATOS DE  P10                   *                                
+      *------------------------------------------------------------*                                
+     C     P10UPD        BEGSR                                                                      
+      * PASA A LAS PANTALLAS P2X                                                                    
+     C                   EVAL      ZXOPT='P2ACLR'                                                   
+     C*                  EVAL      PECLTA=P10DLGA                                                   
+     C                   EVAL      XADLGA=P10DLGA                                                   
+      *                                                                                             
+     C                   IF        P10DLG2='*ALL'                                                   
+     C                   EVAL      PECIAS=@PCIAS                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C     KPMTABD_S     SETLL     PMTABD                                                           
+     C     KPMTABD_S     READE     PMTABD                                                           
+     C                   DOW       NOT%EOF                                                          
+     C                   EVAL      XADLG2=PECLTA                                                    
+     C                   EVAL      XADLGA=P10DLGA                                                   
+     C     KMSDDOM       CHAIN     MSDDOM                             81                            
+     C                   IF        NOT%FOUND                                                        
+     C     *NOKEY        CLEAR                   RMSDDOM                                            
+     C                   EVAL      XAMO01=P7MONE                                                    
+     C                   EVAL      XAMO02=P7MONE                                                    
+     C                   EVAL      XAMO04=P7MONE                                                    
+     C                   EVAL      XAMO03=P7MONE                                                    
+     C                   WRITE     RMSDDOM                                                          
+     C                   ENDIF                                                                      
+     C     KPMTABD_S     READE     PMTABD                                                           
+     C                   ENDDO                                                                      
+     C                   EVAL      ZXOPT='ENDEND'                                                   
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     P10UPDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL FMT P2A                              *                                
+      *------------------------------------------------------------*                                
+     C     P2AMAIN       BEGSR                                                                      
+     C                   EVAL      ZXOPT1='P2A'                                                     
+     C                   DOW       ZXOPT1='P2A'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         P2ACLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         P2AINZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         P2ADSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         P2ACMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         P2ACHK                                             
+     C     ZXOPT2        CASEQ     'UPD'         P2AUPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA LIMPIEZA  DE P2A                                 *                                
+      *------------------------------------------------------------*                                
+     C     P2ACLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C                   MOVE      *BLANKS       MSGER                                              
+     C     P2ACLRT       ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P2A                       *                                
+      *------------------------------------------------------------*                                
+     C     P2AINZ        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     *NOKEY        CLEAR     *ALL          RMSDDOM                                            
+     C     KMSDDOM       CHAIN     MSDDOM                             81                            
+     C                   IF        *IN81=*ON                                                        
+     C                   EVAL      ZXCLAB=XADLG2                                                    
+     C                   EVAL      PECLTA=*BLANKS                                                   
+     C     KMSDDOM0      CHAIN     MSDDOM                             81                            
+     C                   if        p30DLG2 <> *blanks                                               
+     C                   EVAL      PECLTA=p30DLG2                                                   
+     C     KMSDDOM       CHAIN     MSDDOM                             81                            
+     C                   endif                                                                      
+     C                   EVAL      PECLTA=ZXCLAB                                                    
+     C                   EVAL      XADLG2=ZXCLAB                                                    
+     C                   ENDIF                                                                      
+     C                   EXSR      P2AMFP                                                           
+      * En el caso de altas se pasan los valores por defecto de PURLDA                              
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PASAR DE FICHERO A PANTALLA P2A                  *                                
+      *------------------------------------------------------------*                                
+     C     P2AMFP        BEGSR                                                                      
+      *                                                                                             
+      *                                                                                             
+     C                   EVAL      P2ADLGA=XADLGA                                                   
+     C                   EVAL      PECIAS=@PCIAS                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C                   EVAL      PECLTA=P2ADLGA                                                   
+     C     KPMTABD       CHAIN (N) PMTABD                             81                            
+     C                   EVAL      P2ADE30=PEDESC                                                   
+     C                   EVAL      P2ADLG2=XADLG2                                                   
+     C                   EVAL      PECIAS=@PCIAS                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C                   EVAL      PECLTA=P2ADLG2                                                   
+     C     KPMTABD       CHAIN (N) PMTABD                             81                            
+     C                   EVAL      P2ADESP=PEDESC                                                   
+     C*                  EVAL      P2APRIS= XAPRIS                                                  
+     C                   EVAL      P2APR01= XAPR01                                                  
+     C                   EVAL      P2APR02= XAPR02                                                  
+     C                   EVAL      P2APR03= XAPR03                                                  
+     C                   EVAL      P2APR04= XAPR04                                                  
+                                                                                                    
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XAIR01                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        P2AIR01                                            
+                                                                                                    
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XAIR02                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        P2AIR02                                            
+                                                                                                    
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XAIR03                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        P2AIR03                                            
+                                                                                                    
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XADIST                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        P2ADIST                                            
+                                                                                                    
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XAIR04                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        P2AIR04                                            
+                                                                                                    
+     C                   EVAL      P2AMO01= XAMO01                                                  
+     C                   EVAL      P2AMO02= XAMO02                                                  
+     C                   EVAL      P2AMO03= XAMO03                                                  
+     C                   EVAL      P2AMO04= XAMO04                                                  
+                                                                                                    
+     C                   EVAL      P2AOE01= XAOE01                                                  
+     C                   EVAL      P2AOE02= XAOE02                                                  
+     C                   EVAL      P2AOE03= XAOE03                                                  
+     C                   EVAL      P2AOE04= XAOE04                                                  
+      *                                                                                             
+     C                   MOVE      XAPSMA        ZXPSMA                                             
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=ZXPSMA                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        P2APSMA                                            
+                                                                                                    
+      * PARA EL CASO DE COPIAS CAMBIAREMOS LA CABECERA                                              
+     C                   IF        INDCPY=*ON                                                       
+     C                   EVAL      P2ADLGA=P30DLGA                                                  
+     C                   EVAL      P2ADLG2=P3CDLG3                                                  
+     C     *NOKEY        CLEAR     *ALL          RMSDDOM                                            
+     C                   ENDIF                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DEL FMT P2A                        *                                
+      *------------------------------------------------------------*                                
+     C     P2ADSP        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI COMPROVAR ENTRADA CMD                               
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD7801'                                                
+     C                   EXFMT     P2A                                                              
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C                   EVAL      CSRCOLU=0                                                        
+     C                   EVAL      CSRFILA=0                                                        
+     C     P2ADSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMDS DEL FMT P2A                 *                                 
+      *------------------------------------------------------------*                                
+     C     P2ACMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+      *VALIDACIONES TECLAS DE FUNCION                                                               
+     C                   SELECT                                                                     
+      * FINALITZAR EL PROGRAMA                                                                      
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+      * SOL·LICITUD AJUDA D'ARTICLES                                                                
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_POCUR2                                                        
+     C                   EXSR      P2AF4                                                            
+      * RETROCESO PANTALLA                                                                          
+     C                   WHEN      RETRO=*ON                                                        
+     C                   EVAL      Z_P=Z_P-1                                                        
+     C                   IF        Z_P<=0                                                           
+     C                   EVAL      ZXOPT='END'                                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXOPT1='P2 '                                                     
+     C                   MOVE      SSSECPA(Z_P)  ZXOPT1                                             
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     TP2ACMD       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P2ACMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE AYUDA EN CAMPOS DEL   FMT P2A                 *                                
+      *------------------------------------------------------------*                                
+     C     P2AF4         BEGSR                                                                      
+     C* No se permite acceso a consulta si estamos en opcion de visualizar                          
+     C                   IF        INDDSP=*ON                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           P2AF4T                                             
+                                                                                                    
+      * SI NO TIENE F4 SOPORTADO DOY ERROR                                                          
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ADP0304'                                                  
+     C     ERRGRL        CABEQ     *ON           P2AF4T                                             
+                                                                                                    
+     C     P2AF4T        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P2A                 *                                
+      *------------------------------------------------------------*                                
+     C     P2ACHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='UPD'                                                     
+                                                                                                    
+     C                   IF        P2ADESC=*BLANKS                                                  
+     C                   EVAL      P2ADESC=ZXDESC                                                   
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+                                                                                                    
+     C                   EVAL      PXDCCD=2                                                         
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2ADIST       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM      2             PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   IF        PXNMER<>0                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK37=*ON                                                        
+     C                   EVAL      MSGER='MSG0022'                                                  
+     C                   IF        PXNMER=1                                                         
+     C                   EVAL      MSGER='MSG0023'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=2                                                         
+     C                   EVAL      MSGER='MSG0024'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=3                                                         
+     C                   EVAL      MSGER='MSG0025'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=4                                                         
+     C                   EVAL      MSGER='MSG0026'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=5                                                         
+     C                   EVAL      MSGER='MSG0032'                                                  
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+     C                   MOVE      PXALPH        P2ADIST                                            
+                                                                                                    
+     C                   IF        (P2APR01<'1' OR  P2APR01>'9')                                    
+     C                             AND P2APR01>'0'                                                  
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK41=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+                                                                                                    
+     C                   EVAL      PXDCCD=2                                                         
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2AIR01       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM                    PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   IF        PXNMER<>0                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK42=*ON                                                        
+     C                   EVAL      MSGER='MSG0022'                                                  
+     C                   IF        PXNMER=1                                                         
+     C                   EVAL      MSGER='MSG0023'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=2                                                         
+     C                   EVAL      MSGER='MSG0024'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=3                                                         
+     C                   EVAL      MSGER='MSG0025'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=4                                                         
+     C                   EVAL      MSGER='MSG0026'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=5                                                         
+     C                   EVAL      MSGER='MSG0032'                                                  
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+     C                   MOVE      PXALPH        P2AIR01                                            
+                                                                                                    
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=P2AOE01                                                   
+     C                   CALL      'MMPROM'                                     Query-Aut-F4   X    
+     C                   PARM                    @PEOPT                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEPGM                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEFMT                         PARM Qry-F4         
+     C                   PARM      'SINO      '  @PEFLD                         PARM Qry-F4         
+     C                   PARM      'V'           @PEERR                         PARM Qry-F4         
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK43=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+                                                                                                    
+     C                   IF        (P2APR02<'1' OR  P2APR02>'9')                                    
+     C                             AND P2APR02>'0'                                                  
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK44=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+                                                                                                    
+     C                   EVAL      PXDCCD=2                                                         
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2AIR02       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM                    PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   IF        PXNMER<>0                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK45=*ON                                                        
+     C                   EVAL      MSGER='MSG0022'                                                  
+     C                   IF        PXNMER=1                                                         
+     C                   EVAL      MSGER='MSG0023'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=2                                                         
+     C                   EVAL      MSGER='MSG0024'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=3                                                         
+     C                   EVAL      MSGER='MSG0025'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=4                                                         
+     C                   EVAL      MSGER='MSG0026'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=5                                                         
+     C                   EVAL      MSGER='MSG0032'                                                  
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+     C                   MOVE      PXALPH        P2AIR02                                            
+                                                                                                    
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=P2AOE02                                                   
+     C                   CALL      'MMPROM'                                     Query-Aut-F4   X    
+     C                   PARM                    @PEOPT                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEPGM                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEFMT                         PARM Qry-F4         
+     C                   PARM      'SINO      '  @PEFLD                         PARM Qry-F4         
+     C                   PARM      'V'           @PEERR                         PARM Qry-F4         
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK46=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+                                                                                                    
+     C                   IF        (P2APR03<'1' OR  P2APR03>'9')                                    
+     C                             AND P2APR03>'0'                                                  
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK51=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+                                                                                                    
+     C                   EVAL      PXDCCD=2                                                         
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2AIR03       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM                    PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   IF        PXNMER<>0                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK52=*ON                                                        
+     C                   EVAL      MSGER='MSG0022'                                                  
+     C                   IF        PXNMER=1                                                         
+     C                   EVAL      MSGER='MSG0023'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=2                                                         
+     C                   EVAL      MSGER='MSG0024'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=3                                                         
+     C                   EVAL      MSGER='MSG0025'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=4                                                         
+     C                   EVAL      MSGER='MSG0026'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=5                                                         
+     C                   EVAL      MSGER='MSG0032'                                                  
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+     C                   MOVE      PXALPH        P2AIR03                                            
+                                                                                                    
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=P2AOE03                                                   
+     C                   CALL      'MMPROM'                                     Query-Aut-F4   X    
+     C                   PARM                    @PEOPT                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEPGM                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEFMT                         PARM Qry-F4         
+     C                   PARM      'SINO      '  @PEFLD                         PARM Qry-F4         
+     C                   PARM      'V'           @PEERR                         PARM Qry-F4         
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK52=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+                                                                                                    
+     C                   IF        (P2APR04<'1' OR  P2APR04>'9')                                    
+     C                             AND P2APR04>'0'                                                  
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK54=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+                                                                                                    
+     C                   EVAL      PXDCCD=2                                                         
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2AIR04       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM                    PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   IF        PXNMER<>0                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK55=*ON                                                        
+     C                   EVAL      MSGER='MSG0022'                                                  
+     C                   IF        PXNMER=1                                                         
+     C                   EVAL      MSGER='MSG0023'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=2                                                         
+     C                   EVAL      MSGER='MSG0024'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=3                                                         
+     C                   EVAL      MSGER='MSG0025'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=4                                                         
+     C                   EVAL      MSGER='MSG0026'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=5                                                         
+     C                   EVAL      MSGER='MSG0032'                                                  
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+     C                   MOVE      PXALPH        P2AIR04                                            
+                                                                                                    
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=P2AOE04                                                   
+     C                   CALL      'MMPROM'                                     Query-Aut-F4   X    
+     C                   PARM                    @PEOPT                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEPGM                         PARM Qry-F4         
+     C                   PARM      *BLANKS       @PEFMT                         PARM Qry-F4         
+     C                   PARM      'SINO      '  @PEFLD                         PARM Qry-F4         
+     C                   PARM      'V'           @PEERR                         PARM Qry-F4         
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   EVAL      WRK56=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+      *PSMA                                                                                         
+     C                   EVAL      PXDCCD=2                                                         
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2APSMA       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                          CAMP NUMÈRIC        
+     C                   PARM                    PXALPH                         CAMP ALFANUMÈRIC    
+     C                   PARM                    PXFLDD                         Nº CARACT. VISUA    
+     C                   PARM                    PXDCCD                         Nº DECIMALS         
+     C                   PARM                    PXFMD1                         AJUST DECIMAL (.    
+     C                   PARM                    PXEDTC                         CODI EDICIO(4,M,    
+     C                   PARM                    PXNMER                         RETORN ERROR        
+     C                   PARM                    PXTIPA                         TIPO AJUSTE (0,1    
+     C                   IF        PXNMER<>0                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK55=*ON                                                        
+     C                   EVAL      MSGER='MSG0022'                                                  
+     C                   IF        PXNMER=1                                                         
+     C                   EVAL      MSGER='MSG0023'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=2                                                         
+     C                   EVAL      MSGER='MSG0024'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=3                                                         
+     C                   EVAL      MSGER='MSG0025'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=4                                                         
+     C                   EVAL      MSGER='MSG0026'                                                  
+     C                   ENDIF                                                                      
+     C                   IF        PXNMER=5                                                         
+     C                   EVAL      MSGER='MSG0032'                                                  
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+     C                   MOVE      PXALPH        P2APSMA                                            
+     C                   EVAL      ZXPSMA=PXNUM                                                     
+                                                                                                    
+     C     TP2ACHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE ACTUALIZACION DEL FMT P2A                     *                                
+      *------------------------------------------------------------*                                
+     C     P2AUPD        BEGSR                                                                      
+     C                   EVAL      Z_P=Z_P+1                                                        
+     C                   IF        SSSECPA(Z_P)=*BLANKS                                             
+     C                   EVAL      ZXOPT='END'                                                      
+     C                   IF        INDCRT=*ON AND @POPCI<>'1B'                                      
+     C                   EVAL      ZXOPT='P10CLR'                                                   
+     C                   ENDIF                                                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXOPT1='P2 '                                                     
+     C                   MOVE      SSSECPA(Z_P)  ZXOPT1                                             
+     C                   EVAL      ZXOPT2='CLR'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+      * En el caso de la opción de visualiza no actualizo                                           
+     C                   IF        INDDSP=*ON                                                       
+     C                   GOTO      P2AUPDT                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      XACIAS=@PCIAS                                                    
+     C                   EVAL      XADLGA=P2ADLGA                                                   
+     C                   EVAL      XADLG2=P2ADLG2                                                   
+     C     KMSDDOM       CHAIN     MSDDOM                             81                            
+      *                                                                                             
+     C                   EXSR      P2AMPF                                                           
+                                                                                                    
+     C                   IF        CHAIN=*OFF                                                       
+     C                   UPDATE    RMSDDOM                                                          
+     C                   ELSE                                                                       
+     C                   EVAL      XADAT8=*DATE                                                     
+     C                   WRITE     RMSDDOM                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P2AUPDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PASAR DE PANTALLA P2A A FICHERO                  *                                
+      *------------------------------------------------------------*                                
+     C     P2AMPF        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      XAPR01=P2APR01                                                   
+     C                   EVAL      XAPR02=P2APR02                                                   
+     C                   EVAL      XAPR03=P2APR03                                                   
+     C*                  EVAL      XAPRIS=P2APR03                                                   
+     C                   EVAL      XAPR04=P2APR04                                                   
+                                                                                                    
+     C                   MOVE      ZXPSMA        XAPSMA                                             
+     C                   EVAL      XAMO01=P2AMO01                                                   
+     C                   EVAL      XAMO02=P2AMO02                                                   
+     C                   EVAL      XAMO03=P2AMO03                                                   
+     C                   EVAL      XAMO04=P2AMO04                                                   
+                                                                                                    
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2AIR01       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   EVAL      XAIR01=PXNUM                                                     
+      *                                                                                             
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2AIR02       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   EVAL      XAIR02=PXNUM                                                     
+      *                                                                                             
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2AIR03       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   EVAL      XAIR03=PXNUM                                                     
+      *                                                                                             
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2AIR04       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   EVAL      XAIR04=PXNUM                                                     
+                                                                                                    
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   MOVE      P2ADIST       PXALPH                                             
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   EVAL      XADIST=PXNUM                                                     
+                                                                                                    
+     C                   EVAL      XAMO01=P7MONE                                                    
+     C                   EVAL      XAMO02=P7MONE                                                    
+     C                   EVAL      XAMO04=P7MONE                                                    
+     C                   EVAL      XAMO03=P7MONE                                                    
+                                                                                                    
+     C                   EVAL      XAOE01=P2AOE01                                                   
+     C                   EVAL      XAOE02=P2AOE02                                                   
+L1078C*                  EVAL      XAOE04=P2AOE03                                                   
+L1078C*                  EVAL      XAOE03=P2AOE04                                                   
+L1078C                   EVAL      XAOE03=P2AOE03                                                   
+L1078C                   EVAL      XAOE04=P2AOE04                                                   
+      *                                                                                             
+     C                   EVAL      XADAT8=ZZDATS                                                    
+     C                   IF        XADAT8=0                                                         
+     C                   EVAL      XADAT8=*DATE                                                     
+     C                   ENDIF                                                                      
+     C                   TIME                    PEHORA                                             
+     C                   EVAL      XAUSUA=ZZUSUA                                                    
+     C                   EVAL      XAPANT=SDSJOB                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL FMT P30                              *                                
+      *------------------------------------------------------------*                                
+     C     P30MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='P30'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         P30CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         P30INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         P30DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         P30CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         P30CHK                                             
+     C     ZXOPT2        CASEQ     'UPD'         P30UPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA LIMPIEZA  DE P30                                 *                                
+      *------------------------------------------------------------*                                
+     C     P30CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   RESET                   Z_P                                                
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C     P30CLRT       ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P30                       *                                
+      *------------------------------------------------------------*                                
+     C     P30INZ        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     *NOKEY        CLEAR     *ALL          RMSDDOM                                            
+     C     KMSDDOM       CHAIN     MSDDOM                             81                            
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      ZXOPT='END'                                                      
+     C                   GOTO      P30INZT                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EXSR      P30MFP                                                           
+                                                                                                    
+     C     P30INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PASAR DE FICHERO A PANTALLA P30                  *                                
+      *------------------------------------------------------------*                                
+     C     P30MFP        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      P30DLG2=XADLG2                                                   
+     C                   EVAL      P30DLGA=XADLGA                                                   
+     C                   EVAL      P30DESC=ZXDESC                                                   
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DEL FMT P30                        *                                
+      *------------------------------------------------------------*                                
+     C     P30DSP        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI COMPROVAR ENTRADA CMD                               
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD3012'                                                
+     C                   EXFMT     P30                                                              
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C     P30DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMDS  DEL FMT P30                 *                                
+      *------------------------------------------------------------*                                
+     C     P30CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+      *VALIDACIONES TECLAS DE FUNCION                                                               
+     C                   SELECT                                                                     
+      * FINALITZAR EL PROGRAMA                                                                      
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+      * SOL·LICITUD AJUDA D'ARTICLES                                                                
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_POCUR2                                                        
+     C                   EXSR      P30F4                                                            
+      * RETROCESO PANTALLA                                                                          
+     C                   WHEN      RETRO=*ON                                                        
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     TP30CMD       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P30                 *                                
+      *------------------------------------------------------------*                                
+     C     P30CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='UPD'                                                     
+                                                                                                    
+      * El CLTA  no puede existir                                                                   
+     C                   EVAL      XADLG2=P3CDLG3                                                   
+     C     KMSDDOM       CHAIN (N) MSDDOM                             81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP30CHK                                            
+                                                                                                    
+     C     TP30CHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='MSG0008'                                                  
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE AYUDA PARA FMT P30                            *                                
+      *------------------------------------------------------------*                                
+     C     P30F4         BEGSR                                                                      
+     C* No se permite acceso a consulta si estamos en opcion de visualizar                          
+     C                   IF        INDDSP=*ON                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           P30F4T                                             
+     C* F4 PARA VALORES QUE UNICAMENTE SE ACCEDE POR PROMPT SEGUN REFERENCIA                        
+     C* DEL DICCIONARIO                                                                             
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+                                                                                                    
+      *                                                                                             
+      * Si no han realizado ninguna selección no tocamos nada                                       
+     C                   IF        @PEERR='A'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C                   EVAL      P10DLGA=@PCLTA                                                   
+     C     ERRGRL        CABEQ     *ON           P30F4T                                             
+      *                                                                                             
+     C     P30F4T        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE ACTUALIZACION DEL FMT P30                     *                                
+      *------------------------------------------------------------*                                
+     C     P30UPD        BEGSR                                                                      
+     C                   EVAL      ZXOPT1='P2 '                                                     
+     C                   RESET                   Z_P                                                
+     C                   MOVE      SSSECPA(Z_P)  ZXOPT1                                             
+     C                   EVAL      ZXOPT2='CLR'                                                     
+                                                                                                    
+     C                   EVAL      XADLGA=P30DLGA                                                   
+     C                   EVAL      XADLG2=P3CDLG3                                                   
+     C     P30UPDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL FMT P40                              *                                
+      *------------------------------------------------------------*                                
+     C     P40MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='P40'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         P40CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         P40INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         P40DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         P40CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         P40CHK                                             
+     C     ZXOPT2        CASEQ     'UPD'         P40UPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA LIMPIEZA  DE P40                                 *                                
+      *------------------------------------------------------------*                                
+     C     P40CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C     P40CLRT       ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P40                       *                                
+      *------------------------------------------------------------*                                
+     C     P40INZ        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     *NOKEY        CLEAR     *ALL          RMSDDOM                                            
+     C     KMSDDOM       CHAIN     MSDDOM                             81                            
+     C                   EXSR      P40MFP                                                           
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PASAR DE FICHERO A PANTALLA P40                  *                                
+      *------------------------------------------------------------*                                
+     C     P40MFP        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      P40DLGA=XADLGA                                                   
+     C                   EVAL      P40DESC=PEDESC                                                   
+     C                   EVAL      P40DLG2=XADLG2                                                   
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DEL FMT P40                        *                                
+      *------------------------------------------------------------*                                
+     C     P40DSP        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI COMPROVAR ENTRADA CMD                               
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD3029'                                                
+     C                   EXFMT     P40                                                              
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C     P40DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMDS  DEL FMT P40                 *                                
+      *------------------------------------------------------------*                                
+     C     P40CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+      *VALIDACIONES TECLAS DE FUNCION                                                               
+     C                   SELECT                                                                     
+      * FINALITZAR EL PROGRAMA                                                                      
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+      * RETROCESO PANTALLA                                                                          
+     C                   WHEN      RETRO=*ON                                                        
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     TP40CMD       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P40CMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P40                 *                                
+      *------------------------------------------------------------*                                
+     C     P40CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='UPD'                                                     
+      * Si en el campo PEBL66='@' Tampoco permito borrar                                            
+     C                   IF        PEBL66='@'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='MSG0064'                                                  
+     C                   ENDIF                                                                      
+     C     TP40CHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P40CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE AYUDA PARA FMT P40                            *                                
+      *------------------------------------------------------------*                                
+     C     P40F4         BEGSR                                                                      
+     C     P40F4T        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE ACTUALIZACION DEL FMT P40                     *                                
+      *------------------------------------------------------------*                                
+     C     P40UPD        BEGSR                                                                      
+      * Las bajas serán bajas lógicas y no físicas                                                  
+     C                   EVAL      XACIAS=@PCIAS                                                    
+     C                   EVAL      XADLGA=@PDLGA                                                    
+     C                   EVAL      XADLG2=@PCLAB                                                    
+     C     KMSDDOM       CHAIN     MSDDOM                             81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   DELETE    RMSDDOM                                                          
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXOPT='END'                                                      
+                                                                                                    
+     C     P40UPDT       ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE POSICIONAMENT DEL CURSOR                      *                                
+      *------------------------------------------------------------*                                
+     C     CS_POCUR2     BEGSR                                                                      
+      * OBTENIM LA POSICIO DEL CURSOR                                                               
+     C     FMTPOCUR      DIV       256           CSRFILA                                            
+     C                   MVR                     CSRCOLU                                            
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE PROXIMA PANTALLA SI NO RESPONDE               *                                
+      * UNA PANTALLA A NINGUNA DE LAS PANTALLA CONSIDERADAS        *                                
+      *------------------------------------------------------------*                                
+     C     PANNEXT       BEGSR                                                                      
+     C                   EVAL      Z_P=Z_P+1                                                        
+     C                   IF        SSSECPA(Z_P)=*BLANKS                                             
+     C                   EVAL      ZXOPT='END'                                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXOPT1='P2 '                                                     
+     C                   MOVE      SSSECPA(Z_P)  ZXOPT1                                             
+     C                   EVAL      ZXOPT2='CLR'                                                     
+     C                   ENDIF                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE AYUDA EN CAMPOS DEL   FMT P2A                 *                                
+      *------------------------------------------------------------*                                
+     C     P10F4         BEGSR                                                                      
+     C* No se permite acceso a consulta si estamos en opcion de visualizar                          
+     C                   IF        INDDSP=*ON                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+                                                                                                    
+     C     P10F4T        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA QUE CONTROLA ELS POSSIBLES ERRORS DE PROGRAMA    *                                
+      *------------------------------------------------------------*                                
+     c/copy *LIBL/qSRDsrc,srd020                                                                    

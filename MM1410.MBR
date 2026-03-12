@@ -1,0 +1,273 @@
+     **FREE                                                                                         
+      *****************************************************************                             
+      * TITOL: MM1410    FLUIDRA                                      *                             
+      * DATA CREACIO:  02/11/2021    AUTOR: JCAMPILLO                 *                             
+      * FUNCIO DEL PROGRAMA: SELECCIÓN LOGISTICAS                     *                             
+      *                                                               *                             
+      * DOCUMENTACIO: RETORNA OL DELEGACION, OL EMPRESA, OL MONTAJE,  *                             
+      *               OL CUARENTENA OL TRANSITO                       *                             
+      *****************************************************************                             
+      *         PARAMETROS                                            *                             
+      *                  @PCIAS                                       *                             
+      *                  @PDLGA                                       *                             
+      *                  @ptr  -> Pointer a DS Request                *                             
+      *                                                               *                             
+      *         DS Request                                            *                             
+      *                  @POLDL --> OL DLGA DOM                       *                             
+      *                  @loEdL --> LogE de @POLDL                    *                             
+      *                  @loSdl --> LogS de @POLDL                    *                             
+      *                  @POLEM --> OL EMPRESA                        *                             
+      *                  @loEem --> LogE de @POLEM                    *                             
+      *                  @loSem --> LogS de @POLEM                    *                             
+      *                  @PMAGC --> OL CUARENTENA                     *                             
+      *                  @loEgc --> LogE de @PMAGC                    *                             
+      *                  @loSgc --> LogS de @PMAGC                    *                             
+      *                  @PMAGM --> OL MONTAJE                        *                             
+      *                  @loEgm --> LogE de @PMAGM                    *                             
+      *                  @loSgm --> LogS de @PMAGM                    *                             
+      *                  @PMAGT --> OL TRANSITO                       *                             
+      *                  @loEgt --> LogE de @PMAGT                    *                             
+      *                  @loSgt --> LogS de @PMAGT                    *                             
+      *                  ...                                          *                             
+      * Nota sobre Pointer:                                           *                             
+      *  S'utilitza aquesta sol·lució per l'alta possibilitat de patir*                             
+      * modificacions en aquest programa per tal d'ampliar els valors *                             
+      * que retorni.                                                  *                             
+      *  D'aquesta forma ens estalviem recompilacions i modificacions *                             
+      * d'estructures: P.ex. els pgm que utilitzen 30 pos continuaran *                             
+      * emprant aquestes 30 pos, independentment de la cuantitat de   *                             
+      * informació que aquest programa deixi en memoria.              *                             
+      *****************************************************************                             
+      // Modificació :  PGP-555                                                                     
+      // Descripció  : Problemes amb bach i PURLDA                                                  
+      // Marca       :  P-555                                                                       
+      //---------------------------------------------------------------                             
+E7476 // Modificació :  FSD-99999                                                                   
+E7476 // Descripció  : Error per desalineament entre EDPAR4 i EDPAR2                                
+E7476 // Marca       :  E7476                                                                       
+E7476 //----------------------------------------------------------------------------------------    
+                                                                                                    
+                                                                                                    
+         //===========================================================                              
+         // Control Options                                                                         
+         //-----------------------------------------------------------                              
+         ctl-opt datedit(*ymd/) dftactgrp(*no)                                                      
+         debug option(*nodebugio:*srcstmt)                                                          
+         copyright('2021 Fluidra S.A.');                                                            
+                                                                                                    
+         //===========================================================                              
+         // File declaration                                                                        
+         //-----------------------------------------------------------                              
+         dcl-f msalma usage(*input) keyed ;                                                         
+E7476    //dcl-f edpar4 usage(*input) keyed ;                                                       
+E7476    dcl-f edpar2 usage(*input) keyed;                                                          
+         dcl-f pmtabd usage(*input) keyed ;                                                         
+                                                                                                    
+         //===========================================================                              
+         //AREA DE DADES DE PROGRAMA                                                                
+         //-----------------------------------------------------------                              
+         dcl-ds *n   psds ;                                                                         
+           sdspgm *proc;                                                                            
+           sdsjob char(10) pos(244);                                                                
+           sdsusr char(10) pos(254);                                                                
+           sdsjnbr char(6) pos(264);                                                                
+         end-ds;                                                                                    
+         //PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                            
+         dcl-ds indicadors extname('INDDS':'RIND0199') based(indicadorp) end-ds;                    
+         dcl-s  indicadorp pointer inz(%addr(*in));                                                 
+                                                                                                    
+         //AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                    
+         // P-555 Del-begin                                                                         
+         //dcl-ds dslda extname('PURLDADS') dtaara('PURLDA');                                       
+          //  cccdeem char(30) overlay(zzdeem);                                                     
+         //end-ds;                                                                                  
+         // P-555 Del-End                                                                           
+                                                                                                    
+         //CONTROL DEL FLUXE DEL PROGRAMA AMB INICIALITZACIÓ DE POSIC. INICIAL                      
+         dcl-ds *n;                                                                                 
+           zxopt  char(6);                                                                          
+           zxopt1 char(3) overlay(zxopt);                                                           
+           zxopt2 char(3) overlay(zxopt:*next);  // :004);                                          
+         end-ds;                                                                                    
+                                                                                                    
+         dcl-s @perro char(1);                                                                      
+         dcl-s zxerro char(1);                                                                      
+                                                                                                    
+         // Definició de l'estructura de retorn. Punter definit en dcl-pi                           
+         // Per futures modificacions:                                                              
+         //    NO MODIFICAR EL QUE JA ESTÀ DEFINIT                                                  
+         //    Afegir els camps necessaris al final i informar-los                                  
+         //  amb els valors que correspongui.                                                       
+         dcl-ds dsRequest based(pRequest);                                                          
+E7476     //@POLDL                LIKE(T6MAGA);                                                     
+E7476     @POLDL                LIKE(T4MAGA);                                                       
+          @loEdl                like(m0loge);                                                       
+          @loSdl                like(m0logs);                                                       
+E7476     //@POLEM                LIKE(T6MAGA);                                                     
+E7476     @POLEM                LIKE(T4MAGA);                                                       
+          @loEem                like(m0loge);                                                       
+          @loSem                like(m0logs);                                                       
+E7476     //@PMAGC                LIKE(T6MAGA);                                                     
+E7476     @PMAGC                LIKE(T4MAGA);                                                       
+          @loEgc                like(m0loge);                                                       
+          @loSgc                like(m0logs);                                                       
+E7476     //@PMAGM                LIKE(T6MAGA);                                                     
+E7476     @PMAGM                LIKE(T4MAGA);                                                       
+          @loEgm                like(m0loge);                                                       
+          @loSgm                like(m0logs);                                                       
+E7476     //@PMAGT                LIKE(T6MAGA);                                                     
+E7476     @PMAGT                LIKE(T4MAGA);                                                       
+          @loEgt                like(m0loge);                                                       
+          @loSgt                like(m0logs);                                                       
+         end-ds;                                                                                    
+                                                                                                    
+         //Paràmetres (substitueix *ENTRY)                                                          
+         dcl-pi *n;  // *n per programes. Functions posem la var retorn                             
+E7476      //@PCIAS  LIKE(T6CIA1);                                                                  
+E7476      //@PDLGA  LIKE(T6DLGA);                                                                  
+E7476      @PCIAS  LIKE(T4CIA1);                                                                    
+E7476      @PDLGA  LIKE(T4DLGA);                                                                    
+           pRequest pointer;                                                                        
+         end-pi;                                                                                    
+                                                                                                    
+       //==================================================================                         
+       // Main proces                                                                               
+       //------------------------------------------------------------------                         
+                                                                                                    
+         dow ZXOPT1 <> 'END';                                                                       
+           select;                                                                                  
+           when ZXOPT1 = 'CHK';                                                                     
+             exsr SUBCHK;                                                                           
+           endsl;                                                                                   
+         enddo;                                                                                     
+                                                                                                    
+         //That's all folks!!                                                                       
+         *inlr = *on;                                                                               
+                                                                                                    
+       //==================================================================                         
+       // Subrutines                                                                                
+       //------------------------------------------------------------------                         
+                                                                                                    
+       //------------------------------------------------------------------                         
+       // *inzsr: subrutina inicial.                                                                
+       //------------------------------------------------------------------                         
+                                                                                                    
+         begsr *inzsr;                                                                              
+           // Dimensionar variables & inicialitzar                                                  
+           pRequest = %alloc(55) ; //Request));                                                     
+           clear dsRequest;                                                                         
+          // in dslda;      //P-555 Del                                                             
+           ZXOPT1='CHK';                                                                            
+E7476      //T6CIA1=@PCIAS;                                                                         
+E7476      //T6DLGA=@PDLGA;                                                                         
+           T4CIA1=@PCIAS;                                                                           
+           T4DLGA=@PDLGA;                                                                           
+           M0CIAS=@PCIAS;                                                                           
+           PECIAS=@PCIAS;                                                                           
+           PECTAB='INO2';                                                                           
+                                                                                                    
+         endsr;                                                                                     
+                                                                                                    
+       //------------------------------------------------------------------                         
+       // SUBRUTINA DE LIMPIEZA  Y POSICIONAMIENTO                                                  
+       //------------------------------------------------------------------                         
+         begsr subchk;                                                                              
+           ZXOPT1 = 'END';                                                                          
+           exsr CS_LogolDL;                                                                         
+           exsr CS_LogolEM;                                                                         
+           if @POLDL = *blanks;                                                                     
+             @POLDL = @POLEM;                                                                       
+           endif;                                                                                   
+         endsr;                                                                                     
+                                                                                                    
+       //------------------------------------------------------------------                         
+       // GUARDA LOGISTICA DEL OL DELEGACION                                                        
+       //------------------------------------------------------------------                         
+         begsr CS_LogolDL;                                                                          
+           //T6treg = '0';                                                                          
+           @POLDL = *blanks;                                                                        
+E7476      //setll (@PCIAS:'0':@PDLGA) edpar4;                                                      
+E7476      //reade (@PCIAS:'0':@PDLGA) edpar4;                                                      
+E7476      //dow not %eof(edpar4);                                                                  
+E7476      //  chain (@PCIAS:T6MAGA) msalma;                                                        
+E7476      setll (@PCIAS:'0':@PDLGA) edpar2;                                                        
+E7476      reade (@PCIAS:'0':@PDLGA) edpar2;                                                        
+E7476      dow not %eof(edpar2);                                                                    
+E7476        chain (@PCIAS:T4MAGA) msalma;                                                          
+             if %found and m0tal1='8' and m0baja<>'1';                                              
+E7476          //@POLDL = T6MAGA;                                                                   
+E7476          @POLDL = M0MAGA;                                                                     
+               @loEdl=m0loge ;                                                                      
+               @loSdl=m0logs ;                                                                      
+               leave;                                                                               
+             else;                                                                                  
+E7476          //reade (@PCIAS:'0':@PDLGA) edpar4;                                                  
+E7476          reade (@PCIAS:'0':@PDLGA) edpar2;                                                    
+             endif;                                                                                 
+           enddo;                                                                                   
+                                                                                                    
+         endsr;                                                                                     
+                                                                                                    
+       //------------------------------------------------------------------                         
+       // GUARDA LOGISTICA DEL OL EMPRESA CUARENTENA MONTAJE Y TRANS.                               
+       //------------------------------------------------------------------                         
+         begsr CS_LogolEM;                                                                          
+           @POLEM = *blanks;                                                                        
+           @PMAGC = *blanks;                                                                        
+           @PMAGM = *blanks;                                                                        
+           @PMAGT = *blanks;                                                                        
+           setll (@PCIAS:'INO2') PMTABD;                                                            
+           reade (@PCIAS:'INO2') PMTABD;                                                            
+           dow not %eof(PMTABD);                                                                    
+             select;                                                                                
+             when peclta = 'MAGA';   // OL EMPRESA                                                  
+               @POLEM = PEDESC;                                                                     
+               GetLogEs(@POLEM:PECLTA);                                                             
+             when peclta = 'MAGC';   // OL CUARENTENA                                               
+               @PMAGC = PEDESC;                                                                     
+               GetLogEs(@PMAGC:PECLTA);                                                             
+             when peclta = 'MAGM';   // OL MONTAJE                                                  
+               @PMAGM = PEDESC;                                                                     
+               GetLogEs(@PMAGM:PECLTA);                                                             
+             when peclta = 'MAGT';   // OL TRANSITO                                                 
+               @PMAGT = PEDESC;                                                                     
+               GetLogEs(@PMAGT:PECLTA);                                                             
+             endsl;                                                                                 
+             reade (@PCIAS:'INO2') PMTABD;                                                          
+           enddo;                                                                                   
+                                                                                                    
+         endsr;                                                                                     
+                                                                                                    
+       //================================================================                           
+       // Procedures                                                                                
+       //----------------------------------------------------------------                           
+                                                                                                    
+       //----------------------------------------------------------------                           
+       // GetLogES: recupera les logístiques d'entrada i sortida d'un                               
+       //        magatzem. Sip, cert, sols és un chain, però queda més net                          
+       //        i polit en free... i encara millor en un proc                                      
+       //----------------------------------------------------------------                           
+       dcl-proc GetLogES;                                                                           
+         dcl-pi *n;                                                                                 
+           wmag  like(m0maga);                                                                      
+           clta  like(peclta);                                                                      
+         end-pi;                                                                                    
+                                                                                                    
+         chain (@PCIAS:wmag) msalma;                                                                
+         if %found;                                                                                 
+           select;                                                                                  
+           when clta = 'MAGA';                                                                      
+             @loEem = m0loge;                                                                       
+             @loSem = m0logs;                                                                       
+           when clta = 'MAGC';                                                                      
+             @loEgc = m0loge;                                                                       
+             @loSgc = m0logs;                                                                       
+           when clta = 'MAGM';                                                                      
+             @loEgm = m0loge;                                                                       
+             @loSgm = m0logs;                                                                       
+           when clta = 'MAGT';                                                                      
+             @loEgt = m0loge;                                                                       
+             @loSgt = m0logs;                                                                       
+           endsl;                                                                                   
+         endif;                                                                                     
+       end-proc;                                                                                    

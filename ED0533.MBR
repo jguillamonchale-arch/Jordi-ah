@@ -1,0 +1,936 @@
+      **************************************************************                                
+      * ED0530  © Fluidra                                          *                                
+      * Gestión de E-MAILS EDI: ENVÍO                              *                                
+      * Diciembre 2009 by Carlos del Valle                         *                                
+      **************************************************************                                
+      * Junio 2011             MARCA: FQ778                                                         
+      * Carlos del Valle                                                                            
+      * EDI Interco: Mejora continua                                                                
+      **************************************************************                                
+      * Marzo 2012             MARCA: 07032                                                         
+      * Carlos del Valle                                                                            
+      * EDI Interco: Cambiamos el nombre de los documentos PDF                                      
+      **************************************************************                                
+14812 **************************************************************************                    
+14812 * DATA DE MODIFICACIÓ: 14/08/2012  MARCA: 14812                          *                    
+14812 * AUTOR: DALONSO                                                         *                    
+14812 * DOCUMENTACIÓ: Si el texto no está en el idioma que llega por parámetro *                    
+14812 *               primero se buscará en inglés y luego en español.         *                    
+14812 **************************************************************************                    
+Q0043 * DATA DE MODIFICACIÓ: 25/09/2013  MARCA: Q0043                          *                    
+Q0043 * AUTOR: X.BOU                                                           *                    
+Q0043 * DOCUMENTACIÓ: Hay caracteres prohibidos en la codificacion de numero   *                    
+Q0043 *               de factura que hacen que no pueda visualizarse bien.     *                    
+Q0043 *               Se crea rutina de sustitución de dichos caracteres por   *                    
+Q0043 *               otros validos (a efectos de almacen digital y referencia)*                    
+Q0043 **************************************************************************                    
+D0222 * DATA DE MODIFICACIÓ: 09/12/2013  MARCA: D0222                          *                    
+D0222 * AUTOR: CDELVALLE                                                       *                    
+D0222 * DOCUMENTACIÓ: La ruta que pasamos en cl a FAXTLC es de 50              *                    
+D0222 *               en el caso de Terceros se nos va a 53 y nos corta 3 pos. *                    
+D0222 *               cambiamos la carpeta Terceros por T3os para que 2014     *                    
+D0222 *               lo haga bien                                             *                    
+D0222 **************************************************************************                    
+PR550 * DATA DE MODIFICACIÓ: 21/04/2020  MARCA: PR550                          *                    
+PR550 * AUTOR: Raul                                                            *                    
+PR550 * DOCUMENTACIÓ: Buscar si existe mensaje por idioma/empresa.             *                    
+PR550 **************************************************************************                    
+     * DATA DE MODIFICACIÓ: 10/06/2020  MARCA: PR588                                               
+     * AUTOR: Raul                                                                                 
+     * DOCUMENTACIÓ: Poder enviar mail sin pasar por faxtlc.                                       
+     *               Evento informado en tabla EVSN                                                
+     *========================================================================                    
+F9864 * Modificación: FSD-69864      MARCA:F9864                   *                                
+F9864 *        Autor: X.BOU                                        *                                
+F9864 * Fecha Inicio: 20/01/2021                                   *                                
+F9864 *  Descripción: PODER TRQABAJAR CON 2 NIFS PARA FGD          *                                
+F9864 **************************************************************                                
+F4742 * Modificación: INC0034742     MARCA:F4742                   *                                
+F4742 *        Autor: R.LACASTA                                    *                                
+F4742 * Fecha Inicio: 21/07/2023                                   *                                
+F4742 *  Descripción: Añadir Archivo digital sin firma para 075    *                                
+F4742 **************************************************************                                
+      *                                                                                             
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+      *                                                                                             
+     FCOCLIN    IF   E           K DISK                                                             
+     FPUPROV    IF   E           K DISK                                                             
+     FEDMAII    IF   E           K DISK                                                             
+PR550FEDMACI    IF   E           K DISK                                                             
+     FED0531W   IF   E           K DISK                                                             
+     FEDFADG    IF   E           K DISK                                                             
+07032FEDFADC    UF A E           K DISK                                                             
+     FCOFACC12  UF   E           K DISK                                                             
+     FPMTAB2    IF   E           K DISK                                                             
+PR588FPMTABD    IF   E           K DISK                                                             
+FQ778FEDRFDG00  UF A E           K DISK                                                             
+      *                                                                                             
+      * ESTRUCTURA DE LA INFDS                                                                      
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSSTATUS             11     15S 0                                                          
+     D  SDSCODERR             91    170                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+      *                                                                                             
+      * IMPORT/EXPORT PARÀMETRES                                                                    
+      *                                                                                             
+     D  @PCIAS         S                   LIKE(EWCIAS)                                             
+     D  @PDLGA         S                   LIKE(EWDLGA)                                             
+     D  @PTDAJ         S                   LIKE(EWTDAJ)                                             
+     D  @PCODE         S                   LIKE(EWCODE)                                             
+     D  @PNDOC         S                   LIKE(EWNDOC)                                             
+     D  @PFDOC         S                   LIKE(EWFDOC)                                             
+     D  @PLDOC         S              3S 0                                                          
+     D  @PEVEN         S                   LIKE(EWEVEN)                                             
+     D  @PEMAI         S              1                                                             
+     D  @PIDIO         S              1                                                             
+     D  @PADJD         S              1                                                             
+     D  @PALMA         S              1                                                             
+     D  @PEEMA         S            100                                                             
+     D  @PREMA         S            100                                                             
+     D  @PPRTF         S             10                                                             
+      *                                                                                             
+     D  @PECMD         S              8                                                             
+     D  @PEREF         S             50                                                             
+PR588D  @PEREF2        S             60                                                             
+     D  @PEDE          S             80                                                             
+     D  @PEA           S             80                                                             
+     D  @PECC          S             80                                                             
+     D  @PEFMT         S              5                                                             
+     D  @PEMSG         S           1000                                                             
+     D  @PEPRTF        S             10                                                             
+     D  @PENOMDOC      S             20                                                             
+     D  @PERUTA        S             50                                                             
+     D  @PEFIRMA       S             50                                                             
+     D  @DIRE          S             50                                                             
+PR588D  @PEERRO        S              1                                                             
+      *                                                                                             
+07032D*                DS                                                                           
+07032D*   ZXNDOC               1     20                                                             
+07032D*   ECCUNO               1      9                                                             
+07032D*   ECDATE              10     17  0                                                          
+07032D*   ECCCCC              18     20  0                                                          
+07032D*                DS                                                                           
+07032D*   ZXNDOC2              1     17                                                             
+07032D*   E2CIDE               1      3                                                             
+07032D*   E2DATE               4     11  0                                                          
+07032D*   E2CCCC              12     16  0                                                          
+07032D*   E2EDII              17     17                                                             
+07032 *                                                                                             
+07032D                 DS                                                                           
+07032D    ZXNDOC               1     24                                                             
+07032D    ECDIVR               1      3                                                             
+07032D    ECFFAC               4      9  0                                                          
+07032D    ECNFAC              10     17                                                             
+07032D    ECDIVE              18     20                                                             
+      *                                                                                             
+     D  ZXTEXT         S           1000                                                             
+     D  SSTEXT         S              1    DIM(1000)                                                
+     D  SSDATO         S              1    DIM(40)                                                  
+      *                                                                                             
+     D  ZXTDET         DS                                                                           
+     D    ZXTDE1               1     75                                                             
+     D    ZXTDE2              76    150                                                             
+     D    ZXTDE3             151    225                                                             
+     D    ZXTDE4             226    300                                                             
+     D    ZXTDE5             301    375                                                             
+     D    ZXTDE6             376    450                                                             
+     D    ZXTDE7             451    525                                                             
+     D    ZXTDE8             526    600                                                             
+     D    ZXTDE9             601    675                                                             
+     D    ZXTDE10            676    750                                                             
+     D    ZXRESTO            751   1000                                                             
+      *                                                                                             
+      * Ampliación de clientes                                                                      
+      *                                                                                             
+     D  S0AMP2         DS                                                                           
+     D    S0TFXD               1      1                                                             
+     D    S0HDLG               2      4                                                             
+     D    S0CPXD               5      5                                                             
+     D    S0VXDO               6      6                                                             
+     D    S0NCFR               7      8                                                             
+     D    S0CUNO               9     18                                                             
+     D    S0CEST              19     28                                                             
+     D    S0CGRP              29     29                                                             
+     D    S0APEX              30     34                                                             
+     D    S0ALRG              39     39                                                             
+     D    S0AGRG              40     40                                                             
+     D    S0CIRG              41     43                                                             
+     D    S0DTRG              44     51  0                                                          
+     D    XZDTRG              44     51                                                             
+     D    S0LIMT              52     60                                                             
+     D    S0DIVL              61     63                                                             
+     D    S0LMIF              64     71                                                             
+     D    S0DIVF              72     74                                                             
+     D    S0CISG              75     77                                                             
+     D    S0CLCR              92     92                                                             
+     D    S0XDEE              94     94                                                             
+     D    ZXAMPL              95    100                                                             
+      *                                                                                             
+      * Ampliación de proveedores                                                                   
+      *                                                                                             
+     D  C0AMP2         DS                                                                           
+     D    C0PEVT               1      1                                                             
+     D    C0SUNO               2     11                                                             
+     D    C0PEST              12     21                                                             
+     D    C0PGRP              22     22                                                             
+     D    C0HDLG              23     25                                                             
+     D    C0TDID              27     28                                                             
+     D    C0APEX              29     33                                                             
+     D    C0XXXX              34     34                                                             
+     D    C0BRPG              35     36                                                             
+     D    C0SERS              37     38                                                             
+     D    C0RESTO             39     99                                                             
+      *                                                                                             
+      * Ampliación COFACC                                                                           
+      *                                                                                             
+     D  VWAMPL         DS                                                                           
+     D    VWDE1A45             1     45                                                             
+     D    VWPDEE              46     47                                                             
+     D    VWPDAI              48     48                                                             
+     D    VWPDAO              49     49                                                             
+     D    VWRESTO             52    100                                                             
+      *                                                                                             
+     D  ZXGRUP         S              1  0 INZ                                                      
+     D  ZXTRUT         S              1    INZ                                                      
+07032D  ZXCUNO         S              9    INZ                                                      
+07032D  ZXNFAC         S              1    DIM(8)                                                   
+     D* SERIES A UTILITZAR EN PROGRAMA                                                              
+Q0043D  ORI            S              1A   DIM(9) CTDATA PERRCD(9)                                  
+Q0043D  DES            S              1A   DIM(9) CTDATA PERRCD(9)                                  
+Q0043D  IY             S              2  0 INZ(0)                                                   
+PR588D  ZXSND2         S              1                                                             
+      **************************************************************                                
+      * Definir Claves                                                                              
+      **************************************************************                                
+      *                                                                                             
+     C     KCOCLIN       KLIST                                                                      
+     C                   KFLD                    S0CIAS                                             
+     C                   KFLD                    S0CUST                                             
+      *                                                                                             
+     C     KPUPROV       KLIST                                                                      
+     C                   KFLD                    C0CIAS                                             
+     C                   KFLD                    C0PRVR                                             
+      *                                                                                             
+     C     KEDFADG       KLIST                                                                      
+     C                   KFLD                    EDCIAS                                             
+     C                   KFLD                    EDDLGA                                             
+07032 *                                                                                             
+07032C*    KEDFADC       KLIST                                                                      
+07032C*                  KFLD                    ECCIAS                                             
+07032C*                  KFLD                    ECCUNO                                             
+07032C*                  KFLD                    ECDATE                                             
+      *                                                                                             
+     C     KEDMAII       KLIST                                                                      
+     C                   KFLD                    E1EVEN                                             
+     C                   KFLD                    E1IDIO                                             
+PR550*                                                                                             
+PR550C     KEDMACI       KLIST                                                                      
+PR550C                   KFLD                    E1EVEN                                             
+PR550C                   KFLD                    E1IDIO                                             
+PR550C                   KFLD                    E1CIAS                                             
+      *                                                                                             
+     C     KED0531W      KLIST                                                                      
+     C                   KFLD                    EWCIAS                                             
+     C                   KFLD                    EWDLGA                                             
+     C                   KFLD                    EWTDAJ                                             
+     C                   KFLD                    EWCODE                                             
+     C                   KFLD                    EWNDOC                                             
+     C                   KFLD                    EWFDOC                                             
+     C                   KFLD                    EWLDOC                                             
+     C                   KFLD                    EWEVEN                                             
+     C                   KFLD                    EWVARE                                             
+      *                                                                                             
+     C     KED0531WB     KLIST                                                                      
+     C                   KFLD                    EWCIAS                                             
+     C                   KFLD                    EWDLGA                                             
+     C                   KFLD                    EWTDAJ                                             
+     C                   KFLD                    EWCODE                                             
+     C                   KFLD                    EWNDOC                                             
+     C                   KFLD                    EWFDOC                                             
+     C                   KFLD                    EWLDOC                                             
+      *                                                                                             
+     C     KCOFACC12     KLIST                                                                      
+     C                   KFLD                    VWCIAS                                             
+     C                   KFLD                    VWCUST                                             
+     C                   KFLD                    VWNFAC                                             
+     C                   KFLD                    VWFFAC                                             
+FQ778 *                                                                                             
+FQ778C     KEDRFDG00     KLIST                                                                      
+FQ778C                   KFLD                    G8CIAS                                             
+FQ778C                   KFLD                    G8CUST                                             
+FQ778C                   KFLD                    G8NFAC                                             
+FQ778C                   KFLD                    G8FFAC                                             
+      *                                                                                             
+     C     KPMTAB2       KLIST                                                                      
+     C                   KFLD                    PECTAB                                             
+     C                   KFLD                    PECLTA                                             
+      *                                                                                             
+PR588C     KPMTABD       KLIST                                                                      
+PR588C                   KFLD                    PECIAS                                             
+PR588C                   KFLD                    PECTAB                                             
+PR588C                   KFLD                    PECLTA                                             
+      *                                                                                             
+      **************************************************************                                
+      * Entrada de Parámetros                                                                       
+      **************************************************************                                
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PTDAJ                                             
+     C                   PARM                    @PCODE                                             
+     C                   PARM                    @PNDOC                                             
+     C                   PARM                    @PFDOC                                             
+     C                   PARM                    @PLDOC                                             
+     C                   PARM                    @PEVEN                                             
+     C                   PARM                    @PEMAI                                             
+     C                   PARM                    @PIDIO                                             
+     C                   PARM                    @PADJD                                             
+     C                   PARM                    @PALMA                                             
+     C                   PARM                    @PEEMA                                             
+     C                   PARM                    @PREMA                                             
+     C                   PARM                    @PPRTF                                             
+      *                                                                                             
+      **************************************************************                                
+      * Estructura                                                                                  
+      **************************************************************                                
+      * Podemos adjuntar un documento al E-MAIL que puede ser                                       
+      * una factura OUT (Ventas o bien otro tipo de documento)                                      
+      * En el caso de FACTURA OUT de existir el registro de Factura OUT                             
+      * y tener firma digital para poder pasarla                                                    
+      **************************************************************                                
+      *                                                                                             
+PR588*                                                                                             
+PR588* Comprobar si utilizamos  método SENDMAIL para enviar el mail                                
+PR588*                                                                                             
+PR588C                   eval      zxsnd2 = '0'                                                     
+PR588c                   eval      pecias = @PCIAS                                                  
+PR588c                   eval      pectab = 'EVSN'                                                  
+PR588c                   eval      peclta = @PEVEN                                                  
+PR588c     KPMTABD       chain     PMTABD                                                           
+PR588C                   if        %found() AND PEBAJA<>'1'                                         
+PR588C                   eval      zxsnd2 = '1'                                                     
+PR588C                   endif                                                                      
+PR588*                                                                                             
+     C                   EVAL      @PEPRTF=*BLANKS                                                  
+     C                   EVAL      @PENOMDOC=*BLANKS                                                
+     C                   EVAL      @PERUTA=*BLANKS                                                  
+     C                   EVAL      @PEFIRMA=*BLANKS                                                 
+     C                   MOVE      *YEAR         RUANY             4                                
+     C                   MOVE      *MONTH        RUMES             2                                
+FQ778C                   MOVE      *DAY          RUDIA             2                                
+      *                                                                                             
+      * CUALQUIER ADJUNTO                                                                           
+      *                                                                                             
+     C                   IF        @PADJD='1'                                                       
+     C                   EVAL      @PEPRTF=@PPRTF                                                   
+     C                   EVAL      @PENOMDOC=@PPRTF                                                 
+      *                                                                                             
+      * FACTURA OUT                                                                                 
+      * Buscamos el fichero de configuración de factura digital                                     
+      *                                                                                             
+     C                   IF        @PTDAJ='3'                                                       
+      *                                                                                             
+     C                   EVAL      EDCIAS=@PCIAS                                                    
+     C                   EVAL      EDDLGA=@PDLGA                                                    
+     C     KEDFADG       CHAIN     EDFADG                                                           
+     C                   IF        NOT %FOUND(EDFADG)                                               
+     C                   EVAL      EDDLGA=*BLANKS                                                   
+     C     KEDFADG       CHAIN     EDFADG                                                           
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        %FOUND(EDFADG)                                                   
+      *                                                                                             
+     C                   EXSR      CS_NOMBREDOC                                                     
+     C                   EVAL      @PENOMDOC=ZXNDOC                                                 
+     C                   IF        EDFDIG<>*BLANKS                                                  
+     C                   EVAL      @PEFIRMA=EDFDIG                                                  
+F4742 *                                                                                             
+F4742 * Si el país es 075 (Marruecos) poner el evento sin firma                                     
+F4742 *                                                                                             
+F4742C                   IF        @PCIAS=075                                                       
+F4742C                   EVAL      @PEVEN='00906'                                                   
+F4742C                   ENDIF                                                                      
+      *                                                                                             
+      * El evento 00906 no lleva firma digital, es sólo para enviar e-mail                          
+      *                                                                                             
+     C                   IF        @PEVEN='00906'                                                   
+     C                   EVAL      @PEFIRMA=*BLANKS                                                 
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Hay una variable en el E-MAIL que nos permite no enviarlo                                   
+      *                                                                                             
+     C                   IF        @PEMAI='1'                                                       
+     C                             AND (@PREMA='*NOMAIL' OR                                         
+     C                             @PREMA='*nomail')                                                
+     C                   EVAL      @PEMAI='0'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Busco destinatario del E-MAIL y si no encuentro, no debo enviar                             
+      *                                                                                             
+     C                   IF        @PEMAI='1'                                                       
+      *                                                                                             
+     C                   EVAL      E1EVEN=@PEVEN                                                    
+     C                   EVAL      E1IDIO=@PIDIO                                                    
+PR550C                   EVAL      E1CIAS=@PCIAS                                                    
+PR550C     KEDMACI       CHAIN     EDMACI                                                           
+PR550C                   IF        NOT %FOUND                                                       
+     C     KEDMAII       CHAIN     EDMAII                                                           
+     C                   IF        NOT %FOUND(EDMAII)                                               
+14812C                   EVAL      E1IDIO='3'                                                       
+14812C     KEDMAII       CHAIN     EDMAII                                                           
+14812C                   IF        NOT %FOUND(EDMAII)                                               
+     C                   EVAL      E1IDIO='1'                                                       
+     C     KEDMAII       CHAIN     EDMAII                                                           
+14812C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+PR550C                   ENDIF                                                                      
+PR550*                  IF        %FOUND(EDMAII)                                                   
+PR550C                   IF        %FOUND                                                           
+      *                                                                                             
+      * Cabecera del E-Mail: Construye textos con variables                                         
+      *                                                                                             
+     C                   MOVEL(P)  E1TCAB        ZXTDET                                             
+      *                                                                                             
+     C                   EVAL      EWCIAS=@PCIAS                                                    
+     C                   EVAL      EWDLGA=@PDLGA                                                    
+     C                   EVAL      EWTDAJ=@PTDAJ                                                    
+     C                   EVAL      EWCODE=@PCODE                                                    
+     C                   EVAL      EWNDOC=@PNDOC                                                    
+     C                   EVAL      EWFDOC=@PFDOC                                                    
+     C                   EVAL      EWLDOC=@PLDOC                                                    
+     C                   EVAL      EWEVEN=@PEVEN                                                    
+     C                   EVAL      EWVARE=*BLANKS                                                   
+     C     KED0531W      SETLL     ED0531W                                                          
+     C     KED0531WB     READE     ED0531W                                                          
+     C                   DOW       NOT %EOF(ED0531W)                                                
+     C                   EXSR      CS_TRATVAR                                                       
+     C     KED0531WB     READE     ED0531W                                                          
+     C                   ENDDO                                                                      
+     C                   MOVEL(P)  ZXTDET        @PEREF                                             
+PR588C                   MOVEL(P)  ZXTDET        @PEREF2                                            
+      *                                                                                             
+      * Detalle del E-Mail: Construye textos con variables                                          
+      *                                                                                             
+     C                   MOVEL(P)  E1TDET        ZXTDET                                             
+     C                   EVAL      EWVARE=*BLANKS                                                   
+     C     KED0531W      SETLL     ED0531W                                                          
+     C     KED0531WB     READE     ED0531W                                                          
+     C                   DOW       NOT %EOF(ED0531W)                                                
+     C                   EXSR      CS_TRATVAR                                                       
+     C     KED0531WB     READE     ED0531W                                                          
+     C                   ENDDO                                                                      
+     C                   MOVEL(P)  ZXTDET        @PEMSG                                             
+      *                                                                                             
+      * Enviar el E-MAIL                                                                            
+      *                                                                                             
+     C                   EXSR      CS_EMAIL                                                         
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Almacen digital                                                                             
+      *                                                                                             
+     C                   IF        @PALMA='1' AND @PTDAJ='3'                                        
+     C                             AND %FOUND(EDFADG)                                               
+      *                                                                                             
+     C                   EVAL      ZXGRUP=0                                                         
+07032C*                  IF        ECCUNO>='000000001'                                              
+07032C*                            AND ECCUNO<='000999999'                                          
+07032C                   IF        ZXCUNO>='000000001'                                              
+07032C                             AND ZXCUNO<='000999999'                                          
+     C                   EVAL      ZXGRUP=1                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Factura OUT (Venta)                                                                         
+      *                                                                                             
+     C                   EVAL      @PERUTAOUT=*BLANKS                                               
+      *                                                                                             
+     C                   IF        EDRALO<>*BLANKS                                                  
+     C                             AND ZXGRUP=1                                                     
+     C                             AND (EDGALM='A' OR                                               
+     C                             EDGALM='B' OR                                                    
+     C                             EDGALM='C' OR                                                    
+     C                             EDGALM='D' OR                                                    
+     C                             EDGALM='I' OR                                                    
+     C                             EDGALM='J' OR                                                    
+     C                             EDGALM='K' OR                                                    
+     C                             EDGALM='L')                                                      
+     C                             OR EDRALO<>*BLANKS                                               
+     C                             AND ZXGRUP=0                                                     
+     C                             AND (EDGALM='A' OR                                               
+     C                             EDGALM='C' OR                                                    
+     C                             EDGALM='E' OR                                                    
+     C                             EDGALM='G' OR                                                    
+     C                             EDGALM='I' OR                                                    
+     C                             EDGALM='K' OR                                                    
+     C                             EDGALM='M' OR                                                    
+     C                             EDGALM='P')                                                      
+     C                   EXSR      CS_ARCHIVEOUT                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Factura IN (Venta como compra)                                                              
+      *                                                                                             
+     C                   IF        EDRALI<>*BLANKS                                                  
+     C                             AND ZXGRUP=1                                                     
+     C                             AND (EDGALM='A' OR                                               
+     C                             EDGALM='B' OR                                                    
+     C                             EDGALM='C' OR                                                    
+     C                             EDGALM='D' OR                                                    
+     C                             EDGALM='E' OR                                                    
+     C                             EDGALM='F' OR                                                    
+     C                             EDGALM='G' OR                                                    
+     C                             EDGALM='H')                                                      
+     C                             OR EDRALI<>*BLANKS                                               
+     C                             AND ZXGRUP=0                                                     
+     C                             AND (EDGALM='A' OR                                               
+     C                             EDGALM='B' OR                                                    
+     C                             EDGALM='E' OR                                                    
+     C                             EDGALM='F' OR                                                    
+     C                             EDGALM='I' OR                                                    
+     C                             EDGALM='J' OR                                                    
+     C                             EDGALM='M' OR                                                    
+     C                             EDGALM='O')                                                      
+     C                   EXSR      CS_ARCHIVEIN                                                     
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      *INLR=*ON                                                        
+      **************************************************************                                
+      * Enviar por E-Mail                                                                           
+      *------------------------------------------------------------*                                
+     C     CS_EMAIL      BEGSR                                                                      
+      *                                                                                             
+PR588C                   if        zxSND2 <> '1'                                                    
+     C                   CALL      'ED0503CL'                                                       
+     C                   PARM      '*EMAIL  '    @PECMD                                             
+     C                   PARM                    @PEREF                                             
+     C                   PARM      @PEEMA        @PEDE                                              
+     C                   PARM      @PREMA        @PEA                                               
+     C                   PARM                    @PECC                                              
+     C                   PARM      '*PDF'        @PEFMT                                             
+     C                   PARM                    @PEMSG                                             
+     C                   PARM                    @PEPRTF                                            
+     C                   PARM                    @PENOMDOC                                          
+     C                   PARM                    @PERUTA                                            
+     C                   PARM                    @PEFIRMA                                           
+PR588C                   else                                                                       
+PR588C                   CALL      'ED0570CL'                                                       
+PR588C                   PARM      @PEEMA        @PEDE                                              
+PR588C                   PARM      @PREMA        @PEA                                               
+PR588C                   PARM                    @PECC                                              
+PR588C                   PARM                    @PEREF2                                            
+PR588C                   PARM                    @PEMSG                                             
+PR588C                   PARM                    @PEPRTF                                            
+PR588C                   PARM      ' '           @PEERRO                                            
+PR588C                   endif                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Archivar en ruta IN                                                                         
+      *------------------------------------------------------------*                                
+     C     CS_ARCHIVEIN  BEGSR                                                                      
+      *                                                                                             
+      * Sólo archivaremos si el cliente es de grupo y tiene Soft Scanvisio                          
+      * en caso contrario haremos un ARCHIVEOUT                                                     
+      *                                                                                             
+     C                   EVAL      PECTAB='SCDG'                                                    
+07032C*                  EVAL      PECLTA=ECCUNO                                                    
+07032C                   EVAL      PECLTA=ZXCUNO                                                    
+F9864C                   if        zxcuno='000050128'                                               
+F9864C                   eval      peclta='000000128'                                               
+F9864C                   endif                                                                      
+     C     KPMTAB2       CHAIN     PMTAB2                                                           
+     C                   IF        %FOUND(PMTAB2) AND PEBAJA<>'1'                                   
+      * Subcarpetas:                                                                                
+      * Los proveedores de grupo tienen su propia carpeta (DIVI)                                    
+      * los 3os tienen su propia carpeta con el código completo                                     
+      * Crea ruta y archiva                                                                         
+      * Pero en la división destino                                                                 
+      * De momento lo hacemos a HARDCODE, ES COMPLICADO                                             
+      *                                                                                             
+     C                   MOVE      @PCIAS        ZXCIOR            3                                
+     C                   IF        ZXCIOR='035'                                                     
+     C                   EVAL      ZXCIOR='114'                                                     
+     C                   ENDIF                                                                      
+07032C*                  MOVE      ECCUNO        ZXCIDE            3                                
+07032C                   MOVE      ZXCUNO        ZXCIDE            3                                
+      *                                                                                             
+      * Intenta crear directorio/s necesario/s y monta la Ruta TELECON                              
+      *                                                                                             
+     C                   EVAL      @DIRE=*BLANKS                                                    
+     C                   EVAL      @PERUTA=*BLANKS                                                  
+      *                                                                                             
+      * Crear directorios que no existan                                                            
+      *                                                                                             
+     C                   EVAL      @DIRE='/Scanvisio/IN/'+RUANY                                     
+     C                   CALL      'ED0533CL'                                                       
+     C                   PARM                    @DIRE                                              
+     C                   EVAL      @DIRE='/Scanvisio/IN/'+RUANY+                                    
+     C                             '/'+RUMES                                                        
+     C                   CALL      'ED0533CL'                                                       
+     C                   PARM                    @DIRE                                              
+     C                   EVAL      @DIRE='/Scanvisio/IN/'+RUANY+                                    
+     C                             '/'+RUMES+'/'+RUDIA                                              
+     C                   CALL      'ED0533CL'                                                       
+     C                   PARM                    @DIRE                                              
+      *                                                                                             
+      * Preparamos la ruta (la ruta debe acabar en \ para no poner 2 barras)                        
+      *                                                                                             
+     C                   EVAL      @PERUTA=%TRIMR(EDRALI)+RUANY+                                    
+     C                             '\'+RUMES+'\'+RUDIA                                              
+      *                                                                                             
+      * Archivado                                                                                   
+      *                                                                                             
+07032C*                  EVAL      E2CIDE=ZXCIDE                                                    
+07032C*                  EVAL      E2DATE=ECDATE                                                    
+07032C*                  EVAL      E2CCCC=ECCCCC                                                    
+07032C*                  EVAL      E2DIVR=ECDIVR                                                    
+07032C*                  EVAL      E2FFAC=ECFFAC                                                    
+07032C*                  EVAL      E2NFAC=ECNFAC                                                    
+07032C*                  EVAL      E2DIVE=ECDIVE                                                    
+07032C*                  EVAL      E2EDII='I'                                                       
+07032C***                EVAL      @PENOMDOC=ZXNDOC2                                                
+     C                   EVAL      @PENOMDOC=ZXNDOC                                                 
+FQ778C                   EVAL      ZXTRUT='I'                                                       
+     C                   EXSR      CS_ARCHIVE                                                       
+      *                                                                                             
+      * Actualiza auditoría de envíos                                                               
+      *                                                                                             
+     C                   EVAL      VWCIAS=@PCIAS                                                    
+     C                   EVAL      VWCUST=@PCODE                                                    
+     C                   EVAL      VWNFAC=@PNDOC                                                    
+     C                   EVAL      VWFFAC=@PFDOC                                                    
+     C     KCOFACC12     CHAIN     COFACC12                                                         
+     C                   IF        %FOUND(COFACC12)                                                 
+     C                   EVAL      VWPDAI='1'                                                       
+     C                   UPDATE    RCOFACC                                                          
+      *                                                                                             
+      * Generar registro SCANVISIO para factura OUT                                                 
+      *                                                                                             
+     C                   CALL      'ED0534'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PCODE                                             
+     C                   PARM                    @PNDOC                                             
+     C                   PARM                    @PFDOC                                             
+     C                   PARM                    @PENOMDOC                                          
+     C                   PARM      @PERUTA       @PERUTAIN        50                                
+     C                   PARM                    @PERUTAOUT       50                                
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ELSE                                                                       
+     C                   EXSR      CS_ARCHIVEOUT                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Archivar en ruta OUT                                                                        
+      *------------------------------------------------------------*                                
+     C     CS_ARCHIVEOUT BEGSR                                                                      
+      *                                                                                             
+      * Subcarpetas:                                                                                
+      * Los proveedores de grupo tienen su propia carpeta (DIVI)                                    
+      * los 3os tienen su propia carpeta con el código completo                                     
+      *                                                                                             
+     C                   MOVE      @PCIAS        ZXCIOR            3                                
+     C                   IF        ZXCIOR='035'                                                     
+     C                   EVAL      ZXCIOR='114'                                                     
+     C                   ENDIF                                                                      
+07032C*                  MOVE      ECCUNO        ZXCIDE            3                                
+07032C                   MOVE      ZXCUNO        ZXCIDE            3                                
+      *                                                                                             
+      * Intenta crear directorio/s necesario/s y monta la Ruta TELECON                              
+      *                                                                                             
+     C                   EVAL      @DIRE='/Scanvisio/OUT/'+ZXCIOR                                   
+     C                   CALL      'ED0533CL'                                                       
+     C                   PARM                    @DIRE                                              
+      *                                                                                             
+     C                   EVAL      @DIRE=*BLANKS                                                    
+     C                   EVAL      @PERUTA=*BLANKS                                                  
+      * Grupo                                                                                       
+     C                   IF        ZXGRUP=1                                                         
+     C                   EVAL      @DIRE='/Scanvisio/OUT/'+ZXCIOR+'/'+ZXCIDE                        
+     C                   CALL      'ED0533CL'                                                       
+     C                   PARM                    @DIRE                                              
+     C                   EVAL      @PERUTA=%TRIMR(EDRALO)+ZXCIDE                                    
+      * Terceros                                                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      @DIRE='/Scanvisio/OUT/'+ZXCIOR+'/'+                              
+D0222C*******                      'Terceros'                                                       
+D0222C                             'T3os'                                                           
+     C                   CALL      'ED0533CL'                                                       
+     C                   PARM                    @DIRE                                              
+07032C*                  EVAL      @DIRE='/Scanvisio/OUT/'+ZXCIOR+'/'+                              
+07032C*                            'Terceros/'+ECCUNO                                               
+07032C                   EVAL      @DIRE='/Scanvisio/OUT/'+ZXCIOR+'/'+                              
+D0222C*******                      'Terceros/'+ZXCUNO                                               
+D0222C                             'T3os/'+ZXCUNO                                                   
+     C                   CALL      'ED0533CL'                                                       
+     C                   PARM                    @DIRE                                              
+07032C*                  EVAL      @PERUTA=%TRIMR(EDRALO)+'Terceros\'+ECCUNO                        
+D0222C*******            EVAL      @PERUTA=%TRIMR(EDRALO)+'Terceros\'+ZXCUNO                        
+D0222C                   EVAL      @PERUTA=%TRIMR(EDRALO)+'T3os\'+ZXCUNO                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Archivado                                                                                   
+      *                                                                                             
+     C                   EVAL      @PENOMDOC=ZXNDOC                                                 
+FQ778C                   EVAL      ZXTRUT='O'                                                       
+     C                   EXSR      CS_ARCHIVE                                                       
+      *                                                                                             
+      * Guarda ruta out                                                                             
+      *                                                                                             
+     C                   EVAL      @PERUTAOUT=@PERUTA                                               
+      *                                                                                             
+      * Actualiza auditoría de envíos                                                               
+      *                                                                                             
+     C                   EVAL      VWCIAS=@PCIAS                                                    
+     C                   EVAL      VWCUST=@PCODE                                                    
+     C                   EVAL      VWNFAC=@PNDOC                                                    
+     C                   EVAL      VWFFAC=@PFDOC                                                    
+     C     KCOFACC12     CHAIN     COFACC12                                                         
+     C                   IF        %FOUND(COFACC12)                                                 
+     C                   EVAL      VWPDAO='1'                                                       
+     C                   UPDATE    RCOFACC                                                          
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Archivar en ruta                                                                            
+      *------------------------------------------------------------*                                
+     C     CS_ARCHIVE    BEGSR                                                                      
+      *                                                                                             
+     C                   CALL      'ED0503CL'                                                       
+     C                   PARM      '*ARCHIVE'    @PECMD                                             
+     C                   PARM                    @PEREF                                             
+     C                   PARM                    @PEDE                                              
+     C                   PARM                    @PEA                                               
+     C                   PARM                    @PECC                                              
+     C                   PARM      '*PDF'        @PEFMT                                             
+     C                   PARM                    @PEMSG                                             
+     C                   PARM                    @PEPRTF                                            
+     C                   PARM                    @PENOMDOC                                          
+     C                   PARM                    @PERUTA                                            
+     C                   PARM                    @PEFIRMA                                           
+FQ778 *                                                                                             
+FQ778 * Grabamos la referencia digital de las facturas de venta                                     
+FQ778 *                                                                                             
+FQ778C                   EXSR      CS_REFDG                                                         
+FQ778 *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Trata una variable                                                                          
+      *------------------------------------------------------------*                                
+     C     CS_TRATVAR    BEGSR                                                                      
+      *                                                                                             
+      * Tengo un Texto de hasta 800 caracteres divididos en 10 líneas                               
+      * Debo haber dejado hueco a la derecha de las variables para que                              
+      * no solape texto. Podría hacerlo con %Trim pero luego no me                                  
+      * deja bien las tabulaciones en el E-Mail                                                     
+      *                                                                                             
+      *                                                                                             
+      * Busca la variable en las 10 líneas y si la encuentra hay que                                
+      * sustituirla por el valor que le corresponda                                                 
+      *                                                                                             
+      * Línea 1                                                                                     
+     C                   MOVEL(P)  ZXTDE1        ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE1                                             
+      * Línea 2                                                                                     
+     C                   MOVEL(P)  ZXTDE2        ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE2                                             
+      * Línea 3                                                                                     
+     C                   MOVEL(P)  ZXTDE3        ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE3                                             
+      * Línea 4                                                                                     
+     C                   MOVEL(P)  ZXTDE4        ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE4                                             
+      * Línea 5                                                                                     
+     C                   MOVEL(P)  ZXTDE5        ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE5                                             
+      * Línea 6                                                                                     
+     C                   MOVEL(P)  ZXTDE6        ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE6                                             
+      * Línea 7                                                                                     
+     C                   MOVEL(P)  ZXTDE7        ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE7                                             
+      * Línea 8                                                                                     
+     C                   MOVEL(P)  ZXTDE8        ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE8                                             
+      * Línea 9                                                                                     
+     C                   MOVEL(P)  ZXTDE9        ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE9                                             
+      * Línea 10                                                                                    
+     C                   MOVEL(P)  ZXTDE10       ZXTEXT                                             
+     C                   EXSR      CS_TRATVAR2                                                      
+     C                   MOVEL(P)  ZXTEXT        ZXTDE10                                            
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Trata una variable                                                                          
+      *------------------------------------------------------------*                                
+     C     CS_TRATVAR2   BEGSR                                                                      
+      *                                                                                             
+     C                   Z-ADD     0             P                 3 0                              
+     C                   Z-ADD     0             X                 3 0                              
+     C                   Z-ADD     0             Y                 3 0                              
+     C                   EVAL      P=%SCAN(EWVARE:ZXTEXT)                                           
+     C                   IF        P>0                                                              
+PR588C                   EVAL      X = 1                                                            
+PR588C                   IF        P-1 > 0                                                          
+PR588C                   EVAL      X = P-1                                                          
+PR588C                   ENDIF                                                                      
+PR588C                   EVAL      ZXTEXT = %SUBST(ZXTEXT:1:X) +                                    
+PR588C                             %trim(EWDATO) +                                                  
+PR588C                             %SUBST(ZXTEXT:P + %len(%trim(EWVARE)))                           
+PR588C*                  CLEAR                   SSTEXT                                             
+PR588C*                  MOVEA     ZXTEXT        SSTEXT                                             
+PR588C*                  CLEAR                   SSDATO                                             
+PR588C*    ' '           CHECKR    EWDATO        X                                                  
+PR588C*                  IF        X>0                                                              
+PR588C*                  MOVEA     '    '        SSTEXT(P)                                          
+PR588C*                  MOVEA     EWDATO        SSDATO                                             
+PR588C*                  DO        X             Y                                                  
+PR588C*                  EVAL      SSTEXT(P)=SSDATO(Y)                                              
+PR588C*                  EVAL      P=P+1                                                            
+PR588C*                  ENDDO                                                                      
+PR588C*                  ENDIF                                                                      
+PR588C*                  MOVEA     SSTEXT        ZXTEXT                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Obtener Nombre del documento (+ Código Movex de Cliente)                                    
+      *------------------------------------------------------------*                                
+     C     CS_NOMBREDOC  BEGSR                                                                      
+      *                                                                                             
+      * Código de cliente/proveedor Movex como clave                                                
+      *                                                                                             
+07032C*                  EVAL      ECCUNO=@PCODE                                                    
+07032C                   EVAL      ZXCUNO=@PCODE                                                    
+      *                                                                                             
+     C                   IF        @PTDAJ='1' OR                                                    
+     C                             @PTDAJ='2' OR                                                    
+     C                             @PTDAJ='3'                                                       
+      *                                                                                             
+     C                   EVAL      S0CIAS=@PCIAS                                                    
+     C                   EVAL      S0CUST=@PCODE                                                    
+     C     KCOCLIN       CHAIN     COCLIN                                                           
+     C                   IF        %FOUND(COCLIN)                                                   
+07032C*                  EVAL      ECCUNO=S0CUNO                                                    
+07032C                   EVAL      ZXCUNO=S0CUNO                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ELSE                                                                       
+      *                                                                                             
+     C                   EVAL      C0CIAS=@PCIAS                                                    
+     C                   EVAL      C0PRVR=@PCODE                                                    
+     C     KPUPROV       CHAIN     PUPROV                                                           
+     C                   IF        %FOUND(PUPROV)                                                   
+07032C*                  EVAL      ECCUNO=C0SUNO                                                    
+07032C                   EVAL      ZXCUNO=C0SUNO                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+07032C*                  EVAL      ECCIAS=@PCIAS                                                    
+07032C*                  MOVE      @PFDOC        ECDATE                                             
+07032C*    KEDFADC       CHAIN     EDFADC                                                           
+07032C*                  IF        %FOUND(EDFADC)                                                   
+07032C*                  IF        ECCCCC=999                                                       
+07032C*                  EVAL      ECCCCC=0                                                         
+07032C*                  ENDIF                                                                      
+07032C*                  EVAL      ECCCCC=ECCCCC+1                                                  
+07032C*                  UPDATE    REDFADC                                                          
+07032C*                  ELSE                                                                       
+07032C*                  EVAL      ECCCCC=1                                                         
+07032C*                  WRITE     REDFADC                                                          
+07032C*                  ENDIF                                                                      
+07032 *                                                                                             
+07032 * Nombre del documento                                                                        
+07032 *                                                                                             
+07032C                   MOVE      ZXCUNO        ECDIVR                                             
+07032C                   MOVE      @PFDOC        ECFFAC                                             
+07032C                   MOVEA     @PNDOC        ZXNFAC                                             
+07032C                   DO        8             N                 2 0                              
+07032C                   IF        ZXNFAC(N)=*BLANKS                                                
+07032C                   EVAL      ZXNFAC(N)='b'                                                    
+Q0043C                   ELSE                                                                       
+Q0043C                   EVAL      IY=%LOOKUP(ZXNFAC(N):ORI)                                        
+Q0043C                   IF        IY<>0                                                            
+Q0043C                   EVAL      ZXNFAC(N)=DES(IY)                                                
+Q0043C                   ENDIF                                                                      
+07032C                   ENDIF                                                                      
+07032C                   ENDDO                                                                      
+07032C                   MOVEA     ZXNFAC        ECNFAC                                             
+07032C                   MOVE      @PCIAS        ECDIVE                                             
+07032C****               EVAL      ECDATE=*DATE                                                     
+      *                                                                                             
+     C                   ENDSR                                                                      
+FQ778 **************************************************************                                
+FQ778 * Registrar la referencia digital                                                             
+FQ778 *------------------------------------------------------------*                                
+FQ778C     CS_REFDG      BEGSR                                                                      
+FQ778 *                                                                                             
+FQ778C                   EVAL      G8CIAS=@PCIAS                                                    
+FQ778C                   EVAL      G8CUST=@PCODE                                                    
+FQ778C                   EVAL      G8NFAC=@PNDOC                                                    
+FQ778C                   EVAL      G8FFAC=@PFDOC                                                    
+FQ778C     KEDRFDG00     CHAIN     EDRFDG00                                                         
+FQ778C                   IF        ZXTRUT='I'                                                       
+FQ778C                   EVAL      G8RUTI=@PERUTA                                                   
+FQ778C                   ENDIF                                                                      
+FQ778C                   IF        ZXTRUT='O'                                                       
+FQ778C                   EVAL      G8RUTO=@PERUTA                                                   
+FQ778C                   ENDIF                                                                      
+FQ778C                   IF        NOT %FOUND(EDRFDG00)                                             
+FQ778C                   EVAL      G8TIPO=3                                                         
+FQ778C                   EVAL      G8DIVI=*BLANKS                                                   
+FQ778C                   EVAL      G8SUNO=*BLANKS                                                   
+FQ778C                   IF        S0CUNO>='000000001'                                              
+FQ778C                             AND S0CUNO<='000999999'                                          
+FQ778C                   EVAL      G8TIPO=0                                                         
+FQ778C                   MOVE      @PCIAS        ZXCIOR            3                                
+FQ778C                   IF        ZXCIOR='035'                                                     
+FQ778C                   EVAL      ZXCIOR='114'                                                     
+FQ778C                   ENDIF                                                                      
+FQ778C                   EVAL      G8DIVI=ZXCIOR                                                    
+FQ778C                   EVAL      G8SUNO='000000'+ZXCIOR                                           
+FQ778C                   ENDIF                                                                      
+FQ778C                   EVAL      G8DLG2=VWDLG2                                                    
+FQ778C                   EVAL      G8DONM=%trimr(@PENOMDOC)+'.PDF'                                  
+FQ778C                   EVAL      G8WRUS=SDSUSR                                                    
+FQ778C                   EVAL      G8WRJO=SDSJOB                                                    
+FQ778C                   EVAL      G8WRDT=*DATE                                                     
+FQ778C                   TIME                    G8WRTM                                             
+FQ778C                   WRITE     EDRFDG                                                           
+FQ778C                   ELSE                                                                       
+FQ778C                   UPDATE    EDRFDG                                                           
+FQ778C                   ENDIF                                                                      
+FQ778 *                                                                                             
+FQ778C                   ENDSR                                                                      
+**                                                                                                  
+\/:*?"<>|                                                                                           
+**                                                                                                  
+--....___                                                                                           

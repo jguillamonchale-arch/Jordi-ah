@@ -1,0 +1,565 @@
+      **************************************************************                                
+      * Obtener Equivalencias                                      *                                
+      **************************************************************                                
+      * Parámetros de E/S                                          *                                
+      **************************************************************                                
+      * @PCONO   3 0   Compañía Movex                              *                                
+      *                                                            *                                
+      * @PDIVI   3     División Movex                              *                                
+      *                En Principio siempre será a blancos ya que  *                                
+      *                debería ser igual que el valor de @PCIAS    *                                
+      *                Se ha creado en el fichero de equivalencias *                                
+      *                porque podría darse algún caso en que la    *                                
+      *                división fuese diferente a la @PCIAS        *                                
+      *                                                            *                                
+      * @PCIAS   3 0   Compañía Aquaria                            *                                
+      *                                                            *                                
+      * @PMODO   1     Modalidad de Retorno                        *                                
+      *                1=Retornar Valor Movex                      *                                
+      *                2=Retornar Valor Aquaria                    *                                
+      *                                                            *                                
+      * @PFLDQ   1 0   Cantidad de Campos Origen a Utilizar        *                                
+      *                Nos indica hasta que campo de los 3 que     *                                
+      *                siguen a continuación debemos tener en      *                                
+      *                cuenta para la busqueda                     *                                
+      *                                                            *                                
+      * @PFLD1   4     Campo Origen 1                              *                                
+      * @PFLD2   4     Campo Origen 2                              *                                
+      * @PFLD3   4     Campo Origen 3                              *                                
+      *                Estos 3 Campos nos indican la combinación   *                                
+      *                de datos en origen para realizar la         *                                
+      *                busqueda                                    *                                
+      *                                                            *                                
+      * @PVAL1  30     Valor de Entrada                            *                                
+      * @PVAL2  30     Valor de Entrada                            *                                
+      * @PVAL3  30     Valor de Entrada                            *                                
+      *                Estos 3 Campos nos indican los 3 Valores    *                                
+      *                                                            *                                
+      * @PFLDR   4     Campo a Buscar                              *                                
+      *                Nos indica que campo queremos que nos       *                                
+      *                busque y retorne su valor                   *                                
+      *                                                            *                                
+      * @PVALO  30     Valor de Retorno                            *                                
+      *                                                            *                                
+      * @PVALT  30     Valor de Trace                              *                                
+      *                Siempre lo retorna en las 2 modalidades     *                                
+      *                                                            *                                
+      * @PDESC  50     Descripción                                 *                                
+      *                Siempre lo retorna en las 2 modalidades     *                                
+      *                                                            *                                
+      * @PPRIO   3 0   Prioridad                                   *                                
+      *                Parece que no se usará                      *                                
+      *                                                            *                                
+      * @PERRO   1     Error                                       *                                
+      *                >=1 No ha encontrado equivalencia           *                                
+      *                                                            *                                
+      **************************************************************                                
+      * Como Actua                                                 *                                
+      **************************************************************                                
+      * Se Trata de que retorne 1 Valor ya sea de Movex o de       *                                
+      * Aquaria a partir de la combinación de 3 campos posibles    *                                
+      * en el origen. (En caso de se necesite retornar 2 valores   *                                
+      * o más, habrá que llamar a este programa tantas veces como  *                                
+      * se necesite cambiando el valor @PFLDR)                     *                                
+      *                                                            *                                
+      * Siempre busca a 3 niveles, del más personalizado al más    *                                
+      * genérico hasta que encuentre la equivalencia               *                                
+      * Si no encuentra en ningún nivel devuelve @PERRO='1'        *                                
+      *                                                            *                                
+      *  Nivel 3: Con la Compañía Movex, la División Movex y la    *                                
+      *           Compañía Aquaria Informadas. (Por si @PDIVI es   *                                
+      *           diferente a @PCIAS)                              *                                
+      *                                                            *                                
+      *  Nivel 2: Se limpia la División Movex                      *                                
+      *                                                            *                                
+      *  Nivel 1: Se limpia la Compañía Aquaria para buscar a      *                                
+      *           nivel General                                    *                                
+      *                                                            *                                
+      **************************************************************                                
+C2331 * Modificación: CR2331         MARCA:C2331                   *                                
+C2331 *        Autor: JLMARTIN                                     *                                
+C2331 * Fecha Inicio: 08/01/2015                                   *                                
+C2331 *  Descripción: CALIFICA BIBLIOTECAS MOVEX SEGÚN ENTORNO     *                                
+C2331 **************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+      *                                                                                             
+      **************************************************************                                
+      * Definición de Ficheros                                     *                                
+      **************************************************************                                
+      *                                                                                             
+     FEQTABL00  IF   E           K DISK    RENAME(EQTABL:REQTABL00)                                 
+     F                                     USROPN EXTFILE(File1)                                    
+     FEQTABL10  IF   E           K DISK    RENAME(EQTABL:REQTABL10)                                 
+     F                                     USROPN EXTFILE(File2)                                    
+C2331FPMTAB2    IF   E           K DISK                                                             
+C2331F                                     USROPN EXTFILE(File_UTILIB)                              
+      *                                                                                             
+      **************************************************************                                
+      * Definición de Estructuras                                  *                                
+      **************************************************************                                
+      *                                                                                             
+     D  @PCONO         S              3P 0                                                          
+     D  @PDIVI         S              3                                                             
+     D  @PCIAS         S              3P 0                                                          
+     D  @PMODO         S              1                                                             
+     D  @PFLDQ         S              1P 0                                                          
+     D  @PFLD1         S              4                                                             
+     D  @PFLD2         S              4                                                             
+     D  @PFLD3         S              4                                                             
+     D  @PVAL1         S             30                                                             
+     D  @PVAL2         S             30                                                             
+     D  @PVAL3         S             30                                                             
+     D  @PFLDR         S              4                                                             
+     D  @PVALO         S             30                                                             
+     D  @PVALT         S             30                                                             
+     D  @PDESC         S             50                                                             
+     D  @PPRIO         S              1P 0                                                          
+     D  @PERRO         S              1                                                             
+      *                                                                                             
+     D  ZXOK           S              1    INZ                                                      
+     D  ZXOK1          S              1    INZ                                                      
+     D  ZXOK2          S              1    INZ                                                      
+     D  ZXOK3          S              1    INZ                                                      
+     D  ZXVAL1         S                   LIKE(EQMVAL) INZ                                         
+     D  ZXVAL2         S                   LIKE(EQMVAL) INZ                                         
+     D  ZXVAL3         S                   LIKE(EQMVAL) INZ                                         
+      *                                                                                             
+C2331D*File1           S             21    INZ('AQAJDTATST/EQTABL00')                               
+C2331D*File2           S             21    INZ('AQAJDTATST/EQTABL10')                               
+C2331D File1           S             21    INZ('/EQTABL00')                                         
+C2331D File2           S             21    INZ('/EQTABL10')                                         
+C2331d File_BIBM3A     s             21                                                             
+C2331d File_UTILIB     s             21    INZ('UTILIBF/PMTAB2')                                    
+      **************************************************************                                
+      * Entrada de Parámetros                                      *                                
+      **************************************************************                                
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCONO                                             
+     C                   PARM                    @PDIVI                                             
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PMODO                                             
+     C                   PARM                    @PFLDQ                                             
+     C                   PARM                    @PFLD1                                             
+     C                   PARM                    @PFLD2                                             
+     C                   PARM                    @PFLD3                                             
+     C                   PARM                    @PVAL1                                             
+     C                   PARM                    @PVAL2                                             
+     C                   PARM                    @PVAL3                                             
+     C                   PARM                    @PFLDR                                             
+     C                   PARM                    @PVALO                                             
+     C                   PARM                    @PVALT                                             
+     C                   PARM                    @PDESC                                             
+     C                   PARM                    @PPRIO                                             
+     C                   PARM                    @PERRO                                             
+      *                                                                                             
+      **************************************************************                                
+      * Definición de Claves                                       *                                
+      **************************************************************                                
+      *                                                                                             
+     C     KEQTABL00P    KLIST                                                                      
+     C                   KFLD                    EQMCOD                                             
+     C                   KFLD                    EQACOD                                             
+     C                   KFLD                    EQMCIA                                             
+     C                   KFLD                    EQMDIV                                             
+     C                   KFLD                    EQMVAL                                             
+     C                   KFLD                    EQACIA                                             
+     C                   KFLD                    EQAVAL                                             
+      *                                                                                             
+     C     KEQTABL00     KLIST                                                                      
+     C                   KFLD                    EQMCOD                                             
+     C                   KFLD                    EQACOD                                             
+     C                   KFLD                    EQMCIA                                             
+     C                   KFLD                    EQMDIV                                             
+     C                   KFLD                    EQMVAL                                             
+     C                   KFLD                    EQACIA                                             
+      *                                                                                             
+     C     KEQTABL10P    KLIST                                                                      
+     C                   KFLD                    EQMCOD                                             
+     C                   KFLD                    EQACOD                                             
+     C                   KFLD                    EQACIA                                             
+     C                   KFLD                    EQAVAL                                             
+     C                   KFLD                    EQMCIA                                             
+     C                   KFLD                    EQMDIV                                             
+     C                   KFLD                    EQMVAL                                             
+      *                                                                                             
+     C     KEQTABL10     KLIST                                                                      
+     C                   KFLD                    EQMCOD                                             
+     C                   KFLD                    EQACOD                                             
+     C                   KFLD                    EQACIA                                             
+     C                   KFLD                    EQAVAL                                             
+     C                   KFLD                    EQMCIA                                             
+     C                   KFLD                    EQMDIV                                             
+      *                                                                                             
+C2331C     KPMTAB2       KLIST                                                                      
+C2331C                   KFLD                    PECTAB                                             
+C2331C                   KFLD                    PECLTA                                             
+      **************************************************************                                
+      * Estructura                                                 *                                
+      **************************************************************                                
+C2331 * CARREGA ENTORN BIBLIOTEQUES MOVEX                                                           
+C2331C                   EXSR      CS_EXTFILE                                                       
+      *                                                                                             
+     C                   OPEN(E)   EQTABL00                                                         
+     C                   OPEN(E)   EQTABL10                                                         
+      *                                                                                             
+      * Preparación de Campos Comunes                                                               
+      *        La Compañia la fuerzo siempre a 1 ya que las equivalencias                           
+      *           las tenemos a 1 y de momento solo trabajaremos con una compañia                   
+      ****               MOVEL     @PCONO        EQMCIA                                             
+     C                   EVAL      EQMCIA=1                                                         
+      *                                                                                             
+     C                   MOVEL     @PDIVI        EQMDIV                                             
+     C                   MOVEL     @PCIAS        EQACIA                                             
+      *                                                                                             
+     C                   SELECT                                                                     
+     C                   WHEN      @PMODO='1'                                                       
+     C                   MOVEL     @PFLDR        EQMCOD                                             
+     C                   WHEN      @PMODO='2'                                                       
+     C                   MOVEL     @PFLDR        EQACOD                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+      * Limpio los campos de Retorno                                                                
+      *                                                                                             
+     C                   MOVEL     *BLANKS       @PVALO                                             
+     C                   MOVEL     *BLANKS       @PVALT                                             
+     C                   MOVEL     *BLANKS       @PDESC                                             
+     C                   MOVEL     *BLANKS       @PPRIO                                             
+     C                   MOVEL     *BLANKS       @PERRO                                             
+      *                                                                                             
+      * Proceso de 3 Niveles                                                                        
+      *                                                                                             
+      * Nivel 3 (Clave Completa)                                                                    
+      *                                                                                             
+     C                   EXSR      CS_CAMPO1                                                        
+      *                                                                                             
+     C                   IF        @PFLDQ=1 AND ZXOK1='1'                                           
+     C                             OR @PFLDQ=2 AND ZXOK2='1'                                        
+     C                             OR @PFLDQ=3 AND ZXOK3='1'                                        
+     C                   EVAL      ZXOK='1'                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Nivel 2 (Limpiando División Movex)                                                          
+      *                                                                                             
+     C                   IF        ZXOK<>'1'                                                        
+     C                   MOVEL     *BLANKS       EQMDIV                                             
+     C                   EXSR      CS_CAMPO1                                                        
+      *                                                                                             
+     C                   IF        @PFLDQ=1 AND ZXOK1='1'                                           
+     C                             OR @PFLDQ=2 AND ZXOK2='1'                                        
+     C                             OR @PFLDQ=3 AND ZXOK3='1'                                        
+     C                   EVAL      ZXOK='1'                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Nivel 1 (Limpiando Empresa Aquaria)                                                         
+      *                                                                                             
+     C                   IF        ZXOK<>'1'                                                        
+     C                   EVAL      EQACIA=0                                                         
+     C                   EXSR      CS_CAMPO1                                                        
+      *                                                                                             
+     C                   IF        @PFLDQ=1 AND ZXOK1='1'                                           
+     C                             OR @PFLDQ=2 AND ZXOK2='1'                                        
+     C                             OR @PFLDQ=3 AND ZXOK3='1'                                        
+     C                   EVAL      ZXOK='1'                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Resultado Final                                                                             
+      *                                                                                             
+     C                   IF        ZXOK<>'1'                                                        
+     C                   EVAL      @PERRO='1'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   CLOSE(E)  EQTABL00                                                         
+     C                   CLOSE(E)  EQTABL10                                                         
+      *                                                                                             
+     C                   EVAL      *INLR=*ON                                                        
+      **************************************************************                                
+      * Combinación por Campo 1                                    *                                
+      **************************************************************                                
+      *                                                                                             
+     C     CS_CAMPO1     BEGSR                                                                      
+      *                                                                                             
+     C                   SELECT                                                                     
+      *                                                                                             
+      * Buscar Valor Movex a partir de un valor Aquaria                                             
+      *                                                                                             
+     C                   WHEN      @PMODO='1'                                                       
+     C                   MOVEL     @PFLD1        EQACOD                                             
+     C                   MOVEL     @PVAL1        EQAVAL                                             
+     C                   MOVEL     *BLANKS       EQMVAL                                             
+     C     KEQTABL10P    SETLL     EQTABL10                                                         
+     C     KEQTABL10     READE     EQTABL10                                                         
+     C                   DOW       NOT %EOF(EQTABL10)                                               
+      *                                                                                             
+      * Valor Encontrado                                                                            
+      *                                                                                             
+     C                   IF        @PFLDQ=1                                                         
+     C                   EVAL      ZXOK1='1'                                                        
+     C                   MOVEL     EQMVAL        @PVALO                                             
+     C                   MOVEL     EQTVAL        @PVALT                                             
+     C                   MOVEL     EQDESC        @PDESC                                             
+     C                   MOVEL     EQPRIO        @PPRIO                                             
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Valor no encontrado porque debo Seguir buscando combinaciones                               
+      * Guardo la clave del último registro leído Y como comparación                                
+      *                                                                                             
+     C                   MOVEL     EQMVAL        ZXVAL1                                             
+     C                   IF        @PFLDQ>1                                                         
+     C                   EXSR      CS_CAMPO2                                                        
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Si no he encontrado aún,sigo reposicionándome en el Registro que leí                        
+      *                                                                                             
+     C                   IF        ZXOK1='1'                                                        
+     C                   LEAVE                                                                      
+     C                   ELSE                                                                       
+     C                   MOVEL     @PFLD1        EQACOD                                             
+     C                   MOVEL     @PVAL1        EQAVAL                                             
+     C                   MOVEL     ZXVAL1        EQMVAL                                             
+     C     KEQTABL10P    SETGT     EQTABL10                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KEQTABL10     READE     EQTABL10                                                         
+     C                   ENDDO                                                                      
+      *                                                                                             
+      * Buscar Valor Aquaria a partir de un Valor Movex                                             
+      *                                                                                             
+     C                   WHEN      @PMODO='2'                                                       
+     C                   MOVEL     @PFLD1        EQMCOD                                             
+     C                   MOVEL     @PVAL1        EQMVAL                                             
+     C                   MOVEL     *BLANKS       EQAVAL                                             
+     C     KEQTABL00P    SETLL     EQTABL00                                                         
+     C     KEQTABL00     READE     EQTABL00                                                         
+     C                   DOW       NOT %EOF(EQTABL00)                                               
+      *                                                                                             
+      * Valor Encontrado                                                                            
+      *                                                                                             
+     C                   IF        @PFLDQ=1                                                         
+     C                   EVAL      ZXOK1='1'                                                        
+     C                   MOVEL     EQAVAL        @PVALO                                             
+     C                   MOVEL     EQTVAL        @PVALT                                             
+     C                   MOVEL     EQDESC        @PDESC                                             
+     C                   MOVEL     EQPRIO        @PPRIO                                             
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Valor no encontrado porque debo Seguir buscando combinaciones                               
+      * Guardo la clave del último registro leído                                                   
+      *                                                                                             
+     C                   MOVEL     EQAVAL        ZXVAL1                                             
+     C                   IF        @PFLDQ>1                                                         
+     C                   EXSR      CS_CAMPO2                                                        
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Si no he encontrado aún,sigo reposicionándome en el Registro que leí                        
+      *                                                                                             
+     C                   IF        ZXOK1='1'                                                        
+     C                   LEAVE                                                                      
+     C                   ELSE                                                                       
+     C                   MOVEL     @PFLD1        EQMCOD                                             
+     C                   MOVEL     @PVAL1        EQMVAL                                             
+     C                   MOVEL     ZXVAL1        EQAVAL                                             
+     C     KEQTABL00P    SETGT     EQTABL00                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KEQTABL00     READE     EQTABL00                                                         
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Combinación por Campo 2                                    *                                
+      **************************************************************                                
+      *                                                                                             
+     C     CS_CAMPO2     BEGSR                                                                      
+      *                                                                                             
+     C                   SELECT                                                                     
+      *                                                                                             
+      * Buscar Valor Movex a partir de un valor Aquaria                                             
+      *                                                                                             
+     C                   WHEN      @PMODO='1'                                                       
+     C                   MOVEL     @PFLD2        EQACOD                                             
+     C                   MOVEL     @PVAL2        EQAVAL                                             
+     C                   MOVEL     *BLANKS       EQMVAL                                             
+     C     KEQTABL10P    SETLL     EQTABL10                                                         
+     C     KEQTABL10     READE     EQTABL10                                                         
+     C                   DOW       NOT %EOF(EQTABL10)                                               
+      *                                                                                             
+      * Valor Encontrado                                                                            
+      *                                                                                             
+     C                   IF        @PFLDQ=2 AND EQMVAL=ZXVAL1                                       
+     C                   EVAL      ZXOK1='1'                                                        
+     C                   EVAL      ZXOK2='1'                                                        
+     C                   MOVEL     EQMVAL        @PVALO                                             
+     C                   MOVEL     EQTVAL        @PVALT                                             
+     C                   MOVEL     EQDESC        @PDESC                                             
+     C                   MOVEL     EQPRIO        @PPRIO                                             
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Valor no encontrado porque debo Seguir buscando combinaciones                               
+      * Guardo la clave del último registro leído Y como comparación                                
+      *                                                                                             
+     C                   MOVEL     EQMVAL        ZXVAL2                                             
+     C                   IF        @PFLDQ>2                                                         
+     C                   EXSR      CS_CAMPO3                                                        
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Si no he encontrado aún,sigo reposicionándome en el Registro que leí                        
+      *                                                                                             
+     C                   IF        ZXOK2='1'                                                        
+     C                   LEAVE                                                                      
+     C                   ELSE                                                                       
+     C                   MOVEL     @PFLD2        EQACOD                                             
+     C                   MOVEL     @PVAL2        EQAVAL                                             
+     C                   MOVEL     ZXVAL2        EQMVAL                                             
+     C     KEQTABL10P    SETGT     EQTABL10                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KEQTABL10     READE     EQTABL10                                                         
+     C                   ENDDO                                                                      
+      *                                                                                             
+      * Buscar Valor Aquaria a partir de un Valor Movex                                             
+      *                                                                                             
+     C                   WHEN      @PMODO='2'                                                       
+     C                   MOVEL     @PFLD2        EQMCOD                                             
+     C                   MOVEL     @PVAL2        EQMVAL                                             
+     C                   MOVEL     *BLANKS       EQAVAL                                             
+     C     KEQTABL00P    SETLL     EQTABL00                                                         
+     C     KEQTABL00     READE     EQTABL00                                                         
+     C                   DOW       NOT %EOF(EQTABL00)                                               
+      *                                                                                             
+      * Valor Encontrado                                                                            
+      *                                                                                             
+     C                   IF        @PFLDQ=2 AND EQAVAL=ZXVAL1                                       
+     C                   EVAL      ZXOK1='1'                                                        
+     C                   EVAL      ZXOK2='1'                                                        
+     C                   MOVEL     EQAVAL        @PVALO                                             
+     C                   MOVEL     EQTVAL        @PVALT                                             
+     C                   MOVEL     EQDESC        @PDESC                                             
+     C                   MOVEL     EQPRIO        @PPRIO                                             
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Valor no encontrado porque debo Seguir buscando combinaciones                               
+      * Guardo la clave del último registro leído                                                   
+      *                                                                                             
+02116 ****               MOVEL     EQAVAL        ZXVAL1                                             
+02116C                   MOVEL     EQAVAL        ZXVAL2                                             
+     C                   IF        @PFLDQ>2                                                         
+     C                   EXSR      CS_CAMPO3                                                        
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Si no he encontrado aún,sigo reposicionándome en el Registro que leí                        
+      *                                                                                             
+     C                   IF        ZXOK2='1'                                                        
+     C                   LEAVE                                                                      
+     C                   ELSE                                                                       
+     C                   MOVEL     @PFLD2        EQMCOD                                             
+     C                   MOVEL     @PVAL2        EQMVAL                                             
+     C                   MOVEL     ZXVAL2        EQAVAL                                             
+     C     KEQTABL00P    SETGT     EQTABL00                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KEQTABL00     READE     EQTABL00                                                         
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Combinación por Campo 3                                    *                                
+      **************************************************************                                
+      *                                                                                             
+     C     CS_CAMPO3     BEGSR                                                                      
+      *                                                                                             
+     C                   SELECT                                                                     
+      *                                                                                             
+      * Buscar Valor Movex a partir de un valor Aquaria                                             
+      *                                                                                             
+     C                   WHEN      @PMODO='1'                                                       
+     C                   MOVEL     @PFLD3        EQACOD                                             
+     C                   MOVEL     @PVAL3        EQAVAL                                             
+     C                   MOVEL     *BLANKS       EQMVAL                                             
+     C     KEQTABL10P    SETLL     EQTABL10                                                         
+     C     KEQTABL10     READE     EQTABL10                                                         
+     C                   DOW       NOT %EOF(EQTABL10)                                               
+      *                                                                                             
+      * Valor Encontrado                                                                            
+      *                                                                                             
+     C                   IF        @PFLDQ=3 AND EQMVAL=ZXVAL2                                       
+     C                   EVAL      ZXOK1='1'                                                        
+     C                   EVAL      ZXOK2='1'                                                        
+     C                   EVAL      ZXOK3='1'                                                        
+     C                   MOVEL     EQMVAL        @PVALO                                             
+     C                   MOVEL     EQTVAL        @PVALT                                             
+     C                   MOVEL     EQDESC        @PDESC                                             
+     C                   MOVEL     EQPRIO        @PPRIO                                             
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KEQTABL10     READE     EQTABL10                                                         
+     C                   ENDDO                                                                      
+      *                                                                                             
+      * Buscar Valor Aquaria a partir de un Valor Movex                                             
+      *                                                                                             
+     C                   WHEN      @PMODO='2'                                                       
+     C                   MOVEL     @PFLD3        EQMCOD                                             
+     C                   MOVEL     @PVAL3        EQMVAL                                             
+     C                   MOVEL     *BLANKS       EQAVAL                                             
+     C     KEQTABL00P    SETLL     EQTABL00                                                         
+     C     KEQTABL00     READE     EQTABL00                                                         
+     C                   DOW       NOT %EOF(EQTABL00)                                               
+      *                                                                                             
+      * Valor Encontrado                                                                            
+      *                                                                                             
+     C                   IF        @PFLDQ=3 AND EQAVAL=ZXVAL2                                       
+     C                   EVAL      ZXOK1='1'                                                        
+     C                   EVAL      ZXOK2='1'                                                        
+     C                   EVAL      ZXOK3='1'                                                        
+     C                   MOVEL     EQAVAL        @PVALO                                             
+     C                   MOVEL     EQTVAL        @PVALT                                             
+     C                   MOVEL     EQDESC        @PDESC                                             
+     C                   MOVEL     EQPRIO        @PPRIO                                             
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     KEQTABL00     READE     EQTABL00                                                         
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+C2331 *                                                                                             
+C2331 **************************************************************                                
+C2331 * CARREGA DE LA BIBLIOTECA DE MOVEX DEL PARÀMETRE            *                                
+C2331 *------------------------------------------------------------*                                
+C2331C     CS_EXTFILE    BEGSR                                                                      
+C2331C                   OPEN(E)   PMTAB2                                                           
+C2331C                   EVAL      PECTAB='A400'                                                    
+C2331C                   EVAL      PECLTA='M3A'                                                     
+C2331C     KPMTAB2       CHAIN     PMTAB2                                                           
+C2331C                   IF        %FOUND(PMTAB2)                                                   
+C2331C                   EVAL      FILE_BIBM3A=%TRIM(PEDESC)                                        
+C2331C                   ENDIF                                                                      
+C2331 *                                                                                             
+C2331C                   EVAL      File1=%TRIM(FILE_BIBM3A)                                         
+C2331C                                          +File1                                              
+C2331C                   EVAL      File2=%TRIM(FILE_BIBM3A)                                         
+C2331C                                          +File2                                              
+C2331C                   CLOSE(E)  PMTAB2                                                           
+C2331C     CS_EXTFILET   ENDSR                                                                      
+C2331 **************************************************************                                
+C2331 **************************************************************                                
+C2331 * INICIALIZAR VARIABLES                                                                       
+C2331 *------------------------------------------------------------*                                
+C2331C     *INZSR        BEGSR                                                                      
+     C                   ENDSR                                                                      

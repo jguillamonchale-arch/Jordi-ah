@@ -1,0 +1,1637 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE LOGISTICA                              *                                
+      **************************************************************                                
+      * TITOL: ED0053  © FLUIDRA SERVICES                          *                                
+      * DATA CREACIO:  18/03/2010                                                                   
+      * FUNCIO DEL PROGRAMA: Mantenimiento Parámetros Fluidra Direct                                
+      * (DSP/CRT/DLT/CPY/CHG)                                      *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      * ZXOPT1 = NOM DEL PROCÉS                                    *                                
+      *        - PN = FORMAT DE PANTALLA N.(N=[01,02,...,99])      *                                
+      *        - WN = WINDOWS N.(N=[01,02,...,99])                 *                                
+      * ZXOPT2 = RUTINA DINTRE DEL PROCÉS                          *                                
+      *        - 'INZ'= INICILITZAR                                *                                
+      *        - 'DSP'= VISUALITZAR LA PANTALLA                    *                                
+      *        - 'CMD'= VALIDACIÓ DE LES TECLES DE FUNCIÓ          *                                
+      *        - 'CHK'= VALIDACIÓ DE LA PANTALLA                   *                                
+      *        - 'CLR'= NETEJA LA PANTALLA                         *                                
+      *        - 'UPD'= ACTUALITZACIONS DELS FITXERS               *                                
+      *                                                            *                                
+      **************************************************************                                
+FQ607 * Modificación: FQ607                                        *                                
+FQ607 *        Autor: Lluís Campo                                  *                                
+FQ607 * Fecha Inicio: 27/05/2010                                   *                                
+FQ607 *  Descripción: Fluidra direct. Circuito incidencias SC.     *                                
+FQ607 **************************************************************                                
+FQ710 * Modificación: FQ710                                        *                                
+FQ710 *        Autor: Josep Aragonès                               *                                
+FQ710 * Fecha Inicio: 28/09/2010                                   *                                
+FQ710 *  Descripción: Limite por expedición y dias bloqueo prepar. *                                
+FQ710 **************************************************************                                
+FQ726 * Modificación: FQ726                                        *                                
+FQ726 *        Autor: Josep Aragonès                               *                                
+FQ726 * Fecha Inicio: 03/11/2010                                   *                                
+FQ726 *  Descripción: Parametrización Certikin y Cías Extranjeras  *                                
+FQ726 **************************************************************                                
+FQ765 * Modificación: FQ765                                        *                                
+FQ765 *        Autor: JMARTINEZP                                   *                                
+FQ765 * Fecha Inicio: 10/02/2011                                   *                                
+FQ765 *  Descripción: GESTIÓN PORTES FD                            *                                
+FQ765 **************************************************************                                
+      * Modificación: FQ798                                        *                                
+      *        Autor: JMARTINEZP                                   *                                
+      * Fecha Inicio: 03/03/2011                                   *                                
+      *  Descripción: Control Bajas                                *                                
+      **************************************************************                                
+      * Modificación: FQ798                                        *                                
+      *        Autor: JMARTINEZP                                   *                                
+      * Fecha Inicio: 16/05/2011                                   *                                
+      *  Descripción: TPV-NCD Fluidra España (Operador Logístico)  *                                
+      **************************************************************                                
+FH009 * Modificación: FH009                                        *                                
+FH009 *        Autor: Josep Aragonès                               *                                
+FH009 * Fecha Inicio: 27/04/2012                                   *                                
+FH009 *  Descripción: Procés reserva especial FD desreserva DLGA   *                                
+FH009 **************************************************************                                
+      * Modificación: C1369                                        *                                
+      *        Autor: JMARTINEZP                                   *                                
+      * Fecha Inicio: 15/10/2013                                   *                                
+      *  Descripción: LOGÍSTICA VIRTUAL PARA ENVIOS AUTOMÁTICOS    *                                
+      *               OPERADOR LOGÍSTICO MATERIAL NO PROPIO        *                                
+      **************************************************************                                
+C1636 * Modificación: CR1636             Marca: C1636              *                                
+C1636 *        Autor: Carlos Martínez M.                           *                                
+C1636 * Fecha Inicio: 12/02/2014                                   *                                
+C1636 *  Descripción: Nuevo Parámetro: Verificar Artículos "B"     *                                
+C1636 **************************************************************                                
+CR533 * Modificación: CR533              Marca: CR533              *                                
+CR533 *        Autor: Carlos Martínez M.                           *                                
+CR533 * Fecha Inicio: 18/03/2014                                   *                                
+CR533 *  Descripción: Nuevo Parámetro: FD para Pedidos sin Cargo.  *                                
+CR533 **************************************************************                                
+68162 * HelpDesk    : 268162             Marca: 68162              *                                
+68162 *        Autor: jlamrtin                                     *                                
+68162 * Fecha Inicio: 23/04/2015                                   *                                
+68162 *  Descripción: Error Visualización                          *                                
+68162 **************************************************************                                
+C2510 * DATA DE MODIFICACIÓ: 12/03/2015  MARCA: C2510      CR2510  *                                
+C2510 * AUTOR: Javier Arbide                                       *                                
+C2510 * DOCUMENTACIÓ: Importes pedido y expedición en ED forzada   *                                
+C2510 *               Permitir visualizar importes minimos pedido  *                                
+C2510 *               y expedicion y dias bloqueo expedición para  *                                
+C2510 *               'Solo ED forzada'                            *                                
+C2510 **************************************************************                                
+C4137* Data de Modificació: 22/09/2017  Marca: C4137              *                                
+C4137* Autor: Cecilio Ruiz                                        *                                
+C4137* Documentació: 171 - SIBO DC - ORDERS                       *                                
+C4137**************************************************************                                
+C4406* Data de Modificació: 03/05/2018  Marca: C4406              *                                
+C4406* Autor: Jordi Montesinos                                    *                                
+C4406* Documentació: FD con UNISTRAL Recambios                    *                                
+C4406**************************************************************                                
+     **************************************************************************                    
+IT244* DATA DE MODIFICACIÓ: 22/06/2022     MARCA: IT244 (ITOM244) *                                
+IT244* AUTOR:        David Grau                                   *                                
+IT244* Si la empresa trabaja con la versión 3, la decisión DOM, será                               
+IT244* redirigida a unos nuevos programas                         *                                
+     **************************************************************************                    
+22419* DATA DE MODIFICACIÓ: 27/03/2023     MARCA: 22419           *                                
+22419* AUTOR              : Aubay(Miki)                           *                                
+22419* DOCUMENTACIO       : Añadido tratamiento artículo para     *                                
+22419*                       producto químico                     *                                
+22419**************************************************************                                
+SE257* DATA DE MODIFICACIÓ: 24/02/2026     MARCA: SE257           *                                
+SE257* AUTOR              : Lluís Albert Grau                     *                                
+SE257* DOCUMENTACIO       : Múltiples cargos por albaran.         *                                
+SE257*                      Añadir múltiples líneas de            *                                
+SE257*                      Portes/Cargo pedido en mismo albarán  *                                
+SE257*                      AS400.                                *                                
+SE257*                      SLE-257 / RITM0102095                 *                                
+SE257**************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+                                                                                                    
+     FED0053FM  CF   E             WORKSTN INFDS(FMTDS)                                             
+     FEDPARM    UF A E           K DISK    INFDS(FMFDS) INFSR(*PSSR)                                
+     FPMEMPR    IF   E           K DISK                                                             
+FQ726FPMTAB2    IF   E           K DISK                                                             
+FQ765FMSARTI00  IF   E           K DISK                                                             
+FQ765FPMTABD    IF   E           K DISK                                                             
+FQ798FEDHPAR    O    E           K DISK                                                             
+FQ798FCODEPE    IF   E           K DISK                                                             
+FQ798FCOCAPE    IF   E           K DISK                                                             
+                                                                                                    
+     D* AREA DE DADES DE PROGRAMA I INICIALITZACIO DE VALORS COMUNS                                 
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D    CCCPGM                     10    OVERLAY(SDSPGM)                                          
+     D  SDSJOB               244    253                                                             
+     D    CCCJOB                     10    OVERLAY(SDSJOB)                                          
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+FQ710 *                                                                                             
+FQ710 * PARÀMETRES PEL PRD650 I CAMPS DE TREBALL ASSOCIATS                                          
+FQ710 * VALOR NUMÈRIC                                                                               
+FQ710D   PXNUM         S             29  9                                                          
+FQ710 * VALOR ALFANUMÈRIC                                                                           
+FQ710D   PXALPH        S             29                                                             
+FQ710 * LONGITUD TOTAL DEL CAMP (Nº CARÀCTERS INCLÒS CODI EDICIÓ)                                   
+FQ710D   PXFLDD        S              2  0 INZ(20)                                                  
+FQ710 * Nº DE DECIMALS DEL CAMP                                                                     
+FQ710D  PXDCCD         S              1  0                                                          
+FQ710 * TIPUS DE FORMAT DECIMAL (.,)                                                                
+FQ710D  PXFMD1         S                   LIKE(ZZFMD1)INZ                                          
+FQ710 * CODI D'EDICIÓ (4,M,Q,Z)                                                                     
+FQ710D  PXEDTC         S                   LIKE(ZZEDTC)INZ('M')                                     
+FQ710D  PXEDT2         S                   LIKE(ZZEDTC)INZ('K')                                     
+FQ710 * RETORN CODI D'ERROR                                                                         
+FQ710D  PXNMER         S              1  0 INZ(0)                                                   
+FQ710 * TIPUS D'AJUST DECIMAL (0=MIG 1=PER SOBRE 2=PER SOTA)                                        
+FQ710D  PXTIPA         S                   LIKE(ZZAJUD)                                             
+                                                                                                    
+      * AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                       
+     D DSLDA         E DS                  EXTNAME(PURLDADS)                                        
+     D    CCCDEEM                    30    OVERLAY(ZZDEEM)                                          
+                                                                                                    
+     D* AREA DE DADES D'INFORMACIÓ ARXIU                                                            
+     D  FMTDS          DS                                                                           
+     D    FMTPOCUR           370    371B 0                                                          
+     D    FMTPOS             378    379B 0                                                          
+     D    FMTRCD         *RECORD                                                                    
+     D  FMFDS          DS                                                                           
+     D    FMFFILE        *FILE                                                                      
+     D    FMFSTS         *STATUS                                                                    
+                                                                                                    
+     D* CONTROL DEL FLUXE DEL PROGRAMA                                                              
+     D                 DS                                                                           
+     D  ZXOPT                  1      6                                                             
+     D    ZXOPT1               1      3                                                             
+     D    ZXOPT2               4      6                                                             
+                                                                                                    
+     D* Descomposicion de FIELD para tomar la parte del diccionario                                 
+     D                 DS                                                                           
+     D  FIELD                  1     10                                                             
+     D    ZXFMTO               1      3                                                             
+     D    ZXFIE4               4      7                                                             
+      * PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                               
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D    INDCHG                      1    OVERLAY(WRK25)                                           
+     D    INDCPY                      1    OVERLAY(WRK26)                                           
+     D    INDDLT                      1    OVERLAY(WRK27)                                           
+     D    INDDSP                      1    OVERLAY(WRK28)                                           
+     D    INDCRT                      1    OVERLAY(WRK29)                                           
+     D    INDPROT                     1    OVERLAY(SETL00)                                          
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXPOSCUR               1      4  2                                                          
+     D    ZXPOSX               1      2  0                                                          
+     D    ZXPOSY               3      4  0                                                          
+      * Definicion de algunas constantes                                                            
+     D  ZXZERO10       C                   '0000000000'                                             
+      *IMPORTACIÓ DE PARÀMETRES                                                                     
+                                                                                                    
+     D  @PCIAS         S                   LIKE(T3CIAS)                                             
+     D  @PDLGA         S                   LIKE(T3DLGA)                                             
+     D  @POPCI         S              2                                                             
+     D  @PERRO         S              1                                                             
+FQ726D  @PCLTA         S             10    INZ                                                      
+FQ726D  @PCTAB         S             10    INZ                                                      
+                                                                                                    
+     D  @PFILE         S             10                                                             
+     D  @PPGM          S             10                                                             
+     D  @POBJE         S             10                                                             
+     D  @PTOBJ         S             10                                                             
+     D  @JOBD          S             10                                                             
+     D  @TIPD          S             10                                                             
+                                                                                                    
+      *EXPORTACIÓ DE PARÀMETRES                                                                     
+                                                                                                    
+     D    @PEOPT       S              2                                                             
+     D    @PEPGM       S                   LIKE(SDSPGM) INZ                                         
+     D    @PEFMT       S                   LIKE(RECORD) INZ                                         
+     D    @PEFLD       S                   LIKE(FIELD)  INZ                                         
+     D    @PEERR       S              1                 INZ                                         
+FQ710D  ZXLIMP         S                   LIKE(T3LIMP)                                             
+FQ710D  ZXLIME         S                   LIKE(T3LIME)                                             
+FQ726D  ZXPRIM         S              1  0                                                          
+FQ765D                                                                                              
+FQ765D                 DS                                                                           
+FQ765D  ZXARVM                 1     25                                                             
+FQ765D    ZXARTI               1     15                                                             
+FQ765D    ZXVARI              16     18                                                             
+FQ765D    ZXMODE              19     21                                                             
+FQ765D                                                                                              
+      *                                                                                             
+SE257D                 DS                                                                           
+SE257D  ZXARMP                 1     25                                                             
+SE257D    ZXARTI2              1     15                                                             
+SE257D    ZXVARI2             16     18                                                             
+SE257D    ZXMODE2             19     21                                                             
+SE257D                                                                                              
+SE257 *                                                                                             
+16051D  T3AMPL         DS                                                                           
+16051D     T3OPL1              1      3                                                             
+16051D     T3OPL2              4      6                                                             
+FH009D***  RESTO               4      6                                                             
+FH009D     T3RESE              7      7                                                             
+FH009D     T3RTRE              8      8                                                             
+C1369D     T3LVIR              9     11                                                             
+C1636D     T3VFYB             12     12                                                             
+CR533D     T3FDSC             15     15                                                             
+C2608D     T3PPPP             34     34                                                             
+C4406d*C4137     t3alpr             35     35                                                       
+22419d     T3ARQM             36     60                                                             
+      *                                                                                             
+                                                                                                    
+     D* DEFINICIO DE CAMPS DE TREBALL                                                               
+     D  Z_P            S              2  0 INZ(1)                                                   
+     D  ZXPTRETORN     S              6A   INZ                                                      
+IT244D  P7AMP2         DS                                                                           
+IT244D  P7EDV3                11     11                                                             
+                                                                                                    
+29061IRPMTAB2                                                                                       
+29061I              PECIAS                      XXCIAS                                              
+      **************************************************************                                
+      * RUTINA PRINCIPAL DEL PGM : DISTRIBUCIÓ DEL PAS PELS FMTS   *                                
+      *------------------------------------------------------------*                                
+     C     ZXOPT1        DOWNE     'END'                                                            
+     C     ZXOPT1        CASEQ     'P10'         P10MAIN                                            
+     C     ZXOPT1        CASEQ     'P2A'         P2AMAIN                                            
+     C     ZXOPT1        CASEQ     'P30'         P30MAIN                                            
+     C     ZXOPT1        CASEQ     'P40'         P40MAIN                                            
+     C                   CAS                     P2AMAIN                                            
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL                                          *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+                                                                                                    
+      * Entrada de parámetros                                                                       
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @POPCI                                             
+     C                   PARM                    @PERRO                                             
+      *                                                                                             
+     C     KPMEMPR       KLIST                                                                      
+     C                   KFLD                    P7CIAS                                             
+     C                   KFLD                    P7DLGA                                             
+      *                                                                                             
+     C     KEDPARM       KLIST                                                                      
+     C                   KFLD                    T3CIAS                                             
+     C                   KFLD                    T3DLGA                                             
+FQ726                                                                                               
+FQ726C     KPMTAB2       KLIST                                                                      
+FQ726C                   KFLD                    PECTAB                                             
+FQ726C                   KFLD                    PECLTA                                             
+      *                                                                                             
+FQ765                                                                                               
+FQ765C     KPMTABD       KLIST                                                                      
+FQ765C                   KFLD                    PECIAS                                             
+FQ765C                   KFLD                    PECTAB                                             
+FQ765C                   KFLD                    PECLTA                                             
+                                                                                                    
+FQ765C     KMSARTI00     KLIST                                                                      
+FQ765C                   KFLD                    M5CIAS                                             
+FQ765C                   KFLD                    M5ARTI                                             
+FQ765C                   KFLD                    M5VARI                                             
+FQ765C                   KFLD                    M5MODE                                             
+                                                                                                    
+      * RECUPERACIÓ DE LA LDA DE COMPRES                                                            
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+                                                                                                    
+      * TITOLS DE PANTALLES (CODIS D'ARXIU DE MISSATGES)                                            
+     C                   EVAL      CCCCTIT='TED0052'                                                
+                                                                                                    
+      * VALORES COMUNES                                                                             
+     C                   EVAL      T3CIAS=@PCIAS                                                    
+     C                   EVAL      T3DLGA=@PDLGA                                                    
+FQ765C                   EVAL      M5CIAS=@PCIAS                                                    
+FQ765C                   EVAL      PECIAS=@PCIAS                                                    
+      *                                                                                             
+      * ENS POSICIONEM EN EL FORMAT DE PANT. SEGONS NECESSITAT.                                     
+      * POR DEFECTO IREMOS A LA 2ª PANTALLA                                                         
+     C                   EVAL      INDCHG=*ON                                                       
+     C                   EVAL      ZXOPT='P2ACLR'                                                   
+                                                                                                    
+     C                   SELECT                                                                     
+      * CRT                                                                                         
+     C                   WHEN      @POPCI=' 1' OR @POPCI='1 '                                       
+     C                   EVAL      ZXOPT='P10CLR'                                                   
+     C                   EVAL      INDCRT=*ON                                                       
+                                                                                                    
+     C                   WHEN      @POPCI='1B'                                                      
+     C                   EVAL      ZXOPT='P2ACLR'                                                   
+     C                   EVAL      INDCRT=*ON                                                       
+      * CPY                                                                                         
+     C                   WHEN      @POPCI=' 3' OR @POPCI='3 '                                       
+     C                   EVAL      ZXOPT='P30CLR'                                                   
+     C                   EVAL      INDCPY=*ON                                                       
+      * DLT                                                                                         
+     C                   WHEN      @POPCI=' 4' OR @POPCI='4 '                                       
+     C                   EVAL      ZXOPT='P40CLR'                                                   
+     C                   EVAL      INDDLT=*ON                                                       
+      * DSP                                                                                         
+     C                   WHEN      @POPCI=' 5' OR @POPCI='5 '                                       
+     C                   EVAL      INDDSP=*ON                                                       
+     C                   EVAL      INDPROT=*ON                                                      
+     C                   ENDSL                                                                      
+                                                                                                    
+FQ726C                   EVAL      ZXPRIM=1                                                         
+FQ726                                                                                               
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL FMT P10                              *                                
+      *------------------------------------------------------------*                                
+     C     P10MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='P10'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         P10CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         P10INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         P10DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         P10CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         P10CHK                                             
+     C     ZXOPT2        CASEQ     'UPD'         P10UPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P10                       *                                
+      *------------------------------------------------------------*                                
+     C     P10CLR        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI VISUALITZAR P10                                     
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C                   RESET                   Z_P                                                
+     C     P10CLRT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P10                       *                                
+      *------------------------------------------------------------*                                
+     C     P10INZ        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI VISUALITZAR P10                                     
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     P10INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DEL FMT P10                        *                                
+      *------------------------------------------------------------*                                
+     C     P10DSP        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI COMPROVAR ENTRADA CMD                               
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD7801'                                                
+     C                   EXFMT     P10                                                              
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C     P10DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P10                 *                                
+      *------------------------------------------------------------*                                
+     C     P10CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+      *VALIDACIONES TECLAS DE FUNCION                                                               
+     C                   SELECT                                                                     
+      * FINALITZAR EL PROGRAMA                                                                      
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+      * SOL·LICITUD AJUDA                                                                           
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_POCUR2                                                        
+                                                                                                    
+     C                   WHEN      RETRO=*ON                                                        
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDSL                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P10                 *                                
+      *------------------------------------------------------------*                                
+     C     P10CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='UPD'                                                     
+                                                                                                    
+      * Primero accedemos a PMEMPR con EMPRESA y delega en Blancos                                  
+      * para ver si estan en versión 3                                                              
+IT244C                   EVAL      P7CIAS=@PCIAS                                                    
+IT244C                   EVAL      P7DLGA=*blanks                                                   
+IT244C     KPMEMPR       CHAIN     PMEMPR                             81                            
+IT244c     P7EDV3        IFEQ      '1'                                                              
+      * Delegación debe existir                                                                     
+     C                   EVAL      P7CIAS=@PCIAS                                                    
+     C                   EVAL      P7DLGA=P10DLGA                                                   
+     C     KPMEMPR       CHAIN     PMEMPR                             81                            
+IT244C*                  IF        CHAIN=*ON                                                        
+IT244C                   IF        CHAIN=*ON AND P10DLGA<>'*'                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   ENDIF                                                                      
+IT244C                   ENDIF                                                                      
+      *                                                                                             
+IT244c     P7EDV3        IFNE      '1'                                                              
+IT244C                   IF        CHAIN=*ON                                                        
+IT244C                   EVAL      WRK40=*ON                                                        
+IT244C                   EVAL      ERRGRL=*ON                                                       
+IT244C                   EVAL      MSGER='ASG1003'                                                  
+IT244C                   ENDIF                                                                      
+IT244C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP10CHK                                            
+                                                                                                    
+      * No puede existir                                                                            
+     C                   EVAL      T3DLGA=P10DLGA                                                   
+     C     KEDPARM       CHAIN (N) EDPARM                             81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP10CHK                                            
+                                                                                                    
+     C     TP10CHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P10CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE ACTUALIZACION DATOS DE  P10                   *                                
+      *------------------------------------------------------------*                                
+     C     P10UPD        BEGSR                                                                      
+      * PASA A LAS PANTALLAS P2X                                                                    
+     C                   EVAL      ZXOPT='P2ACLR'                                                   
+     C                   EVAL      T3DLGA=P10DLGA                                                   
+     C     P10UPDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL FMT P2A                              *                                
+      *------------------------------------------------------------*                                
+     C     P2AMAIN       BEGSR                                                                      
+     C                   EVAL      ZXOPT1='P2A'                                                     
+     C                   DOW       ZXOPT1='P2A'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         P2ACLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         P2AINZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         P2ADSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         P2ACMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         P2ACHK                                             
+     C     ZXOPT2        CASEQ     'UPD'         P2AUPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA LIMPIEZA  DE P2A                                 *                                
+      *------------------------------------------------------------*                                
+     C     P2ACLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C                   MOVE      *BLANKS       MSGER                                              
+     C     P2ACLRT       ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P2A                       *                                
+      *------------------------------------------------------------*                                
+     C     P2AINZ        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     *NOKEY        CLEAR     *ALL          REDPARM                                            
+     C     KEDPARM       CHAIN     EDPARM                             81                            
+     C                   EXSR      P2AMFP                                                           
+      * En el caso de altas se pasan los valores por defecto de PURLDA                              
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PASAR DE FICHERO A PANTALLA P2A                  *                                
+      *------------------------------------------------------------*                                
+     C     P2AMFP        BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      P2ADLGA=T3DLGA                                                   
+                                                                                                    
+     C                   EVAL      P7CIAS=T3CIAS                                                    
+     C                   EVAL      P7DLGA=T3DLGA                                                    
+     C     KPMEMPR       CHAIN     PMEMPR                             81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   EVAL      P2ADESC=P7DESC                                                   
+     C                   ELSE                                                                       
+     C                   EVAL      P2ADESC=*BLANKS                                                  
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      P2ANIMF=T3NIMF                                                   
+     C                   EVAL      P2AOBSO=T3OBSO                                                   
+     C                   EVAL      P2ASSTO=T3SSTO                                                   
+     C                   EVAL      P2APEXP=T3PEXP                                                   
+FQ710C**                 EVAL      P2AICLD=T3ICLD                                                   
+FQ607C                   EVAL      P2AENIN=T3ENIN                                                   
+FQ710C                   EVAL      P2ADIBE=T3DIBE                                                   
+FQ710                                                                                               
+FQ710C                   MOVE      *BLANKS       PXALPH                                             
+FQ710C                   EVAL      PXNUM=T3LIMP                                                     
+FQ710C                   CALL      'PRD650'                                                         
+FQ710C                   PARM                    PXNUM                                              
+FQ710C                   PARM                    PXALPH                                             
+FQ710C                   PARM                    PXFLDD                                             
+FQ710C                   PARM      2             PXDCCD                                             
+FQ710C                   PARM                    PXFMD1                                             
+FQ710C                   PARM                    PXEDTC                                             
+FQ710C                   PARM                    PXNMER                                             
+FQ710C                   PARM                    PXTIPA                                             
+FQ710C                   MOVE      PXALPH        P2ALIMP                                            
+FQ710                                                                                               
+FQ710C                   MOVE      *BLANKS       PXALPH                                             
+FQ710C                   EVAL      PXNUM=T3LIME                                                     
+FQ710C                   CALL      'PRD650'                                                         
+FQ710C                   PARM                    PXNUM                                              
+FQ710C                   PARM                    PXALPH                                             
+FQ710C                   PARM                    PXFLDD                                             
+FQ710C                   PARM      2             PXDCCD                                             
+FQ710C                   PARM                    PXFMD1                                             
+FQ710C                   PARM                    PXEDTC                                             
+FQ710C                   PARM                    PXNMER                                             
+FQ710C                   PARM                    PXTIPA                                             
+FQ710C                   MOVE      PXALPH        P2ALIME                                            
+FQ726C                   EVAL      P2ANCLF=T3NCLF                                                   
+FQ726C                   EVAL      P2ALOGI=T3LOGI                                                   
+FQ726C                   EVAL      P2ASTCK=T3STCK                                                   
+FQ726C                   EVAL      P2AEDFO=T3EDFO                                                   
+FQ726 * Si está activado el parametro de solo ED Forzada                                            
+FQ726 *    Escondemos los parámetros que no se utilizan                                             
+FQ726C                   IF        P2AEDFO='1'                                                      
+FQ726C                   EVAL      WRK50=*ON                                                        
+FQ726C                   ELSE                                                                       
+FQ726C                   EVAL      WRK50=*OFF                                                       
+FQ726C                   ENDIF                                                                      
+FQ765                                                                                               
+FH009 * Si no estem a central no visualitzo parámetres reserva especial                             
+FH009C                   IF        @PDLGA<>*BLANKS                                                  
+FH009C                   EVAL      WRK60=*ON                                                        
+FH009C                   ELSE                                                                       
+FH009C                   EVAL      WRK60=*OFF                                                       
+FH009C                   ENDIF                                                                      
+FH009                                                                                               
+FQ765C                   EVAL      P2AARVM=T3ARVM                                                   
+SE257C                   EVAL      P2AARMP=T3ARMP                                                   
+      *                                                                                             
+22419 * Informar la variable artículo químico                                                       
+22419 *                                                                                             
+22419C                   EVAL      P2AARQM=T3ARQM                                                   
+      *                                                                                             
+16051C                   EVAL      P2AOPL1=T3OPL1                                                   
+16051C                   EVAL      P2AOPL2=T3OPL2                                                   
+FH009C                   EVAL      P2ARESE=T3RESE                                                   
+FH009C                   EVAL      P2ARTRE=T3RTRE                                                   
+C1369C                   EVAL      P2ALVIR=T3LVIR                                                   
+C1636C                   EVAL      P2AVFYB=T3VFYB                                                   
+CR533C                   EVAL      P2AFDSC=T3FDSC                                                   
+C2608C                   EVAL      P2APPPP=T3PPPP                                                   
+C4406c*C4137             eval      p2aalpr=t3alpr                                                   
+     C                                                                                              
+     C                                                                                              
+     C                                                                                              
+      *                                                                                             
+      * PARA EL CASO DE COPIAS CAMBIAREMOS LA CABECERA                                              
+      *                                                                                             
+     C                   IF        INDCPY=*ON                                                       
+     C                   EVAL      P2ADLGA=P3CDLGA                                                  
+     C     *NOKEY        CLEAR     *ALL          REDPARM                                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DEL FMT P2A                        *                                
+      *------------------------------------------------------------*                                
+     C     P2ADSP        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI COMPROVAR ENTRADA CMD                               
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD7801'                                                
+      *                                                                                             
+     C                   EXFMT     P2A                                                              
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+68162C*                  MOVEA     ZXZERO10      *IN(50)                                            
+68162C                   MOVEA     ZXZERO10      *IN(51)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C                   EVAL      CSRCOLU=*ZEROS                                                   
+     C                   EVAL      CSRFILA=*ZEROS                                                   
+     C     P2ADSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMDS DEL FMT P2A                 *                                 
+      *------------------------------------------------------------*                                
+     C     P2ACMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+      *VALIDACIONES TECLAS DE FUNCION                                                               
+     C                   SELECT                                                                     
+      * FINALITZAR EL PROGRAMA                                                                      
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+      * SOL·LICITUD AJUDA D'ARTICLES                                                                
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_POCUR2                                                        
+     C                   EXSR      P2AF4                                                            
+      * RETROCESO PANTALLA                                                                          
+     C                   WHEN      RETRO=*ON                                                        
+     C                   IF        INDCRT=*ON AND @POPCI<>'1B'                                      
+     C                   EVAL      ZXOPT='P10CLR'                                                   
+     C                   ELSE                                                                       
+     C                   IF        INDCPY=*ON                                                       
+     C                   EVAL      ZXOPT='P30DSP'                                                   
+     C                   ELSE                                                                       
+     C                   EVAL      ZXOPT='END'                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     TP2ACMD       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P2ACMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE AYUDA EN CAMPOS DEL   FMT P2A                 *                                
+      *------------------------------------------------------------*                                
+     C     P2AF4         BEGSR                                                                      
+     C* No se permite acceso a consulta si estamos en opcion de visualizar                          
+     C                   IF        INDDSP=*ON                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+                                                                                                    
+      * AYUDAS SINO                                                                                 
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+                                                                                                    
+     C                   IF        FIELD='P2ANIMF'                                                  
+     C                             OR FIELD='P2AOBSO'                                               
+FQ726C**                           OR FIELD='P2ASSTO'                                               
+FQ710C**                           OR FIELD='P2AICLD'                                               
+FQ607C                             OR FIELD='P2AENIN'                                               
+FQ726C                             OR FIELD='P2ANCLF'                                               
+FQ726C                             OR FIELD='P2ALOGI'                                               
+FQ726C                             OR FIELD='P2ASTCK'                                               
+FQ726C                             OR FIELD='P2AEDFO'                                               
+FH009C                             OR FIELD='P2ARESE'                                               
+FH009C                             OR FIELD='P2ARTRE'                                               
+C1636C                             OR FIELD='P2AVFYB'                                               
+CR533C                             OR FIELD='P2AFDSC'                                               
+C4406c*C4137                       or field='P2AALPR'                                               
+     C                   EVAL      @PEFLD='SINO'                                                    
+                                                                                                    
+     C                   CALL      'MMPROM'                                                         
+     C                   PARM      *BLANKS       @PEOPT                                             
+     C                   PARM      *BLANKS       @PEPGM                                             
+     C                   PARM                    @PEFMT                                             
+     C                   PARM                    @PEFLD                                             
+     C                   PARM      *BLANKS       @PEERR                                             
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ADP0304'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           P2AF4T                                             
+      * Si no han realizado ninguna selección no tocamos nada                                       
+     C                   IF        @PEERR='A'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           P2AF4T                                             
+      *                                                                                             
+     C                   IF        FIELD='P2ANIMF'                                                  
+     C                   EVAL      P2ANIMF=@PEOPT                                                   
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        FIELD='P2AOBSO'                                                  
+     C                   EVAL      P2AOBSO=@PEOPT                                                   
+     C                   ENDIF                                                                      
+      *                                                                                             
+FQ726C**                 IF        FIELD='P2ASSTO'                                                  
+FQ726C**                 EVAL      P2ASSTO=@PEOPT                                                   
+FQ726C**                 ENDIF                                                                      
+      *                                                                                             
+FQ710C*                  IF        FIELD='P2AICLD'                                                  
+FQ710C*                  EVAL      P2AICLD=@PEOPT                                                   
+FQ710C*                  ENDIF                                                                      
+      *                                                                                             
+FQ607C                   IF        FIELD='P2AENIN'                                                  
+FQ607C                   EVAL      P2AENIN=@PEOPT                                                   
+FQ607C                   ENDIF                                                                      
+FQ607 *                                                                                             
+FQ726C                   IF        FIELD='P2ANCLF'                                                  
+FQ726C                   EVAL      P2ANCLF=@PEOPT                                                   
+FQ726C                   ENDIF                                                                      
+FQ726 *                                                                                             
+FQ726C                   IF        FIELD='P2ALOGI'                                                  
+FQ726C                   EVAL      P2ALOGI=@PEOPT                                                   
+FQ726C                   ENDIF                                                                      
+FQ726 *                                                                                             
+FQ726C                   IF        FIELD='P2ASTCK'                                                  
+FQ726C                   EVAL      P2ASTCK=@PEOPT                                                   
+FQ726C                   ENDIF                                                                      
+FQ726 *                                                                                             
+FQ726C                   IF        FIELD='P2AEDFO'                                                  
+FQ726C                   EVAL      P2AEDFO=@PEOPT                                                   
+FQ726C                   ENDIF                                                                      
+FQ726 *                                                                                             
+FH009C                   IF        FIELD='P2ARESE'                                                  
+FH009C                   EVAL      P2ARESE=@PEOPT                                                   
+FH009C                   ENDIF                                                                      
+FH009 *                                                                                             
+FH009C                   IF        FIELD='P2ARTRE'                                                  
+FH009C                   EVAL      P2ARTRE=@PEOPT                                                   
+FH009C                   ENDIF                                                                      
+FH009 *                                                                                             
+CR533**C1636C                   IF        FIELD='P2VFYBE'                                           
+CR533** Encuentro el error casualmente                                                              
+CR533c                   IF        FIELD='P2AVFYB'                                                  
+C1636C                   EVAL      P2AVFYB=@PEOPT                                                   
+C1636C                   ENDIF                                                                      
+C1636 *                                                                                             
+CR533C                   IF        FIELD='P2AFDSC'                                                  
+CR533C                   EVAL      P2AFDSC=@PEOPT                                                   
+CR533C                   ENDIF                                                                      
+CR533 *                                                                                             
+C4406c*C4137             if        field='P2AALPR'                                                  
+C4406c*C4137             eval      p2aalpr=@peopt                                                   
+C4406c*C4137             endif                                                                      
+C4406 *C4137                                                                                        
+     C                   GOTO      P2AF4T                                                           
+     C                   ENDIF                                                                      
+                                                                                                    
+FQ726 * Ayuda parámetro Sobreestock                                                                 
+FQ726C                   IF        FIELD='P2ASSTO'                                                  
+FQ726C                   CALL      'MMTAB1'                                                         
+FQ726C                   PARM      *BLANKS       @PCLTA                                             
+FQ726C                   PARM      'EDSS'        @PCTAB                                             
+FQ726C                   PARM                    @PCIAS                                             
+FQ726C                   PARM      *BLANKS       @PERRO                                             
+FQ726C                   IF        @PERRO=*BLANKS                                                   
+FQ726C                   MOVEL(P)  @PCLTA        P2ASSTO                                            
+FQ726C                   ENDIF                                                                      
+FQ726C                   GOTO      P2AF4T                                                           
+FQ726C                   ENDIF                                                                      
+      *                                                                                             
+FQ765C                                                                                              
+FQ765C                   IF        FIELD='P2AARVM'                                                  
+FQ765C                   EVAL      ZXARVM=P2AARVM                                                   
+FQ765C                   CALL      'MM0600'                                                         
+FQ765C                   PARM      ZZCIAS        @PCIAS                                             
+FQ765C                   PARM                    ZXARTI                                             
+FQ765C                   PARM      *BLANKS       ZXVARI                                             
+FQ765C                   PARM      *BLANKS       ZXMODE                                             
+FQ765C                   PARM      *BLANKS       @PEERR                                             
+FQ765C                   IF        ZXARTI<>*BLANKS AND @PEERR=*BLANKS                               
+FQ765C                   EVAL      P2AARVM=ZXARVM                                                   
+FQ765C                   ENDIF                                                                      
+FQ765C                   ENDIF                                                                      
+22419C                                                                                              
+SE257C                   IF        FIELD='P2AARMP'                                                  
+SE257C                   EVAL      ZXARMP=P2AARMP                                                   
+SE257C                   CALL      'MM0600'                                                         
+SE257C                   PARM      ZZCIAS        @PCIAS                                             
+SE257C                   PARM                    ZXARTI2                                            
+SE257C                   PARM      *BLANKS       ZXVARI2                                            
+SE257C                   PARM      *BLANKS       ZXMODE2                                            
+SE257C                   PARM      *BLANKS       @PEERR                                             
+SE257C                   IF        ZXARTI2<>*BLANKS AND @PEERR=*BLANKS                              
+SE257C                   EVAL      P2AARMP=ZXARMP                                                   
+SE257C                   ENDIF                                                                      
+SE257C                   ENDIF                                                                      
+SE257C                                                                                              
+22419C                   IF        FIELD='P2AARQM'                                                  
+22419C                   EVAL      ZXARVM=P2AARQM                                                   
+22419C                   CALL      'MM0600'                                                         
+22419C                   PARM      ZZCIAS        @PCIAS                                             
+22419C                   PARM                    ZXARTI                                             
+22419C                   PARM      *BLANKS       ZXVARI                                             
+22419C                   PARM      *BLANKS       ZXMODE                                             
+22419C                   PARM      *BLANKS       @PEERR                                             
+22419C                   IF        ZXARTI<>*BLANKS AND @PEERR=*BLANKS                               
+22419C                   EVAL      P2AARQM=ZXARVM                                                   
+22419C                   ENDIF                                                                      
+22419C                   ENDIF                                                                      
+      *                                                                                             
+      * SI NO TIENE F4 SOPORTADO DOY ERROR                                                          
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ADP0304'                                                  
+     C     ERRGRL        CABEQ     *ON           P2AF4T                                             
+                                                                                                    
+     C     P2AF4T        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P2A                 *                                
+      *------------------------------------------------------------*                                
+     C     P2ACHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='UPD'                                                     
+                                                                                                    
+      * Validar No tener en cuanta Importe Mínimo en ED Forzada                                     
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=P2ANIMF                                                   
+     C                   CALL      'MMPROM'                                                         
+     C                   PARM                    @PEOPT                                             
+     C                   PARM      *BLANKS       @PEPGM                                             
+     C                   PARM      *BLANKS       @PEFMT                                             
+     C                   PARM      'SINO      '  @PEFLD                                             
+     C                   PARM      'V'           @PEERR                                             
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK31=*ON                                                        
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+      *                                                                                             
+     C                                                                                              
+      * Validar Comprobar Obsoletos                                                                 
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=P2AOBSO                                                   
+     C                   CALL      'MMPROM'                                                         
+     C                   PARM                    @PEOPT                                             
+     C                   PARM      *BLANKS       @PEPGM                                             
+     C                   PARM      *BLANKS       @PEFMT                                             
+     C                   PARM      'SINO      '  @PEFLD                                             
+     C                   PARM      'V'           @PEERR                                             
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK32=*ON                                                        
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+     C                                                                                              
+FQ726 * Validar Comprobar Sobreestock                                                               
+FQ726C*                  EVAL      @PEOPT=*BLANKS                                                   
+FQ726C*                  EVAL      @PEOPT=P2ASSTO                                                   
+FQ726C*                  CALL      'MMPROM'                                                         
+FQ726C*                  PARM                    @PEOPT                                             
+FQ726C*                  PARM      *BLANKS       @PEPGM                                             
+FQ726C*                  PARM      *BLANKS       @PEFMT                                             
+FQ726C*                  PARM      'SINO      '  @PEFLD                                             
+FQ726C*                  PARM      'V'           @PEERR                                             
+FQ726                                                                                               
+FQ726C*                  IF        @PEERR>'0'                                                       
+FQ726C*                  EVAL      ERRGRL=*ON                                                       
+FQ726C*                  EVAL      WRK33=*ON                                                        
+FQ726C*                  EVAL      MSGER='ASG1003'                                                  
+FQ726C*                  ENDIF                                                                      
+FQ726C*    ERRGRL        CABEQ     *ON           TP2ACHK                                            
+     C                                                                                              
+FQ710 * Validar Informar si hay otros pedidos del mismo cliente                                     
+FQ710C*                  EVAL      @PEOPT=*BLANKS                                                   
+FQ710C*                  EVAL      @PEOPT=P2AICLD                                                   
+FQ710C*                  CALL      'MMPROM'                                                         
+FQ710C*                  PARM                    @PEOPT                                             
+FQ710C*                  PARM      *BLANKS       @PEPGM                                             
+FQ710C*                  PARM      *BLANKS       @PEFMT                                             
+FQ710C*                  PARM      'SINO      '  @PEFLD                                             
+FQ710C*                  PARM      'V'           @PEERR                                             
+FQ710 *                                                                                             
+FQ710C*                  IF        @PEERR>'0'                                                       
+FQ710C*                  EVAL      ERRGRL=*ON                                                       
+FQ710C*                  EVAL      WRK34=*ON                                                        
+FQ710C*                  EVAL      MSGER='ASG1003'                                                  
+FQ710C*                  ENDIF                                                                      
+FQ710C*    ERRGRL        CABEQ     *ON           TP2ACHK                                            
+      *                                                                                             
+FQ607 * Validar Entrada Incidencias en pedidos                                                      
+FQ607C                   EVAL      @PEOPT=*BLANKS                                                   
+FQ607C                   EVAL      @PEOPT=P2AENIN                                                   
+FQ607C                   CALL      'MMPROM'                                                         
+FQ607C                   PARM                    @PEOPT                                             
+FQ607C                   PARM      *BLANKS       @PEPGM                                             
+FQ607C                   PARM      *BLANKS       @PEFMT                                             
+FQ607C                   PARM      'SINO      '  @PEFLD                                             
+FQ607C                   PARM      'V'           @PEERR                                             
+FQ607                                                                                               
+FQ607C                   IF        @PEERR>'0'                                                       
+FQ607C                   EVAL      ERRGRL=*ON                                                       
+FQ607C                   EVAL      WRK36=*ON                                                        
+FQ607C                   EVAL      MSGER='ASG1003'                                                  
+FQ607C                   ENDIF                                                                      
+FQ607C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FQ607 *                                                                                             
+FQ726 * Validar que el importe por expedición sea inferior al imp pedido                            
+FQ726 **                                                                                            
+FQ726C**                 EVAL      PXALPH=*BLANKS                                                   
+FQ726C**                 MOVE      P2ALIMP       PXALPH                                             
+FQ726C**                 EVAL      PXNUM=0                                                          
+FQ726C**                 CALL      'PRD650'                                                         
+FQ726C**                 PARM                    PXNUM                                              
+FQ726C**                 PARM                    PXALPH                                             
+FQ726C**                 PARM                    PXFLDD                                             
+FQ726C**                 PARM      2             PXDCCD                                             
+FQ726C**                 PARM                    PXFMD1                                             
+FQ726C**                 PARM                    PXEDTC                                             
+FQ726C**                 PARM                    PXNMER                                             
+FQ726C**                 PARM                    PXTIPA                                             
+FQ726C**                 EVAL      ZXLIMP=PXNUM                                                     
+FQ726 **                                                                                            
+FQ726C**                 EVAL      PXALPH=*BLANKS                                                   
+FQ726C**                 MOVE      P2ALIME       PXALPH                                             
+FQ726C**                 EVAL      PXNUM=0                                                          
+FQ726C**                 CALL      'PRD650'                                                         
+FQ726C**                 PARM                    PXNUM                                              
+FQ726C**                 PARM                    PXALPH                                             
+FQ726C**                 PARM                    PXFLDD                                             
+FQ726C**                 PARM      2             PXDCCD                                             
+FQ726C**                 PARM                    PXFMD1                                             
+FQ726C**                 PARM                    PXEDTC                                             
+FQ726C**                 PARM                    PXNMER                                             
+FQ726C**                 PARM                    PXTIPA                                             
+FQ726C**                 EVAL      ZXLIME=PXNUM                                                     
+FQ726 **                                                                                            
+FQ726C**                 IF        ZXLIME>ZXLIMP                                                    
+FQ726C**                 EVAL      ERRGRL=*ON                                                       
+FQ726C**                 EVAL      WRK38=*ON                                                        
+FQ726C**                 EVAL      MSGER='ERR3057'                                                  
+FQ726C**                 ENDIF                                                                      
+FQ726C**   ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FQ726 **                                                                                            
+FQ726 * Validar No Comprobar parámetro Cliente en ED Forzada                                        
+FQ726C                   EVAL      @PEOPT=*BLANKS                                                   
+FQ726C                   EVAL      @PEOPT=P2ANCLF                                                   
+FQ726C                   CALL      'MMPROM'                                                         
+FQ726C                   PARM                    @PEOPT                                             
+FQ726C                   PARM      *BLANKS       @PEPGM                                             
+FQ726C                   PARM      *BLANKS       @PEFMT                                             
+FQ726C                   PARM      'SINO      '  @PEFLD                                             
+FQ726C                   PARM      'V'           @PEERR                                             
+FQ726                                                                                               
+FQ726C                   IF        @PEERR>'0'                                                       
+FQ726C                   EVAL      ERRGRL=*ON                                                       
+FQ726C                   EVAL      WRK35=*ON                                                        
+FQ726C                   EVAL      MSGER='ASG1003'                                                  
+FQ726C                   ENDIF                                                                      
+FQ726C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FQ726 *                                                                                             
+FQ726 * Validar Comprobar logísticas                                                                
+FQ726C                   EVAL      @PEOPT=*BLANKS                                                   
+FQ726C                   EVAL      @PEOPT=P2ALOGI                                                   
+FQ726C                   CALL      'MMPROM'                                                         
+FQ726C                   PARM                    @PEOPT                                             
+FQ726C                   PARM      *BLANKS       @PEPGM                                             
+FQ726C                   PARM      *BLANKS       @PEFMT                                             
+FQ726C                   PARM      'SINO      '  @PEFLD                                             
+FQ726C                   PARM      'V'           @PEERR                                             
+FQ726                                                                                               
+FQ726C                   IF        @PEERR>'0'                                                       
+FQ726C                   EVAL      ERRGRL=*ON                                                       
+FQ726C                   EVAL      WRK43=*ON                                                        
+FQ726C                   EVAL      MSGER='ASG1003'                                                  
+FQ726C                   ENDIF                                                                      
+FQ726C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FQ726 *                                                                                             
+FQ726 * Validar Comprobar Stocks                                                                    
+FQ726C                   EVAL      @PEOPT=*BLANKS                                                   
+FQ726C                   EVAL      @PEOPT=P2ASTCK                                                   
+FQ726C                   CALL      'MMPROM'                                                         
+FQ726C                   PARM                    @PEOPT                                             
+FQ726C                   PARM      *BLANKS       @PEPGM                                             
+FQ726C                   PARM      *BLANKS       @PEFMT                                             
+FQ726C                   PARM      'SINO      '  @PEFLD                                             
+FQ726C                   PARM      'V'           @PEERR                                             
+FQ726                                                                                               
+FQ726C                   IF        @PEERR>'0'                                                       
+FQ726C                   EVAL      ERRGRL=*ON                                                       
+FQ726C                   EVAL      WRK41=*ON                                                        
+FQ726C                   EVAL      MSGER='ASG1003'                                                  
+FQ726C                   ENDIF                                                                      
+FQ726C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FQ726 *                                                                                             
+FQ726 * Validar Solo Entregas Directas Forzadas                                                     
+FQ726C                   EVAL      @PEOPT=*BLANKS                                                   
+FQ726C                   EVAL      @PEOPT=P2AEDFO                                                   
+FQ726C                   CALL      'MMPROM'                                                         
+FQ726C                   PARM                    @PEOPT                                             
+FQ726C                   PARM      *BLANKS       @PEPGM                                             
+FQ726C                   PARM      *BLANKS       @PEFMT                                             
+FQ726C                   PARM      'SINO      '  @PEFLD                                             
+FQ726C                   PARM      'V'           @PEERR                                             
+FQ726                                                                                               
+FQ726C                   IF        @PEERR>'0'                                                       
+FQ726C                   EVAL      ERRGRL=*ON                                                       
+FQ726C                   EVAL      WRK42=*ON                                                        
+FQ726C                   EVAL      MSGER='ASG1003'                                                  
+FQ726C                   ENDIF                                                                      
+FQ726C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FQ726 *                                                                                             
+FQ726 *  Si activo parámetro, Muestro pantalla de confirmación                                      
+FQ726C                   IF        P2AEDFO='1'                                                      
+FQ726C                             And T3EDFO<>'1'                                                  
+FQ726C                             And ZXPRIM=1                                                     
+FQ726C                   EXFMT     W01                                                              
+FQ726C                   IF        *IN12                                                            
+FQ726C                   EVAL      ERRGRL=*ON                                                       
+FQ726C                   EVAL      WRK42=*ON                                                        
+FQ726C                   ELSE                                                                       
+FQ726 * Si está activado el parametro de solo ED Forzada                                            
+FQ726 *    Escondemos los parámetros que no se utilizan                                             
+FQ726C                   EVAL      WRK50=*ON                                                        
+FQ726C                   EVAL      ZXOPT2='DSP'                                                     
+FQ726C                   EVAL      ZXPRIM=0                                                         
+C2510C*FQ726             EVAL      P2ALIMP=*BLANKS                                                  
+FQ726C                   EVAL      P2ASTCK=*BLANKS                                                  
+C2510C*FQ726             EVAL      P2ALIME=*BLANKS                                                  
+FQ726C                   EVAL      P2ALOGI=*BLANKS                                                  
+C2510C*FQ726             EVAL      P2ADIBE=*ZEROS                                                   
+FQ726C                   EVAL      P2ASSTO=*BLANKS                                                  
+FQ726C                   EVAL      P2ANIMF=*BLANKS                                                  
+FQ726C                   ENDIF                                                                      
+FQ726C                   ENDIF                                                                      
+FQ726C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FQ726 *                                                                                             
+FQ726 *  Si desactivo parámetro, Muestro todos los parámetros                                       
+FQ726C                   IF        P2AEDFO<>'1'                                                     
+FQ726C                             And T3EDFO='1'                                                   
+FQ726C                   EVAL      WRK50=*OFF                                                       
+FQ726C                   IF        ZXPRIM=1                                                         
+FQ726C                   EVAL      ZXOPT2='DSP'                                                     
+FQ726C                   EVAL      ZXPRIM=0                                                         
+FQ726C                   ENDIF                                                                      
+FQ726C                   ENDIF                                                                      
+FQ726                                                                                               
+FQ726 * Validar Comprobar Sobreestock                                                               
+FQ726C                   IF        P2ASSTO<>*BLANKS                                                 
+FQ726C                   EVAL      PECTAB='EDSS'                                                    
+FQ726C                   EVAL      PECLTA=*BLANKS                                                   
+FQ726C                   EVAL      PECLTA=P2ASSTO                                                   
+FQ726C     KPMTAB2       CHAIN     PMTAB2                                                           
+FQ726C                   IF        Not %FOUND(PMTAB2)                                               
+FQ726C                             Or %FOUND(PMTAB2) And PEBAJA='1'                                 
+FQ726C                   EVAL      ERRGRL=*ON                                                       
+FQ726C                   EVAL      MSGER='ASG1003'                                                  
+FQ726C                   EVAL      WRK33=*ON                                                        
+FQ726C                   ENDIF                                                                      
+FQ726C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FQ726C                   ENDIF                                                                      
+FQ765                                                                                               
+FQ765C                   IF        P2AARVM<>*BLANKS                                                 
+FQ765C                   EVAL      ZXARVM=P2AARVM                                                   
+FQ765C                   EVAL      M5ARTI=ZXARTI                                                    
+FQ765C                   EVAL      M5VARI=ZXVARI                                                    
+FQ765C                   EVAL      M5MODE=ZXMODE                                                    
+FQ765C     KMSARTI00     CHAIN     MSARTI00                                                         
+FQ766C                   IF        %FOUND AND M5BAJA<>'1'                                           
+FQ765C                   EVAL      PECTAB='TIPG'                                                    
+FQ765C                   EVAL      PECLTA=M5TIPG                                                    
+FQ766C     KPMTABD       CHAIN     PMTABD                             81                            
+FQ765C                   IF        PEBL61<>'1' OR PEBAJA='1'                                        
+FQ765C                             OR NOT%FOUND                                                     
+FQ765C                   EVAL      ERRGRL=*ON                                                       
+FQ765C                   EVAL      MSGER='ASG1003'                                                  
+FQ765C                   EVAL      WRK51=*ON                                                        
+FQ765C                   ENDIF                                                                      
+SE257C                   ELSE                                                                       
+SE257C                   EVAL      ERRGRL=*ON                                                       
+SE257C                   EVAL      MSGER='ASG1003'                                                  
+SE257C                   EVAL      WRK51=*ON                                                        
+SE257C                   ENDIF                                                                      
+SE257C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FQ765C                   ENDIF                                                                      
+FQ765                                                                                               
+SE257C                   IF        P2AARMP<>*BLANKS                                                 
+SE257C                   EVAL      ZXARMP=P2AARMP                                                   
+SE257C                   EVAL      M5ARTI=ZXARTI2                                                   
+SE257C                   EVAL      M5VARI=ZXVARI2                                                   
+SE257C                   EVAL      M5MODE=ZXMODE2                                                   
+SE257C     KMSARTI00     CHAIN     MSARTI00                                                         
+SE257C                   IF        %FOUND AND M5BAJA<>'1'                                           
+SE257C                   EVAL      PECTAB='TIPG'                                                    
+SE257C                   EVAL      PECLTA=M5TIPG                                                    
+SE257C     KPMTABD       CHAIN     PMTABD                             81                            
+SE257C                   IF        PEBL61<>'1' OR PEBAJA='1'                                        
+SE257C                             OR NOT%FOUND                                                     
+SE257C                   EVAL      ERRGRL=*ON                                                       
+SE257C                   EVAL      MSGER='ASG1003'                                                  
+SE257C                   EVAL      WRK57=*ON                                                        
+SE257C                   ENDIF                                                                      
+SE257C                   ELSE                                                                       
+SE257C                   EVAL      ERRGRL=*ON                                                       
+SE257C                   EVAL      MSGER='ASG1003'                                                  
+SE257C                   EVAL      WRK57=*ON                                                        
+SE257C                   ENDIF                                                                      
+SE257C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+SE257C                   ENDIF                                                                      
+SE257                                                                                               
+22419 *                                                                                             
+22419 * Chequear código artículo para producto químico (0008)                                       
+22419 *                                                                                             
+22419C                   IF        P2AARQM<>*BLANKS                                                 
+22419C                   EVAL      ZXARVM=P2AARQM                                                   
+22419C                   EVAL      M5ARTI=ZXARTI                                                    
+22419C                   EVAL      M5VARI=ZXVARI                                                    
+22419C                   EVAL      M5MODE=ZXMODE                                                    
+22419C     KMSARTI00     CHAIN     MSARTI00                                                         
+22419C                   IF        %FOUND AND M5BAJA<>'1'                                           
+22419C                   EVAL      PECTAB='TIPG'                                                    
+22419C                   EVAL      PECLTA=M5TIPG                                                    
+22419C     KPMTABD       CHAIN     PMTABD                             81                            
+22419C                   IF        PEBL61<>'1' OR PEBAJA='1'                                        
+22419C                             OR NOT%FOUND                                                     
+22419C                   EVAL      ERRGRL=*ON                                                       
+22419C                   EVAL      MSGER='ASG1003'                                                  
+22419C                   EVAL      WRK58=*ON                                                        
+22419C                   ENDIF                                                                      
+22419C                   ENDIF                                                                      
+22419C                   ENDIF                                                                      
+      *                                                                                             
+FH009 * Validar reservas especiales                                                                 
+FH009C                   EVAL      @PEOPT=*BLANKS                                                   
+FH009C                   EVAL      @PEOPT=P2ARESE                                                   
+FH009C                   CALL      'MMPROM'                                                         
+FH009C                   PARM                    @PEOPT                                             
+FH009C                   PARM      *BLANKS       @PEPGM                                             
+FH009C                   PARM      *BLANKS       @PEFMT                                             
+FH009C                   PARM      'SINO      '  @PEFLD                                             
+FH009C                   PARM      'V'           @PEERR                                             
+FH009                                                                                               
+FH009C                   IF        @PEERR>'0'                                                       
+FH009C                   EVAL      ERRGRL=*ON                                                       
+FH009C                   EVAL      WRK44=*ON                                                        
+FH009C                   EVAL      MSGER='ASG1003'                                                  
+FH009C                   ENDIF                                                                      
+FH009C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FH009 *                                                                                             
+FH009 * Validar tener en cuenta roturas para reserva especial                                       
+FH009C                   EVAL      @PEOPT=*BLANKS                                                   
+FH009C                   EVAL      @PEOPT=P2ARTRE                                                   
+FH009C                   CALL      'MMPROM'                                                         
+FH009C                   PARM                    @PEOPT                                             
+FH009C                   PARM      *BLANKS       @PEPGM                                             
+FH009C                   PARM      *BLANKS       @PEFMT                                             
+FH009C                   PARM      'SINO      '  @PEFLD                                             
+FH009C                   PARM      'V'           @PEERR                                             
+FH009                                                                                               
+FH009C                   IF        @PEERR>'0'                                                       
+FH009C                   EVAL      ERRGRL=*ON                                                       
+FH009C                   EVAL      WRK46=*ON                                                        
+FH009C                   EVAL      MSGER='ASG1003'                                                  
+FH009C                   ENDIF                                                                      
+FH009C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+FH009 *                                                                                             
+C1636C                   EVAL      @PEOPT=P2AVFYB                                                   
+C1636C                   CALL      'MMPROM'                                                         
+C1636C                   PARM                    @PEOPT                                             
+C1636C                   PARM      *BLANKS       @PEPGM                                             
+C1636C                   PARM      *BLANKS       @PEFMT                                             
+C1636C                   PARM      'SINO      '  @PEFLD                                             
+C1636C                   PARM      'V'           @PEERR                                             
+C1636                                                                                               
+C1636C                   IF        @PEERR>'0'                                                       
+C1636C                   EVAL      ERRGRL=*ON                                                       
+C1636C                   EVAL      MSGER='ASG1003'                                                  
+C1636C                   EVAL      WRK55=*ON                                                        
+C1636C                   ENDIF                                                                      
+C1636C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+C1636 *                                                                                             
+CR544C                   EVAL      @PEOPT=P2AFDSC                                                   
+CR533C                   CALL      'MMPROM'                                                         
+CR533C                   PARM                    @PEOPT                                             
+CR533C                   PARM      *BLANKS       @PEPGM                                             
+CR533C                   PARM      *BLANKS       @PEFMT                                             
+CR533C                   PARM      'SINO      '  @PEFLD                                             
+CR533C                   PARM      'V'           @PEERR                                             
+CR533                                                                                               
+CR533C                   IF        @PEERR>'0'                                                       
+CR533C                   EVAL      ERRGRL=*ON                                                       
+CR533C                   EVAL      MSGER='ASG1003'                                                  
+CR533C                   EVAL      WRK56=*ON                                                        
+CR533C                   ENDIF                                                                      
+CR533C     ERRGRL        CABEQ     *ON           TP2ACHK                                            
+CR533 *                                                                                             
+C4137*                                                                                             
+C4406C*C4137             EVAL      @PEOPT=p2aalpr                                                   
+C4406C*C4137             CALL      'MMPROM'                                                         
+C4406C*C4137             PARM                    @PEOPT                                             
+C4406C*C4137             PARM      *BLANKS       @PEPGM                                             
+C4406C*C4137             PARM      *BLANKS       @PEFMT                                             
+C4406C*C4137             PARM      'SINO      '  @PEFLD                                             
+C4406C*C4137             PARM      'V'           @PEERR                                             
+C4137                                                                                               
+C4406C*C4137             IF        @PEERR>'0'                                                       
+C4406C*C4137             EVAL      ERRGRL=*ON                                                       
+C4406C*C4137             EVAL      MSGER='ASG1003'                                                  
+C4406C*C4137             EVAL      WRK57=*ON                                                        
+C4406C*C4137             ENDIF                                                                      
+C4406C*C4137    ERRGRL        CABEQ     *ON           TP2ACHK                                       
+C4137*                                                                                             
+     C     TP2ACHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE ACTUALIZACION DEL FMT P2A                     *                                
+      *------------------------------------------------------------*                                
+     C     P2AUPD        BEGSR                                                                      
+     C                   IF        INDCRT=*ON AND @POPCI<>'1B'                                      
+     C                   EVAL      ZXOPT='P10CLR'                                                   
+     C                   ELSE                                                                       
+     C                   EVAL      ZXOPT='END'                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+      * En el caso de la opción de visualiza no actualizo                                           
+     C                   IF        INDDSP=*ON                                                       
+     C                   GOTO      P2AUPDT                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      T3DLGA=P2ADLGA                                                   
+     C     KEDPARM       CHAIN     EDPARM                             81                            
+                                                                                                    
+     C                   EXSR      P2AMPF                                                           
+                                                                                                    
+     C                   IF        CHAIN=*OFF                                                       
+     C                   UPDATE    REDPARM                                                          
+     C                   ELSE                                                                       
+FQ798C                   EVAL      T3DAT1=*DATE                                                     
+     C                   WRITE     REDPARM                                                          
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * En el caso que sea una copia                                                                
+      *                                                                                             
+     C                   IF        INDCPY=*ON                                                       
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P2AUPDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PASAR DE PANTALLA P2A A FICHERO                  *                                
+      *------------------------------------------------------------*                                
+     C     P2AMPF        BEGSR                                                                      
+      *                                                                                             
+FQ798C                                                                                              
+FQ798C                   IF        %FOUND(EDPARM)                                                   
+FQ798C                   IF        T3NIMF<>P2ANIMF OR                                               
+FQ798C                             T3OBSO<>P2AOBSO OR                                               
+FQ798C                             T3SSTO<>P2ASSTO OR                                               
+FQ798C                             T3PEXP<>P2APEXP OR                                               
+FQ798C                             T3ENIN<>P2AENIN OR                                               
+FQ798C                             T3DIBE<>P2ADIBE OR                                               
+FQ798C                             T3NCLF<>P2ANCLF OR                                               
+FQ798C                             T3LOGI<>P2ALOGI OR                                               
+FQ798C                             T3STCK<>P2ASTCK OR                                               
+FQ798C                             T3EDFO<>P2AEDFO OR                                               
+FH009C                             T3RESE<>P2ARESE OR                                               
+FH009C                             T3RTRE<>P2ARTRE OR                                               
+FQ798C                             T3ARVM<>P2AARVM or                                               
+SE257C                             T3ARMP<>P2AARMP or                                               
+22419C                             T3ARQM<>P2AARQM                                                  
+FQ798C                   EVAL      T3DA82=*DATE                                                     
+FQ798C                   EVAL      T3USU2=SDSUSR                                                    
+FQ798C                   EVAL      T3PAN2=SDSJOB                                                    
+FQ798C                   TIME                    T3HO82                                             
+FQ798C                   WRITE     REDHPAR                                                          
+FQ798C                   ENDIF                                                                      
+FQ798C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      T3NIMF=P2ANIMF                                                   
+     C                   EVAL      T3OBSO=P2AOBSO                                                   
+     C                   EVAL      T3SSTO=P2ASSTO                                                   
+     C                   EVAL      T3PEXP=P2APEXP                                                   
+FQ710C*                  EVAL      T3ICLD=P2AICLD                                                   
+FQ607C                   EVAL      T3ENIN=P2AENIN                                                   
+FQ710C                   EVAL      T3DIBE=P2ADIBE                                                   
+FQ710                                                                                               
+FQ710C                   EVAL      PXALPH=*BLANKS                                                   
+FQ710C                   MOVE      P2ALIMP       PXALPH                                             
+FQ710C                   EVAL      PXNUM=0                                                          
+FQ710C                   CALL      'PRD650'                                                         
+FQ710C                   PARM                    PXNUM                                              
+FQ710C                   PARM                    PXALPH                                             
+FQ710C                   PARM                    PXFLDD                                             
+FQ710C                   PARM      2             PXDCCD                                             
+FQ710C                   PARM                    PXFMD1                                             
+FQ710C                   PARM                    PXEDTC                                             
+FQ710C                   PARM                    PXNMER                                             
+FQ710C                   PARM                    PXTIPA                                             
+FQ798C                   IF        T3LIMP<>PXNUM AND %FOUND(EDPARM)                                 
+FQ798C                   EVAL      T3DA82=*DATE                                                     
+FQ798C                   EVAL      T3USU2=SDSUSR                                                    
+FQ798C                   EVAL      T3PAN2=SDSJOB                                                    
+FQ798C                   TIME                    T3HO82                                             
+FQ798C                   WRITE     REDHPAR                                                          
+FQ798C                   ENDIF                                                                      
+FQ710C                   EVAL      T3LIMP=PXNUM                                                     
+FQ710                                                                                               
+FQ710C                   EVAL      PXALPH=*BLANKS                                                   
+FQ710C                   MOVE      P2ALIME       PXALPH                                             
+FQ710C                   EVAL      PXNUM=0                                                          
+FQ710C                   CALL      'PRD650'                                                         
+FQ710C                   PARM                    PXNUM                                              
+FQ710C                   PARM                    PXALPH                                             
+FQ710C                   PARM                    PXFLDD                                             
+FQ710C                   PARM      2             PXDCCD                                             
+FQ710C                   PARM                    PXFMD1                                             
+FQ710C                   PARM                    PXEDTC                                             
+FQ710C                   PARM                    PXNMER                                             
+FQ710C                   PARM                    PXTIPA                                             
+FQ798C                   IF        T3LIME<>PXNUM AND %FOUND(EDPARM)                                 
+FQ798C                   EVAL      T3DA82=*DATE                                                     
+FQ798C                   EVAL      T3USU2=SDSUSR                                                    
+FQ798C                   EVAL      T3PAN2=SDSJOB                                                    
+FQ798C                   TIME                    T3HO82                                             
+FQ798C                   WRITE     REDHPAR                                                          
+FQ798C                   ENDIF                                                                      
+FQ710C                   EVAL      T3LIME=PXNUM                                                     
+FQ726C                   EVAL      T3NCLF=P2ANCLF                                                   
+FQ726C                   EVAL      T3LOGI=P2ALOGI                                                   
+FQ726C                   EVAL      T3STCK=P2ASTCK                                                   
+FQ726C                   EVAL      T3EDFO=P2AEDFO                                                   
+FQ765                                                                                               
+FQ765C                   EVAL      T3ARVM=P2AARVM                                                   
+SE257C                   EVAL      T3ARMP=P2AARMP                                                   
+22419C                   EVAL      T3ARQM=P2AARQM                                                   
+16051C                   EVAL      T3OPL1=P2AOPL1                                                   
+16051C                   EVAL      T3OPL2=P2AOPL2                                                   
+FH009C                   EVAL      T3RESE=P2ARESE                                                   
+FH009C                   EVAL      T3RTRE=P2ARTRE                                                   
+C1369C                   EVAL      T3LVIR=P2ALVIR                                                   
+C1636C                   EVAL      T3VFYB=P2AVFYB                                                   
+CR533C                   EVAL      T3FDSC=P2AFDSC                                                   
+C2608C                   EVAL      T3PPPP=P2APPPP                                                   
+C4406c*C4137             eval      t3alpr=p2aalpr                                                   
+      *                                                                                             
+FQ798C                   EVAL      T3DAT8=*DATE                                                     
+FQ798C                   EVAL      T3USUA=SDSUSR                                                    
+FQ798C                   EVAL      T3PANT=SDSJOB                                                    
+FQ798C                   TIME                    T3HORA                                             
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL FMT P30                              *                                
+      *------------------------------------------------------------*                                
+     C     P30MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='P30'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         P30CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         P30INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         P30DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         P30CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         P30CHK                                             
+     C     ZXOPT2        CASEQ     'UPD'         P30UPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA LIMPIEZA  DE P30                                 *                                
+      *------------------------------------------------------------*                                
+     C     P30CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   RESET                   Z_P                                                
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C     P30CLRT       ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P30                       *                                
+      *------------------------------------------------------------*                                
+     C     P30INZ        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     *NOKEY        CLEAR     *ALL          REDPARM                                            
+     C     KEDPARM       CHAIN     EDPARM                             81                            
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      ZXOPT='END'                                                      
+     C                   GOTO      P30INZT                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EXSR      P30MFP                                                           
+                                                                                                    
+     C     P30INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PASAR DE FICHERO A PANTALLA P30                  *                                
+      *------------------------------------------------------------*                                
+     C     P30MFP        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      P30DLGA=T3DLGA                                                   
+     C                   EVAL      P3CDLGA=*BLANKS                                                  
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DEL FMT P30                        *                                
+      *------------------------------------------------------------*                                
+     C     P30DSP        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI COMPROVAR ENTRADA CMD                               
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD3012'                                                
+     C                   EXFMT     P30                                                              
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C     P30DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMDS  DEL FMT P30                 *                                
+      *------------------------------------------------------------*                                
+     C     P30CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+      *VALIDACIONES TECLAS DE FUNCION                                                               
+     C                   SELECT                                                                     
+      * FINALITZAR EL PROGRAMA                                                                      
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+      * SOL·LICITUD AJUDA D'ARTICLES                                                                
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_POCUR2                                                        
+      * RETROCESO PANTALLA                                                                          
+     C                   WHEN      RETRO=*ON                                                        
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     TP30CMD       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P30                 *                                
+      *------------------------------------------------------------*                                
+     C     P30CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='UPD'                                                     
+                                                                                                    
+      * no puede existir                                                                            
+     C                   EVAL      T3DLGA=P3CDLGA                                                   
+     C     KEDPARM       CHAIN (N) EDPARM                             81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TP30CHK                                            
+      *                                                                                             
+     C     TP30CHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='MSG0008'                                                  
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE AYUDA PARA FMT P30                            *                                
+      *------------------------------------------------------------*                                
+     C     P30F4         BEGSR                                                                      
+     C     P30F4T        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE ACTUALIZACION DEL FMT P30                     *                                
+      *------------------------------------------------------------*                                
+     C     P30UPD        BEGSR                                                                      
+     C                   EVAL      ZXOPT='P2ACLR'                                                   
+                                                                                                    
+     C                   EVAL      T3DLGA=P30DLGA                                                   
+     C     P30UPDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL FMT P40                              *                                
+      *------------------------------------------------------------*                                
+     C     P40MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='P40'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         P40CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         P40INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         P40DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         P40CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         P40CHK                                             
+     C     ZXOPT2        CASEQ     'UPD'         P40UPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA LIMPIEZA  DE P40                                 *                                
+      *------------------------------------------------------------*                                
+     C     P40CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C     P40CLRT       ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ DEL FMT P40                       *                                
+      *------------------------------------------------------------*                                
+     C     P40INZ        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     *NOKEY        CLEAR     *ALL          REDPARM                                            
+     C     KEDPARM       CHAIN     EDPARM                             81                            
+     C                   EXSR      P40MFP                                                           
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PASAR DE FICHERO A PANTALLA P40                  *                                
+      *------------------------------------------------------------*                                
+     C     P40MFP        BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      P40DLGA=T3DLGA                                                   
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DEL FMT P40                        *                                
+      *------------------------------------------------------------*                                
+     C     P40DSP        BEGSR                                                                      
+      * ENS ENCARREGUEM QUE EL PROPER PAS SIGUI COMPROVAR ENTRADA CMD                               
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD3029'                                                
+     C                   EXFMT     P40                                                              
+     C                   MOVEA     ZXZERO10      *IN(30)                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   MOVEA     ZXZERO10      *IN(60)                                            
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C     P40DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMDS  DEL FMT P40                 *                                
+      *------------------------------------------------------------*                                
+     C     P40CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+      *VALIDACIONES TECLAS DE FUNCION                                                               
+     C                   SELECT                                                                     
+      * FINALITZAR EL PROGRAMA                                                                      
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+      * RETROCESO PANTALLA                                                                          
+     C                   WHEN      RETRO=*ON                                                        
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     TP40CMD       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P40CMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CAMPS DEL FMT P40                 *                                
+      *------------------------------------------------------------*                                
+     C     P40CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='UPD'                                                     
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER ='MSG0208'                                                 
+                                                                                                    
+     C     TP40CHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     P40CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE AYUDA PARA FMT P40                            *                                
+      *------------------------------------------------------------*                                
+     C     P40F4         BEGSR                                                                      
+     C     P40F4T        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE ACTUALIZACION DEL FMT P40                     *                                
+      *------------------------------------------------------------*                                
+     C     P40UPD        BEGSR                                                                      
+     C                   EVAL      ZXOPT='END'                                                      
+                                                                                                    
+     C                   EVAL      T3CIAS=@PCIAS                                                    
+     C                   EVAL      T3DLGA=P40DLGA                                                   
+     C     KEDPARM       CHAIN     EDPARM                             81                            
+                                                                                                    
+      * Eliminación                                                                                 
+     C                   IF        CHAIN=*OFF                                                       
+FQ798C*                  DELETE    REDPARM                                                          
+FQ798C*                  EVAL      T3DAT8=*DATE                                                     
+FQ798C*                  EVAL      T3USUA=SDSUSR                                                    
+FQ798C*                  EVAL      T3PANT=SDSJOB                                                    
+FQ798C*                  TIME                    T3HORA                                             
+FQ798C                   EVAL      T3DA82=*DATE                                                     
+FQ798C                   EVAL      T3USU2=SDSUSR                                                    
+FQ798C                   EVAL      T3PAN2=SDSJOB                                                    
+FQ798C                   TIME                    T3HO82                                             
+FQ798C                   EVAL      T3BAJA='1'                                                       
+FQ798C                   UPDATE    REDPARM                                                          
+     C                   ENDIF                                                                      
+     C     P40UPDT       ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE POSICIONAMENT DEL CURSOR                      *                                
+      *------------------------------------------------------------*                                
+     C     CS_POCUR2     BEGSR                                                                      
+      * OBTENIM LA POSICIO DEL CURSOR                                                               
+     C     FMTPOCUR      DIV       256           CSRFILA                                            
+     C                   MVR                     CSRCOLU                                            
+     C                   ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA QUE CONTROLA ELS POSSIBLES ERRORS DE PROGRAMA    *                                
+      *------------------------------------------------------------*                                
+     C/COPY *LIBL/QSRDSRC,SRD020                                                                    

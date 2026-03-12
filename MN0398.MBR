@@ -1,0 +1,70 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      **************************************************************                                
+      * TITOL: MN0398  © AQUAPOINT S.A.                            *                                
+      * DATA CREACIO:  12/03/2007                                  *                                
+      * FUNCIO DEL PROGRAMA: RECHERCHE MONTANT DE ECOTAXE          *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      **************************************************************                                
+      * DATA DE MODIFICACIÓ: DD/MM/AAAA  MARCA: DDMMA              *                                
+      * AUTOR:                                                     *                                
+      * DOCUMENTACIÓ:                                              *                                
+      *                                                            *                                
+      **************************************************************                                
+                                                                                                    
+     H DATEDIT(*YMD/)                                                                               
+                                                                                                    
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FMSECOP    IF   E           K DISK                                                             
+20127FPMEMPR    IF   E           K DISK                                                             
+                                                                                                    
+      * EXPORTACIÓ DE PARÀMETRES                                                                    
+                                                                                                    
+     D    @PCIAS       S                   LIKE(ECCIAS)                                             
+     D    @PECOP       S                   LIKE(ECECOP)                                             
+     D    @PFLCD       S                   LIKE(ECFLCD)                                             
+     D    @PTAXE       S                   LIKE(ECTAXE)                                             
+                                                                                                    
+20127D                 DS                                                                           
+20127D  P7AMPL                 1    100                                                             
+20127D    P7ECOP              15     15                                                             
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+      * DEFINICIO DE LES KLIST DEL PGM                                                              
+     C     KMSECOP       KLIST                                                                      
+     C                   KFLD                    ECCIAS                                             
+     C                   KFLD                    ECECOP                                             
+     C                   KFLD                    ECFLCD                                             
+     C     KMSECOPA      KLIST                                                                      
+     C                   KFLD                    ECCIAS                                             
+     C                   KFLD                    ECECOP                                             
+20127C     KPMEMPR       KLIST                                                                      
+20127C                   KFLD                    P7CIAS                                             
+                                                                                                    
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PECOP                                             
+     C                   PARM                    @PFLCD                                             
+     C                   PARM                    @PTAXE                                             
+                                                                                                    
+      **************************************************************                                
+      * CYCLE GENERAL DU PROGRAMME                                 *                                
+      *------------------------------------------------------------*                                
+20127C                   EVAL      @PTAXE=0                                                         
+20127C                   EVAL      P7CIAS=@PCIAS                                                    
+20127C     KPMEMPR       CHAIN     PMEMPR                             81                            
+20127C                   IF        *IN81=*OFF AND P7ECOP='1'                                        
+    C                   EVAL      ECCIAS=@PCIAS                                                    
+    C                   EVAL      ECECOP=@PECOP                                                    
+    C                   EVAL      ECFLCD=@PFLCD                                                    
+    C     KMSECOP       SETGT     MSECOP                                                           
+    C     KMSECOPA      READPE    MSECOP                                 83                        
+     C                   IF        *IN83='0'                                                        
+    C                   EVAL      @PTAXE=ECTAXE                                                    
+     C                   ENDIF                                                                      
+20127C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      *INLR='1'                                                        

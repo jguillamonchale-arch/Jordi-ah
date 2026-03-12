@@ -1,0 +1,237 @@
+      **************************************************************                                
+      * TITOL: ED3025  © FLUIDRA                                   *                                
+      * DATA CREACIO:  12/07/2022                                  *                                
+      * FUNCIO DEL PROGRAMA: ED: Gestión disponibilidad DOM  FD    *                                
+      * ITOM244                                                    *                                
+      **************************************************************                                
+E7139 * Modificación: E7139                                                                         
+E7139 *        Autor: MMontana                                                                      
+E7139 * Fecha Inicio: 22/12/2022                                                                    
+E7139 *  Descripción: Histórico DOOM, borrar histórico si han cancelado                             
+E7139 ******************************************************************************************    
+      *                                                                                             
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+      *                                                                                             
+        dcl-f cocape27 usage(*update) keyed rename(RCOCAPE:RCOCAPE27) usropn;                       
+        dcl-f codepe98 usage(*update) keyed rename(RCODEPE:R08) usropn;                             
+     FCODEPE    IF a E           K DISK                                                             
+     FCOCAPE    IF a E           K DISK                                                             
+     F**EDPARM    IF   E           K DISK                                                           
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+      *                                                                                             
+     D    @FDORIG      S              1  0                                                          
+     D    @PCIAS       S                   LIKE(S5CIAS)                                             
+     D    @PDLGA       S                   LIKE(S5DLGA)                                             
+     D    @PNPCO       S                   LIKE(S5NPCO)                                             
+     D    @PTPED       S                   LIKE(S5TPED)                                             
+     D    @PDATP       S                   LIKE(S5DATP)                                             
+     D    @PNOPL       S                   LIKE(S5NOPL)                                             
+     D    @PERRO       S              1                                                             
+     D    ZXERRO       S              1                                                             
+     D*** @PERR2       S              1                                                             
+     D****@POPCI       S              2                                                             
+      *                                                                                             
+     D    @PELINE      S                   LIKE(S5LINE)                                             
+      *                                                                                             
+     D DSLDA         E DS                  EXTNAME(PURLDADS)                                        
+      *                                                                                             
+     D                 DS                                                                           
+     D  ZEAMPL                 1    100                                                             
+     D    ZEFMTO               1      2                                                             
+     D    ZESCAP               4      4                                                             
+     D    ZEADCI               5      5                                                             
+     D    ZEABRD              23     23                                         Aviso/bloqueo rd    
+     D    ZERDMI              24     25                                         % rdto. pedido v    
+     D    ZENVCM              19     19                                                             
+     D    ZZTPCL              29     29                                                             
+     D    ZEEDV2              47     47                                                             
+     D    ZEGIND              48     48                                                             
+      *                                                                                             
+     D  S0AMPL         DS                                                                           
+     D    S0MOST              70     70                                                             
+     D    S0EDLG             100    100                                                             
+      *                                                                                             
+      *                                                                                             
+                                                                                                    
+     D T3AMPL          DS                                                                           
+     D  T3ADOM                14     14                                                             
+                                                                                                    
+     D  S0AMP1         DS                                                                           
+     D    S0SPLF              40     40                                                             
+      **********************************************************************                        
+      * Entrada de parámetros                                                                       
+      **********************************************************************                        
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @FDORIG                                            
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PERRO                                             
+      *                                                                                             
+      *                                                                                             
+     C**   KCOCAPE       KLIST                                                                      
+     C**                 KFLD                    S0CIAS                                             
+     C**                 KFLD                    S0DLGA                                             
+     C**                 KFLD                    S0NPCO                                             
+     C**                 KFLD                    S0TPED                                             
+     C**                 KFLD                    S0DATP                                             
+     C**                 KFLD                    S0NOPL                                             
+                                                                                                    
+     C**   KEDPARM       KLIST                                                                      
+     C**                 KFLD                    T3CIAS                                             
+     C**                 KFLD                    T3DLGA                                             
+                                                                                                    
+      **********************************************************************                        
+      * Estructura                                                                                  
+      **********************************************************************                        
+     C**                 EVAL      S0CIAS=@PCIAS                                                    
+     C**                 EVAL      S0DLGA=@PDLGA                                                    
+     C**                 EVAL      S0NPCO=@PNPCO                                                    
+     C**                 EVAL      S0TPED=@PTPED                                                    
+     C**                 EVAL      S0DATP=@PDATP                                                    
+     C**                 EVAL      S0NOPL=@PNOPL                                                    
+     C**                 EVAL      S0PPED=*BLANKS                                                   
+     C**   KCOCAPE       CHAIN     COCAPE                                                           
+      **                                                                                            
+     C                   EVAL      ZXERRO=@PERRO                                                    
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C**                 EVAL      T3CIAS=@PCIAS                                                    
+     C**                 EVAL      T3DLGA=@PDLGA                                                    
+     C**   KEDPARM       CHAIN     EDPARM                                                           
+      **                                                                                            
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+     C                   EVAL      ZEAMPL=ZZAMPL                                                    
+      *                                                                                             
+      * Comercial: Confirmación del pedido                                                          
+      *                                                                                             
+     C                   IF        @FDORIG=0                                                        
+     C                   EXSR      CS_CPYDAT                                                        
+      *                                                                                             
+      * Algoritmo de calculo ED (Sólo V2 activa)                                                    
+      *                                                                                             
+     C*****************************************************************                             
+     C** CONTROL SI PEDIDO ES SPLITEADO NO LLAMAR A ED3050                                          
+     C*****************************************************************                             
+     * Si procedencia pedido = '29', evitamos cálculo del  DOM                                     
+     C                   IF        S0MOST<>'1'                                                      
+     C                             AND S0SPLF<='0'                                                  
+     C                   CALL      'ED3050'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      *                                                                                             
+      * Pantalla resumen Destinos (Sólo V2 activa)                                                  
+      * y si no venimos por riesgo                                                                  
+      *                                                                                             
+     C                   IF        S0MOST<>'1'                                                      
+      *                                                                                             
+     C                   IF        ZXERRO<>'R'                                                      
+     C                   CALL      'ED3061'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PEMONV           3                                
+     C                   PARM      '1'           @PETFHV           1                                
+     C                   PARM      '1'           @PERRO                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Crear ED de las líneas analizadas si no cancelaron  (Sólo V2 activa)                        
+      *                                                                                             
+     C                   IF        @PERRO<'1'                                                       
+     C                   CALL      'ED0060'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM      0             @PELINE                                            
+     C                   PARM      0             @PECHKS           1 0                              
+                         exsr Cs_UpdDat;                                                            
+E7139c                   else                                                                       
+E7139                    exsr Cs_DltHst;                                                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   SETON                                        LR                            
+       //---------------------------------------------------------------------------------------    
+       // Passem les dades dels fitxers de Purlibfxxx a Qtemp                                       
+       //                                                                                           
+         begsr Cs_CpyDat;                                                                           
+                                                                                                    
+           open codepe98;                                                                           
+           open cocape27;                                                                           
+           chain (@pcias:@pnpco:@ptped:@pdatp:@pnopl:@pdlga) cocape27;                              
+           write rcocape;                                                                           
+                                                                                                    
+           setll (s0cias:s0dlga:s0npco:s0tped:s0datp:s0nopl) codepe98;                              
+           reade (s0cias:s0dlga:s0npco:s0tped:s0datp:s0nopl) codepe98;                              
+           dow not %eof(codepe98);                                                                  
+             write rcodepe;                                                                         
+             reade (s0cias:s0dlga:s0npco:s0tped:s0datp:s0nopl) codepe98;                            
+           enddo;                                                                                   
+                                                                                                    
+           close codepe98;                                                                          
+           close cocape27;                                                                          
+                                                                                                    
+         endsr;                                                                                     
+       //---------------------------------------------------------------------------------------    
+       // Passem les dades dels fitxers de Qtemp als de la cia, Purlibfxxx                          
+       //                                                                                           
+         begsr Cs_UpdDat;                                                                           
+                                                                                                    
+           open codepe98;                                                                           
+           open cocape27;                                                                           
+                                                                                                    
+           chain (@pcias:@pnpco:@ptped:@pdatp:@pnopl:@pdlga) cocape27;  // Fitxer de purlibfxxx     
+           chain (@pcias:@pdlga:@pnpco:@ptped:@pdatp:@pnopl) cocape;   //Fitxer de Qtemp            
+           update rcocape27;                                                                        
+                                                                                                    
+           setll (s0cias:s0dlga:s0npco:s0tped:s0datp:s0nopl) codepe98;   // Fitxer de purlibfxxx    
+           reade (s0cias:s0dlga:s0npco:s0tped:s0datp:s0nopl) codepe98;   // Fitxer de purlibfxxx    
+           dow not %eof(codepe98);                                                                  
+             chain (s5cias:s5dlga:s5npco:s5tped:s5datp:s5nopl:s5line) codepe;// Fitxer de Qtemp     
+             Update r08;                                                                            
+             reade (s0cias:s0dlga:s0npco:s0tped:s0datp:s0nopl) codepe98;   // Fitxer de purlibfx    
+           enddo;                                                                                   
+                                                                                                    
+           close codepe98;                                                                          
+           close cocape27;                                                                          
+                                                                                                    
+         endsr;                                                                                     
+                                                                                                    
+E7139  //---------------------------------------------------------------------------------------    
+E7139  // Han cancelat: Esborrem càlcul históric DOOM                                               
+E7139  //                                                                                           
+E7139    begsr Cs_DltHst;                                                                           
+E7139                                                                                               
+E7139    exec sql                                                                                   
+E7139       delete from doomht where                                                                
+E7139         DOCIAS = :@PCIAS  and DODLGA = :@PDLGA and                                            
+E7139         DONPCO = :@PNPCO  and DOTPED = :@PTPED and                                            
+E7139         DODATP = :@PDATP  and DONOPL = :@PNOPL and                                            
+E7139         DOUSUA = session_user  and (DOTMSP - current_timestamp)<1000;                         
+E7139                                                                                               
+E7139    endsr;                                                                                     

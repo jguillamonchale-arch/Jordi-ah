@@ -1,0 +1,434 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      *------------------------------------------------------------*                                
+      * TITOL: PU2520  © AQUAPOINT S.A.                           *                                 
+      * DATA CREACIO:  17/10/1997                                  *                                
+      * AUTOR: DPTO. INFORMATICA                                   *                                
+      * FUNCIO DEL PROGRAMA: GRABACION DE DIRECCIONES DE PEDIDO    *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      * ZXOPT1 = NOM DEL PROCÉS                                    *                                
+      *        - WN = FINESTRA  N.          N=[01,02,...,99]       *                                
+      *        - N TAMBÉ EQUIVAL AL NÚMERO DE FORMAT DEL SFL       *                                
+      *          I COINCIDEIX AMB EL Nº DE LÒGIC (ESSENT N=00 EL   *                                
+      *          FITXER FÍSIC)                                     *                                
+      * ZXOPT2 = RUTINA DINTRE DEL PROCÉS                          *                                
+      *        - 'INZ'= INICILITZAR                                *                                
+      *        - 'DSP'= VISUALITZA DE PANTALLA                     *                                
+      *        - 'CHK'= VALIDACIÓ DE LA PANTALLA                   *                                
+      *        - 'CLR'= NETEJA DEL SFL                             *                                
+      *        - 'UPD'= ACTUALITZACIONS DELS FITXERS               *                                
+      *                                                            *                                
+      **************************************************************                                
+      * OBSERVACIONES:                                             *                                
+      *                                                            *                                
+      * @PERRO='1' No existe el registro en PUCAPE                 *                                
+      **************************************************************                                
+C2165 * DATA DE MODIFICACIÓ: 01/12/2014  MARCA: C2165              *                                
+C2165 * AUTOR: Javier Arbide                                       *                                
+C2165 * DOCUMENTACIÓ: Different adresses for the same warehouse    *                                
+C2165 *               Añadir la dirección del almacén entrega      *                                
+C2165 *               (ZXTDI1) en PUDIPE desde CODIMA              *                                
+C2165 **************************************************************                                
+F2693 * DATA DE MODIFICACIÓ: 07/11/2018  MARCA: F2693              *                                
+F2693 * AUTOR: Vicky Garcés                                        *                                
+F2693 * DOCUMENTACIÓ: Different adresses for the same warehouse    *                                
+F2693 *               Añadir la dirección del almacén entrega      *                                
+F2693 *               (ZXTDI1) en PUDIPE desde CODIMA              *                                
+F2693 **************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FMSSOCI    IF   E           K DISK                                         Maestro de tabla    
+     FMSSOCI01  IF   E           K DISK    RENAME(RMSSOCI:RMSSOCI01)                                
+     FMSALMA02  IF   E           K DISK    RENAME(RMSALMA:RMSALMA02)                                
+     FMSCPOS    IF   E           K DISK                                         Maestro de tabla    
+     FPUCAPE    IF   E           K DISK                                         Maestro de tabla    
+     FPUDIPR    IF   E           K DISK                                         Maestro de tabla    
+C2165FCODIMA    IF   E           K DISK    PREFIX(D_)                                               
+C2165FMSALMA05  IF   E           K DISK    RENAME(RMSALMA:RMSALMA05)                                
+     FPUDIPE    UF A E           K DISK    INFDS(FMFDS) INFSR(*PSSR)            Maestro de tabla    
+                                                                                                    
+     D  FMFDS          DS                                                                           
+     D    FMFFILE        *FILE                                                  8 A                 
+     D    FMFSTS         *STATUS                                                5,0                 
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXOPT                  1      6                                                             
+     D  ZXOPT1                 1      3                                                             
+     D  ZXOPT2                 4      6                                                             
+                                                                                                    
+     D DSLDA         E DS                  EXTNAME(PURLDADS)                                        
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+     D    @PCIAS       S                   LIKE(C2CIAS)                                             
+     D    @PDLGA       S                   LIKE(ZZDLGA)                                             
+     D    @PNPCO       S             10                                                             
+     D    @PTPED       S              2                                                             
+     D    @PDATP       S                   LIKE(C2DATP)                                             
+     D    @PNOPL       S                   LIKE(C2HORA)                                             
+     D    @PACT0       S              1                                                             
+     D    @PACT1       S              1                                                             
+     D    @PACT2       S              1                                                             
+     D    @PTDVA       S                   LIKE(C2TDVA)                                             
+     D    @PERRO       S              1                                                             
+     D  @PFILE         S             10                                                             
+     D  @PPGM          S             10                                                             
+     D    ZXACT0       S              1                                                             
+     D    ZXACT1       S              1                                                             
+     D    ZXACT2       S              1                                                             
+     D    ZXERRO       S              1                                                             
+     D  ZXPTRETORN     S              6A   INZ                                                      
+C2165D  ZXNDIR         S              3S 0                                                          
+      **************************************************************                                
+      * RUTINA  PRINCIPAL DEL PROGRAMA                             *                                
+      *------------------------------------------------------------*                                
+     C                   DOW       ZXOPT1 <> 'END'                                                  
+     C     ZXOPT1        CASEQ     'UPD'         SUBUPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+      *                                                                                             
+     C     KPUDIPR       KLIST                                                  *KL PMTABD   2      
+     C                   KFLD                    C2CIAS                         Empresa             
+     C                   KFLD                    C2PRVR                         Clase de tabla      
+     C                   KFLD                    C2TDIR                         Clase de tabla      
+      *                                                                                             
+     C     KMSCPOS       KLIST                                                  *KL PMTABD   2      
+     C                   KFLD                    N3CIAS                         Empresa             
+     C                   KFLD                    N3PAIS                         Clase de tabla      
+     C                   KFLD                    N3POST                         Clase de tabla      
+      *                                                                                             
+     C     KPUCAPE       KLIST                                                                      
+     C                   KFLD                    C0CIAS                                             
+     C                   KFLD                    C0DLGA                                             
+     C                   KFLD                    C0NPCO                                             
+     C                   KFLD                    C0TPED                                             
+     C                   KFLD                    C0DATP                                             
+     C                   KFLD                    C0NOPL                                             
+      *                                                                                             
+     C     KMSALMA020    KLIST                                                  *KL PMTABD   2      
+     C                   KFLD                    M0CIAS                         Empresa             
+     C                   KFLD                    M0TDIR                         Clase de tabla      
+C2165C     KMSALMA05     KLIST                                                                      
+C2165C                   KFLD                    M0CIAS                                             
+C2165C                   KFLD                    M0LOGE                                             
+      *                                                                                             
+     C     KMSSOCI01     KLIST                                                  *KL PMTABD   2      
+     C                   KFLD                    MSCIAS                         Empresa             
+     C                   KFLD                    MSTDIR                         Empresa             
+      *                                                                                             
+     C     KMSSOCI       KLIST                                                  *KL PMTABD   2      
+     C                   KFLD                    MSCIAS                         Empresa             
+     C                   KFLD                    MSDLGA                         Empresa             
+      *                                                                                             
+     C     KPUDIPE       KLIST                                                  *KL PMTABD   2      
+     C                   KFLD                    C2CIAS                         Empresa             
+     C                   KFLD                    C2DLGA                         Empresa             
+     C                   KFLD                    C2NPCO                         Empresa             
+     C                   KFLD                    C2TPED                         Empresa             
+     C                   KFLD                    C2DATP                         Empresa             
+     C                   KFLD                    C2NOPL                         Empresa             
+     C                   KFLD                    C2CDIR                         Empresa             
+C2165                                                                                               
+C2165C     KCODIMA       KLIST                                                                      
+C2165C                   KFLD                    D_C2CIAS                                           
+C2165C                   KFLD                    D_C2MAGA                                           
+C2165C                   KFLD                    D_C2TDIR                                           
+C2165C     KCODIMA0      KLIST                                                                      
+C2165C                   KFLD                    D_C2CIAS                                           
+C2165C                   KFLD                    D_C2MAGA                                           
+C2165                                                                                               
+      * RECUPERACIÓ DE LA LDA DE COMPRES                                                            
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+                                                                                                    
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PACT0                                             
+     C                   PARM                    @PACT1                                             
+     C                   PARM                    @PACT2                                             
+     C                   PARM                    @PTDVA                                             
+     C                   PARM                    @PERRO                                             
+                                                                                                    
+     C                   EVAL      ZXERRO=@PERRO                                                    
+     C                   EVAL      @PERRO=*BLANKS                                                   
+                                                                                                    
+     C                   EVAL      C2CIAS=@PCIAS                                                    
+     C                   EVAL      C2DLGA=@PDLGA                                                    
+     C                   EVAL      C2NPCO=@PNPCO                                                    
+     C                   EVAL      C2TPED=@PTPED                                                    
+     C                   EVAL      C2DATP=@PDATP                                                    
+     C                   EVAL      C2NOPL=@PNOPL                                                    
+     C                   EVAL      M0CIAS=@PCIAS                                                    
+     C                   EVAL      N3CIAS=@PCIAS                                                    
+C2165C                   EVAL      D_C2CIAS=@PCIAS                                                  
+                                                                                                    
+     C                   EVAL      C0CIAS=@PCIAS                                                    
+     C                   EVAL      C0DLGA=@PDLGA                                                    
+     C                   EVAL      C0NPCO=@PNPCO                                                    
+     C                   EVAL      C0TPED=@PTPED                                                    
+     C                   EVAL      C0DATP=@PDATP                                                    
+     C                   EVAL      C0NOPL=@PNOPL                                                    
+                                                                                                    
+     C                   EVAL      MSCIAS=@PCIAS                                                    
+     C                   EVAL      MSDLGA=@PDLGA                                                    
+                                                                                                    
+     C     KPUCAPE       CHAIN     PUCAPE                             81                            
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      @PERRO='1'                                                       
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      ZXACT0=@PACT0                                                    
+     C                   EVAL      ZXACT1=@PACT1                                                    
+     C                   EVAL      ZXACT2=@PACT2                                                    
+     C                   EVAL      C2PRVR=C0PRVR                                                    
+     C                   EVAL      ZXOPT1='UPD'                                                     
+                                                                                                    
+     C     TINZSR        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CHECK. DEFINICIO DE TOTS ELS PARÀMETRES          *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     SUBUPD        BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      ZXOPT='END'                                                      
+                                                                                                    
+      *                                                                                             
+      * Tratamiento de la dirección de pedido                                                       
+     C                   IF        ZXACT0='1'                                                       
+     C                   EVAL      C2TDIR=C0TDI0                                                    
+     C                   EVAL      C2CDIR='0'                                                       
+     C     *NOKEY        CLEAR     *ALL          RPUDIPE                                            
+     C     KPUDIPE       CHAIN     PUDIPE                             81                            
+     C     KPUDIPR       CHAIN     PUDIPR                             83                            
+     C                   IF        READ1=*ON                                                        
+     C                   EVAL      C2TDIR=*BLANKS                                                   
+     C     KPUDIPR       CHAIN     PUDIPR                             83                            
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EXSR      CS_USUS                                                          
+     C                   IF        C2POBL=*BLANKS                                                   
+     C                   EVAL      N3PAIS=C2PAIS                                                    
+     C                   EVAL      N3POST=C2POST                                                    
+     C     KMSCPOS       CHAIN     MSCPOS                             82                            
+     C                   EVAL      C2POBL=N3DES1                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      C2DAT1=C2DAT8                                                    
+F2693C*                  IF        @PTDVA>='1'                                                      
+F2693C*                  EVAL      C2TDVA=@PTDVA                                                    
+F2693C*                  ENDIF                                                                      
+F2693C                   EVAL      C2TDVA=*BLANKS                                                   
+     C                   WRITE     RPUDIPE                                                          
+     C                   ELSE                                                                       
+     C                   UPDATE    RPUDIPE                                                          
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Tratamiento de la dirección de entrega                                                      
+     C                   IF        ZXACT1='1'                                                       
+     C                   EVAL      C2CDIR='1'                                                       
+     C     *NOKEY        CLEAR     *ALL          RPUDIPE                                            
+     C     KPUDIPE       CHAIN     PUDIPE                             81                            
+C2165C                   EXSR      CS_CODIMA                                                        
+C2165C                   IF        ZXNDIR<=1                                                        
+     C                   EVAL      M0TDIR=C0TDI1                                                    
+     C     KMSALMA020    CHAIN     MSALMA02                           83                            
+C2165C                   ELSE                                                                       
+C2165C                   EVAL      M0LOGE=C0LOGE                                                    
+C2165C     KMSALMA05     CHAIN     MSALMA05                           83                            
+C2165C                   ENDIF                                                                      
+     C     KMSSOCI       CHAIN     MSSOCI                             84                            
+     C                   IF        READ2=*ON                                                        
+     C                   EVAL      MSDLGA=*BLANKS                                                   
+     C     KMSSOCI       CHAIN     MSSOCI                             84                            
+     C                   ENDIF                                                                      
+                                                                                                    
+C2165C                   EVAL      D_C2CIAS=C0CIAS                                                  
+C2165C                   EVAL      D_C2MAGA=M0MAGA                                                  
+C2165C                   EVAL      D_C2TDIR=C0TDI1                                                  
+C2165C     KCODIMA       CHAIN     CODIMA                                                           
+                                                                                                    
+     C                   EVAL      C2RAOS=MSRAOS                                                    
+     C                   EVAL      C2RAO2=MSRAO2                                                    
+C2165C**                 IF        READ1=*OFF AND M0TDIR<>*BLANKS                                   
+C2165C**                 EVAL      C2DIRE=M0DIRE                                                    
+C2165C**                 EVAL      C2DIR2=M0DIR1                                                    
+C2165C**                 EVAL      C2POBL=M0DIR2                                                    
+C2165C**                 EVAL      C2POST=M0POST                                                    
+C2165C**                 EVAL      C2TELE=M0TELE                                                    
+C2165C**                 EVAL      C2TEL2=M0TEL2                                                    
+C2165C**                 EVAL      C2TLEX=M0TLEX                                                    
+C2165C**                 EVAL      C2TFAX=M0TFAX                                                    
+C2165C**                 EVAL      C2EMAI=M0EMAI                                                    
+C2165C**                 EVAL      C2PAIS=M0PAIS                                                    
+C2165C**                 EVAL      C2PEGE=M0PEGE                                                    
+C2165C**                 ELSE                                                                       
+C2165C**                 EVAL      C2DIRE=MSDIRE                                                    
+C2165C**                 EVAL      C2DIR2=MSDIR2                                                    
+C2165C**                 EVAL      C2POBL=MSPOBL                                                    
+C2165C**                 EVAL      C2POST=MSPOST                                                    
+C2165C**                 EVAL      C2TELE=MSTELE                                                    
+C2165C**                 EVAL      C2TEL2=MSTEL2                                                    
+C2165C**                 EVAL      C2TLEX=MSTLEX                                                    
+C2165C**                 EVAL      C2TFAX=MSTFAX                                                    
+C2165C**                 EVAL      C2EMAI=MSEMAI                                                    
+C2165C**                 EVAL      C2PAIS=MSPAIS                                                    
+C2165C**                 EVAL      C2PEGE=MSPECO                                                    
+C2165C**                 ENDIF                                                                      
+C2165C                   IF        %FOUND(CODIMA)                                                   
+C2165C                   EVAL      C2DIRE=D_C2DIRE                                                  
+C2165C                   EVAL      C2DIR2=D_C2DIR2                                                  
+C2165C                   EVAL      C2POBL=D_C2POBL                                                  
+C2165C                   EVAL      C2POST=D_C2POST                                                  
+C2165C                   EVAL      C2TELE=D_C2TELE                                                  
+C2165C                   EVAL      C2TEL2=D_C2TEL2                                                  
+C2165C                   EVAL      C2TLEX=D_C2TLEX                                                  
+C2165C                   EVAL      C2TFAX=D_C2TFAX                                                  
+C2165C                   EVAL      C2EMAI=D_C2EMAI                                                  
+C2165C                   EVAL      C2PAIS=D_C2PAIS                                                  
+C2165C                   EVAL      C2PEGE=D_C2PEGE                                                  
+C2165C                   ENDIF                                                                      
+                                                                                                    
+     C                   EXSR      CS_USUS                                                          
+     C                   IF        C2POBL=*BLANKS                                                   
+     C                   EVAL      N3PAIS=C2PAIS                                                    
+     C                   EVAL      N3POST=C2POST                                                    
+     C     KMSCPOS       CHAIN     MSCPOS                             82                            
+     C                   EVAL      C2POBL=N3DES1                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      C2TDVA=@PTDVA                                                    
+     C                   EVAL      C2DAT1=C2DAT8                                                    
+     C                   WRITE     RPUDIPE                                                          
+     C                   ELSE                                                                       
+     C                   UPDATE    RPUDIPE                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDIF                                                                      
+      * Tratamiento de la dirección de factura                                                      
+     C                   IF        ZXACT2='1'                                                       
+     C                   EVAL      C2CDIR='2'                                                       
+     C     *NOKEY        CLEAR     *ALL          RPUDIPE                                            
+     C     KPUDIPE       CHAIN     PUDIPE                             81                            
+     C                   EVAL      MSTDIR=C0TDI2                                                    
+     C     KMSSOCI01     CHAIN     MSSOCI01                           83                            
+     C                   IF        READ1=*ON                                                        
+     C                   EVAL      MSDLGA=*BLANKS                                                   
+     C     KMSSOCI       CHAIN     MSSOCI                             83                            
+     C     KMSSOCI01     CHAIN     MSSOCI01                           83                            
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      C2RAOS=MSRAOS                                                    
+     C                   EVAL      C2RAO2=MSRAO2                                                    
+     C                   EVAL      C2DIRE=MSDIRE                                                    
+     C                   EVAL      C2DIR2=MSDIR2                                                    
+     C                   EVAL      C2POBL=MSPOBL                                                    
+     C                   EVAL      C2POST=MSPOST                                                    
+     C                   EVAL      C2TELE=MSTELE                                                    
+     C                   EVAL      C2TEL2=MSTEL2                                                    
+     C                   EVAL      C2TLEX=MSTLEX                                                    
+     C                   EVAL      C2TFAX=MSTFAX                                                    
+     C                   EVAL      C2EMAI=MSEMAI                                                    
+     C                   EVAL      C2PAIS=MSPAIS                                                    
+     C                   EVAL      C2PEGE=MSPECO                                                    
+                                                                                                    
+                                                                                                    
+     C                   EXSR      CS_USUS                                                          
+     C                   IF        C2POBL=*BLANKS                                                   
+     C                   EVAL      N3PAIS=C2PAIS                                                    
+     C                   EVAL      N3POST=C2POST                                                    
+     C     KMSCPOS       CHAIN     MSCPOS                             82                            
+     C                   EVAL      C2POBL=N3DES1                                                    
+     C                   ENDIF                                                                      
+     C                   IF        CHAIN=*ON                                                        
+F2693C*                  EVAL      C2TDVA=@PTDVA                                                    
+F2693C                   EVAL      C2TDVA=*BLANKS                                                   
+     C                   EVAL      C2DAT1=C2DAT8                                                    
+     C                   WRITE     RPUDIPE                                                          
+     C                   ELSE                                                                       
+     C                   UPDATE    RPUDIPE                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     TFI9          TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDIF                                                                      
+     C     TSUBUPD       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CHECK. DEFINICIO DE TOTS ELS PARÀMETRES          *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     CS_USUS       BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      C2CI02=C0CI02                                                    
+     C                   EVAL      C2NP02=C0NP02                                                    
+     C                   EVAL      C2TP02=C0TP02                                                    
+     C                   EVAL      C2DA02=C0DA02                                                    
+     C                   EVAL      C2NO02=C0NO02                                                    
+     C                   EVAL      C2DL02=C0DL02                                                    
+     C                   EVAL      C2DAT8=ZZDATS                                                    
+     C                   IF        C2DAT8=0                                                         
+     C                   EVAL      C2DAT8=*DATE                                                     
+     C                   ENDIF                                                                      
+     C                   TIME                    C2HORA                                             
+     C                   EVAL      C2USUA=ZZUSUA                                                    
+     C                   EVAL      C2PANT=SDSJOB                                                    
+                                                                                                    
+     C     TUSUS         ENDSR                                                                      
+C2165 **************************************************************                                
+C2165 * VALIDAR SI ALMACÉN RECEPCIÓN TIENE MÁS DE UNA DIRECCIÓN  *                                  
+C2165 *------------------------------------------------------------*                                
+C2165c     cs_codima     begsr                                                                      
+C2165                                                                                               
+C2165 * Miramos si el almacén de recepción del material tiene más de                                
+C2165 * una dirección para actualizar la dirección desde MSALMA o desde                             
+C2165 * CODIMA                                                                                      
+C2165                                                                                               
+C2165c                   eval      zxndir=0                                                         
+C2165 *                                                                                             
+C2165 * Buscamos el almacén                                                                         
+C2165 *                                                                                             
+C2165c                   eval      m0loge=c0loge                                                    
+C2165c     kmsalma05     chain     msalma05                                                         
+C2165 *                                                                                             
+C2165 * Buscamos cuántas direcciones tiene el almacén                                               
+C2165 *                                                                                             
+C2165c                   if        %found(msalma05)                                                 
+C2165c                   eval      d_c2maga=m0maga                                                  
+C2165c     kcodima0      chain     codima                                                           
+C2165 *                                                                                             
+C2165c                   dow       not %eof(codima)                                                 
+C2165c                   eval      zxndir+=1                                                        
+C2165c     kcodima0      reade     codima                                                           
+C2165c                   enddo                                                                      
+C2165c                   endif                                                                      
+C2165                                                                                               
+C2165c                   endsr                                                                      
+                                                                                                    
+      **************************************************************                                
+      * SUBRUTINA QUE CONTROLA ELS POSSIBLES ERRORS DE PROGRAMA    *                                
+      *------------------------------------------------------------*                                
+     C/COPY *LIBL/QSRDSRC,SRD020                                                                    

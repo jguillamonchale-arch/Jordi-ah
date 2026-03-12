@@ -1,0 +1,1233 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      *------------------------------------------------------------*                                
+      * TITOL: MM2686  © AQUAPOINT S.A.                           *                                 
+      * DATA CREACIO:  17/10/1997                                  *                                
+      * AUTOR:                                                     *                                
+      * FUNCIO DEL PROGRAMA: CALCULO DE PESOS Y VOLUMENES SEGUN                                     
+      *                      MSTSCA                                                                 
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      * ZXOPT1 = NOM DEL PROCÉS                                    *                                
+      *        - WN = FINESTRA  N.          N=[01,02,...,99]       *                                
+      *        - N TAMBÉ EQUIVAL AL NÚMERO DE FORMAT DEL SFL       *                                
+      *          I COINCIDEIX AMB EL Nº DE LÒGIC (ESSENT N=00 EL   *                                
+      *          FITXER FÍSIC)                                     *                                
+      * ZXOPT2 = RUTINA DINTRE DEL PROCÉS                          *                                
+      *        - 'INZ'= INICILITZAR                                *                                
+      *        - 'DSP'= VISUALITZA DE PANTALLA                     *                                
+      *        - 'CHK'= VALIDACIÓ DE LA PANTALLA                   *                                
+      *        - 'CLR'= NETEJA DEL SFL                             *                                
+      *        - 'UPD'= ACTUALITZACIONS DELS FITXERS               *                                
+      *                                                            *                                
+      **************************************************************                                
+      * OBSERVACIONES:                                             *                                
+      * Recibe:                                                   *                                 
+      * @PUVOL, @PUPES, @PUMED.- Las unidades en que se devolverá                                   
+      * el peso y el volumen                                                                        
+      * @PTCT1- Contenedor de trabajo. Detección medidas fuera de                                   
+      *         contenedor                                                                          
+      * @PVTC1- Validar temas de @PTCT1                                                             
+      * @PERRO                                                                                      
+      *          A- Trabajar con parámetros de volumen (vol.máx.)                                   
+      *             a partir de una cantidad. La intención es que                                   
+      *             se pueda coger una parte de cantidad <= al vol.max.                             
+      *             según el primer embalaje que le corresponda.                                    
+      *             P.e. si el vol.max es 1,25 y paso cantidad de 20                                
+      *             que corresponde a 2 un. para el 1er embalaje que                                
+      *             le corresponde con volumen por embalaje de 0,5,                                 
+      *             entonces el programa debe retornar el vol. peso                                 
+      *             bultos y cantidad correspondientes a 2 embalajes                                
+      *             (1 que es < 1,25) y 4 unidades.                                                 
+      * Retorna:                                                  *                                 
+      * @PERRO                                                                                      
+      *          A- Existen medidas fuera rango Contenedor (@PTCT1)                                 
+      *          1- Errores generales.                                                              
+      **************************************************************                                
+16095* DATA DE MODIFICACIÓ: 20/03/2012  MARCA: 20032              *                                
+16095* AUTOR:        JULIAN                                       *                                
+16095* DOCUMENTACIÓ: Fem el calcul del pes net.                   *                                
+16095**************************************************************                                
+H3133* DATA DE MODIFICACIÓ: 09/02/2017  MARCA: H3133              *                                
+H3133* AUTOR:     Celia Gerber          HD:    313357             *                                
+H3133* DOCUMENTACIÓ: Error al calcular el volumen de algunos Art. *                                
+H3133*               Error M5APLB<>*BLANKS (o 0)                  *                                
+H3133**************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FMSTSCA01  IF   E           K DISK    RENAME(RMSTSCA:RMSTSCA01)                                
+     FMSTSCA    IF   E           K DISK    PREFIX(MO_)                                              
+     FMSTSC2    IF   E           K DISK    PREFIX(M2_)                                              
+     FMSCOJC    IF   E           K DISK                                                             
+     FMSCOJD    IF   E           K DISK                                                             
+     FMSARTI00  IF   E           K DISK                                                             
+     FPMTABD    IF   E           K DISK                                                             
+     FPMUNAL    IF   E           K DISK                                                             
+     FMSUNAL    IF   E           K DISK                                                             
+      * PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                               
+      * ELS DE TREBALL ES PODEN REDENOMINAR MITJANÇANT OVERLAY                                      
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXOPT                  1      6                                                             
+     D    ZXOPT1               1      3                                                             
+     D    ZXOPT2               4      6                                                             
+                                                                                                    
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXBL65AP               1      5                                                             
+     D    ZXTAJTAP             1      1                                                             
+     D    ZXCOEVAP             2      5                                                             
+     D                 DS                                                                           
+     D  ZXBL63TC               1     15                                                             
+     D    ZXLONGTC             1      4                                                             
+     D    ZXANCHTC             5      8                                                             
+     D    ZXALTUTC             9     12                                                             
+     D    ZXUNMETC            13     14                                                             
+     D    ZXTCNTTC            15     15                                                             
+                                                                                                    
+     D  @PCIAS         S                   LIKE(MOCIAS)                                             
+     D  @PTPAL         S                   LIKE(MOTPAL)                                             
+     D  @PARTI         S                   LIKE(MOARTI)                                             
+     D  @PMODE         S                   LIKE(M5MODE)                                             
+     D  @PVARI         S                   LIKE(M5VARI)                                             
+     D  @PCAST         S                   LIKE(MOCAST)                                             
+     D  @PUNST         S                   LIKE(MOUNST)                                             
+     D  @PPBRU         S                   LIKE(MOPBRU)                                             
+20032D  @PPNET         S                   LIKE(MOPBRU)                                             
+     D  @PUPES         S                   LIKE(MOUPSO)                                             
+     D  @PVOLU         S                   LIKE(MOVOLU)                                             
+     D  @PUVOL         S                   LIKE(MOUVOL)                                             
+     D  @PUMED         S                   LIKE(MOUMEL)                                             
+     D  @PTCT1         S              2                                                             
+     D  @PVTC1         S              1                                                             
+     D  @PNBUL         S              6  0                                                          
+     D  @PTCOJ         S              1                                                             
+     D  @PERRO         S              1                                                             
+                                                                                                    
+     D  ZXERRO         S              1                                                             
+     D  ZXCAST         S                   LIKE(MOCAST)                                             
+     D  ZXCASTA        S                   LIKE(MOCAST)                                             
+     D  ZXCAST2        S                   LIKE(MOCAST)                                             
+     D  ZXNTCS1        S             10  0                                                          
+     D  ZXAUX1         S             10  0                                                          
+     D  ZXAUX2         S                   LIKE(MOCAST)                                             
+     D  ZXAUX3         S             10  0                                                          
+     D  ZXAUX4         S                   LIKE(MOCAST)                                             
+20032D  ZXAUX4N        S                   LIKE(MOCAST)                                             
+     D  ZXAUX21        S             10  0                                                          
+     D  ZXPBRU         S                   LIKE(MOPBRU)                                             
+20032D  ZXPNET         S                   LIKE(MOPBRU)                                             
+     D  ZXPBRUA        S                   LIKE(MOPBRU)                                             
+20032D  ZXPNETA        S                   LIKE(MOPBRU)                                             
+     D  ZXVOLU         S                   LIKE(MOPBRU)                                             
+     D  ZXVOLUA        S                   LIKE(MOPBRU)                                             
+     D  ZXPVOLU        S                   LIKE(MOVOLU)                                             
+     D  ZXNBUL         S             10  0                                                          
+     D  ZXCOEAPLB      S             15  5                                                          
+     D  ZXTRABPKEY     S              1  0                                                          
+     D  ZXOBTPBRU      S              1  0                                                          
+20032D  ZXOBTPNET      S              1  0                                                          
+     D  ZXPERROA       S              1  0                                                          
+     D  ZXTAJTALT      S              1  0                                                          
+     D  ZXEXPCONJ      S              1  0                                                          
+     D  ZXCASTSTD      S                   LIKE(MOCAST)                                             
+     D  ZXUNSTSTD      S                   LIKE(MOUNST)                                             
+     D  ZXMED1STD      S                   LIKE(MOMED1)                                             
+     D  ZXMED2STD      S                   LIKE(MOMED2)                                             
+     D  ZXMED3STD      S                   LIKE(MOMED3)                                             
+     D  ZXVOLUSTD      S                   LIKE(MOVOLU)                                             
+     D  ZXPBRUSTD      S                   LIKE(MOPBRU)                                             
+20032D  ZXPNETSTD      S                   LIKE(MOPBRU)                                             
+     D  ZXUMEDSTD      S                   LIKE(MOUMEL)                                             
+     D  ZXUVOLSTD      S                   LIKE(MOUVOL)                                             
+     D  ZXUPSOSTD      S                   LIKE(MOUPSO)                                             
+     D  ZXMED1ST2      S                   LIKE(MOMED1)                                             
+     D  ZXMED2ST2      S                   LIKE(MOMED2)                                             
+     D  ZXMED3ST2      S                   LIKE(MOMED3)                                             
+     D  ZXMOMED1       S                   LIKE(MOMED1)                                             
+     D  ZXMOMED2       S                   LIKE(MOMED2)                                             
+     D  ZXMOMED3       S                   LIKE(MOMED3)                                             
+                                                                                                    
+     DSDE              S              1A   DIM(10)                                                  
+     DSSSTCST          S              3A   DIM(10)                                                  
+     DSSSCAST          S             15  5 DIM(10)                                                  
+     DSSSCAS2          S              6  0 DIM(10)                                                  
+     DSSSTCS2          S              3A   DIM(10)                                                  
+     D* DEFINICIO DE CAMPS DE TREBALL                                                               
+     D  Z_ULT          S              3  0 INZ(1)                                                   
+     D  Z_PEN          S              3  0 INZ(1)                                                   
+     D  Z_ANTEPEN      S              3  0 INZ(1)                                                   
+                                                                                                    
+      * DEFINICIO DE CAMPS DE PARÀMETRES PER CALL (SENSE IMPORT/EXPORT)                             
+      * PARÀMETRES PEL PRD650 I CAMPS DE TREBALL ASSOCIATS                                          
+      * VALOR NUMÈRIC                                                                               
+     D   PXNUM         S             29  9                                                          
+      * VALOR ALFANUMÈRIC                                                                           
+     D   PXALPH        S             29                                                             
+      * LONGITUD TOTAL DEL CAMP (Nº CARÀCTERS INCLÒS CODI EDICIÓ)                                   
+     D   PXFLDD        S              2  0 INZ(20)                                                  
+      * Nº DE DECIMALS DEL CAMP                                                                     
+     D  PXDCCD         S              1  0 INZ(2)                                                   
+      * TIPUS DE FORMAT DECIMAL (.,)                                                                
+     D  PXFMD1         S              1                                                             
+      * CODI D'EDICIÓ (4,M,Q,Z)                                                                     
+     D  PXEDTC         S              1                                                             
+      * RETORN CODI D'ERROR                                                                         
+     D  PXNMER         S              1  0 INZ(0)                                                   
+      * TIPUS D'AJUST DECIMAL (0=MIG 1=PER SOBRE 2=PER SOTA)                                        
+     D  PXTIPA         S              1                                                             
+                                                                                                    
+     D* SERIES A UTILITZAR EN PROGRAMA                                                              
+     D ZE              S             15    DIM(20)                                                  
+     D ZM              S              3    DIM(20)                                                  
+     D ZV              S              3    DIM(20)                                                  
+     D ZT              S              1    DIM(20)                                                  
+     D ZE1             S             15    DIM(20)                                                  
+     D ZM1             S              3    DIM(20)                                                  
+     D ZV1             S              3    DIM(20)                                                  
+     D ZT1             S              1    DIM(20)                                                  
+     D ZC              S             15  5 DIM(20)                                                  
+     D ZU              S              2    DIM(20)                                                  
+                                                                                                    
+     D  ZXCIAS         S                   LIKE(NDCIAS)                                             
+     D  ZXARTI         S                   LIKE(NDARTI)                                             
+     D  ZXVARI         S                   LIKE(NDVARI)                                             
+     D  ZXMODE         S                   LIKE(NDMODE)                                             
+     D  ZXARTI1        S                   LIKE(NDARTI)                                             
+     D  ZXVARI1        S                   LIKE(NDVARI)                                             
+     D  ZXMODE1        S                   LIKE(NDMODE)                                             
+     D  ZXTCOJ         S                   LIKE(NDTCOJ)                                             
+     D  ZXCOMP         S                   LIKE(NDCOMP)                                             
+     D  ZXVAR2         S                   LIKE(NDVAR2)                                             
+     D  ZXMOD2         S                   LIKE(NDMOD2)                                             
+     D  ZXTCO2         S                   LIKE(NDTCO2)                                             
+                                                                                                    
+     D  ZXLONG0        S             15  5                                                          
+     D  ZXANCH0        S             15  5                                                          
+     D  ZXALTU0        S             15  5                                                          
+      **************************************************************                                
+      * RUTINA  PRINCIPAL DEL PROGRAMA                             *                                
+      *------------------------------------------------------------*                                
+     C                   DOW       ZXOPT1 <> 'END'                                                  
+     C     ZXOPT1        CASEQ     'CHK'         SUBCHK                                             
+     C     ZXOPT1        CASEQ     'UPD'         SUBUPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+                                                                                                    
+20032C                   IF        %PARMS>=18                                                       
+20032C                   EVAL      @PPNET=ZXPNET                                                    
+20032C                   ENDIF                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+      *                                                                                             
+     C     KMSTSCA01     KLIST                                                                      
+     C                   KFLD                    MOCIAS                                             
+     C                   KFLD                    MOARTI                                             
+     C                   KFLD                    MOVARI                                             
+     C                   KFLD                    MOMODE                                             
+     C                   KFLD                    ZXCAST                                             
+                                                                                                    
+     C     KMSTSCA010    KLIST                                                                      
+     C                   KFLD                    MOCIAS                                             
+     C                   KFLD                    MOARTI                                             
+     C                   KFLD                    MOVARI                                             
+     C                   KFLD                    MOMODE                                             
+                                                                                                    
+     C     KMSTSCA       KLIST                                                                      
+     C                   KFLD                    MOCIAS                                             
+     C                   KFLD                    MOARTI                                             
+     C                   KFLD                    MOVARI                                             
+     C                   KFLD                    MOMODE                                             
+     C                   KFLD                    MOTCST                                             
+                                                                                                    
+     C     KMSUNAL       KLIST                                                                      
+     C                   KFLD                    MDCIAS                                             
+     C                   KFLD                    MDUNIM                                             
+                                                                                                    
+     C     KMSARTI00     KLIST                                                                      
+     C                   KFLD                    M5CIAS                                             
+     C                   KFLD                    M5ARTI                                             
+     C                   KFLD                    M5VARI                                             
+     C                   KFLD                    M5MODE                                             
+                                                                                                    
+     C     KPMTABD       KLIST                                                                      
+     C                   KFLD                    PECIAS                                             
+     C                   KFLD                    PECTAB                                             
+     C                   KFLD                    PECLTA                                             
+                                                                                                    
+     C     KPMUNAL       KLIST                                                                      
+     C                   KFLD                    P6CIAS                                             
+     C                   KFLD                    P6ARTI                                             
+     C                   KFLD                    P6VARI                                             
+     C                   KFLD                    P6MODE                                             
+     C                   KFLD                    P6UNIM                                             
+                                                                                                    
+     C     KMSCOJC       KLIST                                                                      
+     C                   KFLD                    NDCIAS                                             
+     C                   KFLD                    NDARTI                                             
+     C                   KFLD                    NDVARI                                             
+     C                   KFLD                    NDMODE                                             
+     C                   KFLD                    NDTCOJ                                             
+     C     KMSCOJC1      KLIST                                                                      
+     C                   KFLD                    NDCIAS                                             
+     C                   KFLD                    NDCOMP                                             
+     C                   KFLD                    NDVAR2                                             
+     C                   KFLD                    NDMOD2                                             
+     C                   KFLD                    NDTCO2                                             
+     C     KMSCOJD       KLIST                                                                      
+     C                   KFLD                    NDCIAS                                             
+     C                   KFLD                    NDARTI                                             
+     C                   KFLD                    NDVARI                                             
+     C                   KFLD                    NDMODE                                             
+     C                   KFLD                    NDTCOJ                                             
+     C                   KFLD                    NDCOMP                                             
+     C                   KFLD                    NDVAR2                                             
+     C                   KFLD                    NDMOD2                                             
+     C                   KFLD                    NDTCO2                                             
+     C     KULT0         KLIST                                                                      
+     C                   KFLD                    @PCIAS                                             
+     C                   KFLD                    ZE(PEN)                                            
+     C                   KFLD                    ZV(PEN)                                            
+     C                   KFLD                    ZM(PEN)                                            
+     C                   KFLD                    ZT(PEN)                                            
+     C     KULT          KLIST                                                                      
+     C                   KFLD                    @PCIAS                                             
+     C                   KFLD                    ZE(PEN)                                            
+     C                   KFLD                    ZV(PEN)                                            
+     C                   KFLD                    ZM(PEN)                                            
+     C                   KFLD                    ZT(PEN)                                            
+     C                   KFLD                    ZE1(PEN)                                           
+     C                   KFLD                    ZV1(PEN)                                           
+     C                   KFLD                    ZM1(PEN)                                           
+     C                   KFLD                    ZT1(PEN)                                           
+     C     KULT0B        KLIST                                                                      
+     C                   KFLD                    @PCIAS                                             
+     C                   KFLD                    M2_MOARTI                                          
+     C                   KFLD                    M2_MOVARI                                          
+     C                   KFLD                    M2_MOMODE                                          
+     C                   KFLD                    SSSTCST(Z_PEN)                                     
+      *                                                                                             
+     C     KULTB         KLIST                                                                      
+     C                   KFLD                    @PCIAS                                             
+     C                   KFLD                    M2_MOARTI                                          
+     C                   KFLD                    M2_MOVARI                                          
+     C                   KFLD                    M2_MOMODE                                          
+     C                   KFLD                    SSSTCST(Z_PEN)                                     
+     C                   KFLD                    SSSTCS2(Z_PEN)                                     
+     C     KMSTSCAB      KLIST                                                                      
+     C                   KFLD                    @PCIAS                                             
+     C                   KFLD                    MO_MOARTI                                          
+     C                   KFLD                    MO_MOVARI                                          
+     C                   KFLD                    MO_MOMODE                                          
+     C                   KFLD                    MO_MOTCST                                          
+      *                                                                                             
+                                                                                                    
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PARTI                                             
+     C                   PARM                    @PVARI                                             
+     C                   PARM                    @PMODE                                             
+     C                   PARM                    @PTCOJ                                             
+     C                   PARM                    @PCAST                                             
+     C                   PARM                    @PUNST                                             
+     C                   PARM                    @PPBRU                                             
+     C                   PARM                    @PUPES                                             
+     C                   PARM                    @PVOLU                                             
+     C                   PARM                    @PUVOL                                             
+     C                   PARM                    @PUMED                                             
+     C                   PARM                    @PNBUL                                             
+     C                   PARM                    @PTPAL                                             
+     C                   PARM                    @PTCT1                                             
+     C                   PARM                    @PVTC1                                             
+     C                   PARM                    @PERRO                                             
+20032C                   PARM                    @PPNET                                             
+      *                                                                                             
+     C                   EVAL      ZXERRO=@PERRO                                                    
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   EVAL      PECIAS=@PCIAS                                                    
+     C                   EVAL      MOCIAS=@PCIAS                                                    
+     C                   EVAL      MOARTI=@PARTI                                                    
+     C                   EVAL      MOVARI=@PVARI                                                    
+     C                   EVAL      MOMODE=@PMODE                                                    
+     C                   EVAL      M5CIAS=@PCIAS                                                    
+     C                   EVAL      P6CIAS=@PCIAS                                                    
+     C                   EVAL      M5ARTI=@PARTI                                                    
+     C                   EVAL      M5VARI=@PVARI                                                    
+     C                   EVAL      M5MODE=@PMODE                                                    
+     C                   EVAL      NDCIAS=@PCIAS                                                    
+     C                   EVAL      MDCIAS=@PCIAS                                                    
+     C                   EVAL      ZXOPT1='CHK'                                                     
+      * Si ZXERRO='A' en @PVOLU=0., no continuo                                                     
+     C                   IF        ZXERRO='A' AND @PVOLU<=0                                         
+     C                   EVAL      @PCAST=0                                                         
+     C                   EVAL      @PPBRU=0                                                         
+20032C                   IF        %PARMS>=18                                                       
+20032C                   EVAL      @PPNET=0                                                         
+20032C                   EndIf                                                                      
+     C                   EVAL      @PPBRU=0                                                         
+     C                   EVAL      @PNBUL=0                                                         
+     C                   EVAL      ZXOPT='END'                                                      
+     C                   ENDIF                                                                      
+     C                   IF        ZXERRO='A'                                                       
+     C                   EVAL      ZXPVOLU=@PVOLU                                                   
+     C                   ENDIF                                                                      
+      * Si viene informado el contenedor                                                            
+     C                   IF        @PTCT1<>*BLANKS                                                  
+     C                   EVAL      PECTAB='TCT1'                                                    
+     C                   EVAL      PECLTA=*BLANKS                                                   
+     C                   EVAL      PECLTA=@PTCT1                                                    
+     C                   EVAL      PEBL65=*BLANKS                                                   
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   EVAL      ZXBL63TC=PEBL63                                                  
+      * Transformación de unidades de longitud para tema de containers                              
+     C                   EVAL      ZXUN10=ZXUNMETC                                                  
+     C                   EVAL      ZXUN11=@PUMED                                                    
+     C                   EXSR      CS_SRD041                                                        
+      * Transformacion numerica largo ancho alto.                                                   
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXALPH=ZXLONGTC                                                  
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      0             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C     PXNUM         MULT      XZCOFU        ZXLONG0                                            
+                                                                                                    
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXALPH=ZXANCHTC                                                  
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      0             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C     PXNUM         MULT      XZCOFU        ZXANCH0                                            
+                                                                                                    
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXALPH=ZXALTUTC                                                  
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      0             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C     PXNUM         MULT      XZCOFU        ZXALTU0                                            
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     TINZSR        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA                                                  *                                
+      *------------------------------------------------------------*                                
+     C     SUBCHK        BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      ZXOPT='UPD'                                                      
+                                                                                                    
+     C     KMSARTI00     CHAIN     MSARTI00                           81                            
+                                                                                                    
+     C                   EVAL      XZAUXI=@PCAST                                                    
+                                                                                                    
+     C                   IF        @PUNST<>M5UNIM                                                   
+     C                   Z-ADD     0             P6COFA                                             
+     C                   EVAL      P6ARTI=M5ARTI                                                    
+     C                   EVAL      P6VARI=M5VARI                                                    
+     C                   EVAL      P6MODE=M5MODE                                                    
+     C                   EVAL      P6UNIM=@PUNST                                                    
+     C     KPMUNAL       CHAIN     PMUNAL                             81                            
+     C                   IF        *IN81=*ON                                                        
+     C                   EVAL      P6VARI=*BLANKS                                                   
+     C                   EVAL      P6MODE=*BLANKS                                                   
+     C     KPMUNAL       CHAIN     PMUNAL                             81                            
+     C                   ENDIF                                                                      
+     C                   IF        P6TCOF<>'1'                                                      
+     C                   MULT      P6COFA        XZAUXI                                             
+     C                   ELSE                                                                       
+     C                   IF        P6COFA<>0                                                        
+     C                   DIV       P6COFA        XZAUXI                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   MOVE      P6DEC0        XZDECI                                             
+     C                   MOVE      P6AJU0        XZAJUD                                             
+      * AJUSTE Y DECIMALES                                                                          
+     C/COPY *LIBL/QSRDSRC,SRD001                                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      ZXCAST2=XZAUXI                                                   
+                                                                                                    
+     C                   EVAL      @PCAST=XZAUXI                                                    
+     C                   EVAL      @PUNST=M5UNIM                                                    
+      * Busco datos de la cdad estándar                                                             
+     C                   EXSR      CS_MSTSCA                                                        
+                                                                                                    
+     C                   EVAL      ZXNBUL=0                                                         
+     C                   EVAL      ZXPBRU=0                                                         
+20032C                   EVAL      ZXPNET=0                                                         
+     C                   EVAL      ZXVOLU=0                                                         
+      ********                                                                                      
+     C                   IF        @PTCOJ=*BLANKS                                                   
+     C                   EVAL      ZXCAST=ZXCAST2                                                   
+      * 1º rebajo de packkeys                                                                       
+     C                   EVAL      ZXTRABPKEY=1                                                     
+     C                   EVAL      ZXEXPCONJ=0                                                      
+     C                   EXSR      CS_CALPVPKEY                                                     
+      * Si rebaja a primer nivel de formato acabo el proceso                                        
+     C                   IF        ZXERRO='A' AND ZXCASTA>0                                         
+     C                   GOTO      TF1                                                              
+     C                   ENDIF                                                                      
+      * 2º rebajo de otros formatos                                                                 
+     C                   IF        ZXCAST>0                                                         
+     C                   EVAL      ZXEXPCONJ=0                                                      
+     C                   EVAL      ZXTRABPKEY=0                                                     
+     C                   EXSR      CS_CALPVPKEY                                                     
+     C                   ENDIF                                                                      
+     C                   ELSE                                                                       
+     C                   EVAL      ZXEXPCONJ=1                                                      
+     C                   EXSR      CS_EXPCONJ                                                       
+     C                   ENDIF                                                                      
+      * Si rebaja a primer nivel de formato acabo el proceso                                        
+     C                   IF        ZXERRO='A' AND ZXCASTA>0                                         
+     C                   GOTO      TF1                                                              
+     C                   ENDIF                                                                      
+      * Si alguno de los datos de pesos o volumenes no aparece, se valora                           
+      * por valores unitarios (no tiene ninguna cdad std).                                          
+     C                   IF        ZXNBUL<=0                                                        
+     C                   EVAL      ZXNBUL=ZXCAST2                                                   
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ZXVOLU<=0                                                        
+     C     ZXCAST2       MULT      M5VOLU        ZXVOLU                                             
+     C                   IF        ZXVOLU<=0                                                        
+     C     M5MED1        MULT      M5MED2        ZXVOLU                                             
+     C                   MULT      M5MED3        ZXVOLU                                             
+     C                   MULT      ZXCAST2       ZXVOLU                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ZXPBRU<=0                                                        
+     C     ZXCAST2       MULT      M5PBRU        ZXPBRU                                             
+     C                   ENDIF                                                                      
+20032C                   IF        ZXPNET<=0                                                        
+20032C     ZXCAST2       MULT      M5PESN        ZXPNET                                             
+20032C                   ENDIF                                                                      
+      ********                                                                                      
+      *                  EVAL      @PNBUL=ZXNBUL                                                    
+      **                                                                                            
+     C     TF1           TAG                                                                        
+     C                   Z-ADD     ZXNBUL        @PNBUL                                             
+     C                   EVAL      @PPBRU=ZXPBRU                                                    
+20032c                   IF        %PARMS>=18                                                       
+20032C                   EVAL      @PPNET=ZXPNET                                                    
+20032c                   ENDIF                                                                      
+     C                   EVAL      @PVOLU=ZXVOLU                                                    
+     C                   IF        ZXERRO='A'                                                       
+     C                   EVAL      @PCAST=ZXCASTA                                                   
+     C                   ENDIF                                                                      
+     C     TFIN          TAG                                                                        
+                                                                                                    
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      @PERRO='1'                                                       
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     TSUBUP1       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA                                                  *                                
+      *------------------------------------------------------------*                                
+     C     SUBUPD        BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      ZXOPT='END'                                                      
+     C     TSUBUPD       ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                   *                                
+      * DISTRIBUCION POR FORMATOS                                  *                                
+      *------------------------------------------------------------*                                
+     C     CS_CALPVPKEY  BEGSR                                                                      
+      * El peso y volumen se formara con packkeys y la cantidad que falte                           
+      * PRIMERO AVERIGUAMOS SI TIENE CANTIDAD STANDARD CON MOD.Y VAR.                               
+     C     KMSTSCA010    CHAIN     MSTSCA01                           81                            
+      * Busco la 1ª linea que no sea baja                                                           
+     C                   DOW       CHAIN=*OFF                                                       
+     C                   IF        MOBAJA<='0'                                                      
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C     KMSTSCA010    READE     MSTSCA01                               81                        
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      MOVARI=*BLANKS                                                   
+     C                   EVAL      MOMODE=*BLANKS                                                   
+     C                   ENDIF                                                                      
+      * fuera de packkey con el resto de formatos.                                                  
+     C     KMSTSCA01     SETLL     MSTSCA01                           83                            
+     C     KMSTSCA010    READE     MSTSCA01                               83                        
+     C                   DOW       READ1=*OFF AND ZXCAST>0                                          
+      * Si el formato está de baja o no es packkey no se tiene en cuenta                            
+     C                   IF        MOBAJA>='1'                                                      
+     C                   GOTO      TNEX01                                                           
+     C                   ENDIF                                                                      
+      * Si los volumenes no estan informados salto de registro puesto                               
+      * que existen problemas con las variables logisticas                                          
+     C                   IF        (MOMED1<=0 OR MOMED2<=0 OR MOMED3<=0)                            
+     C                             AND (MOVOLU<=0)                                                  
+     C                   GOTO      TNEX01                                                           
+     C                   ENDIF                                                                      
+      * Si las medidas y volumenes son blancos, no continuo.                                        
+     C                   IF        ZXTRABPKEY>=1 AND MOPKEY<='0'                                    
+     C                   GOTO      TNEX01                                                           
+     C                   ENDIF                                                                      
+      * Si packkey desciende dentro de packkey                                                      
+     C                   IF        MOPKEY>='1'                                                      
+     C                   EXSR      CS_CALPV0                                                        
+      * Si rebaja a primer nivel de formato acabo el proceso                                        
+     C                   IF        ZXERRO='A' AND ZXCASTA>0 AND                                     
+     C                             ZXEXPCONJ<=0                                                     
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EXSR      CS_MSTSC2                                                        
+     C                   ELSE                                                                       
+     C                   EXSR      CS_CALPV0                                                        
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ZXCAST<=0                                                        
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      * Si rebaja a primer nivel de formato acabo el proceso                                        
+     C                   IF        ZXERRO='A' AND ZXCASTA>0 AND                                     
+     C                             ZXEXPCONJ<=0                                                     
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     TNEX01        TAG                                                                        
+     C     KMSTSCA010    READE     MSTSCA01                               83                        
+     C                   ENDDO                                                                      
+      * Sobre lo que no se ha podido trabajar como packkey, se trabaja                              
+      * sin packkey                                                                                 
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA LectuRA. DEFINICIO DE TOTS ELS PARÀMETRES          *                              
+      *------------------------------------------------------------*                                
+     C     CS_EXPCONJ    BEGSR                                                                      
+      * Validación de stocks de componentes de conjunto                                             
+     C                   Z-ADD     0             NDCANT                                             
+     C                   MOVE      *BLANKS       NDUNIM                                             
+      *                                                                                             
+     C     KMSCOJC       CHAIN     MSCOJC                             81                            
+     C                   IF        CHAIN=*ON                                                        
+     C                   GOTO      EXPCONJT                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   MOVE      *BLANKS       ZE                                                 
+     C                   MOVE      *BLANKS       ZM                                                 
+     C                   MOVE      *BLANKS       ZV                                                 
+     C                   MOVE      *BLANKS       ZT                                                 
+     C                   MOVE      *BLANKS       ZU                                                 
+     C                   Z-ADD     0             ZC                                                 
+     C                   MOVE      *BLANKS       ZE1                                                
+     C                   MOVE      *BLANKS       ZM1                                                
+     C                   MOVE      *BLANKS       ZV1                                                
+     C                   MOVE      *BLANKS       ZT1                                                
+                                                                                                    
+     C                   MOVEL     NDARTI        ZE(1)                                              
+     C                   MOVE      NDMODE        ZM(1)                                              
+     C                   MOVE      NDVARI        ZV(1)                                              
+     C                   MOVE      NDTCOJ        ZT(1)                                              
+     C                   Z-ADD     ZXCAST2       ZC(1)                                              
+     C                   MOVE      @PUNST        ZU(1)                                              
+                                                                                                    
+     C                   Z-ADD     1             PEN               2 0                              
+     C                   Z-ADD     2             ULT               2 0                              
+      * Búsqueda de los totales de los costes unitarios de cada componente                          
+     C     ULT           DOWGE     2                                                                
+      *                                                                                             
+     C     KULT          SETGT     MSCOJD                                                           
+     C                   EVAL      READ2=*OFF                                                       
+     C     KULT0         READE     MSCOJD                                 84                        
+      *  CASO DE FANTASMAS REORDENACION POSICIONES RELATIVAS                                        
+     C     READ2         IFNE      '1'                                                              
+      *                                                                                             
+     C                   EVAL      ZE1(PEN)=NDCOMP                                                  
+     C                   EVAL      ZM1(PEN)=NDMOD2                                                  
+     C                   EVAL      ZV1(PEN)=NDVAR2                                                  
+     C                   EVAL      ZT1(PEN)=NDTCO2                                                  
+                                                                                                    
+     C                   EVAL      ZE(ULT)=NDCOMP                                                   
+     C                   EVAL      ZM(ULT)=NDMOD2                                                   
+     C                   EVAL      ZV(ULT)=NDVAR2                                                   
+     C                   EVAL      ZT(ULT)=NDTCO2                                                   
+      *                                                                                             
+      * GUARDO DATOS ANTES DE ACCEDER A VER SI ES ESTRUCTURA                                        
+      * DICHO COMPONENTE                                                                            
+     C                   IF        NDTCO2<>*BLANKS                                                  
+     C                   Z-ADD     NDCIAS        ZXCIAS                                             
+     C                   MOVEL     NDARTI        ZXARTI                                             
+     C                   MOVEL     NDVARI        ZXVARI                                             
+     C                   MOVEL     NDMODE        ZXMODE                                             
+     C                   MOVEL     NDTCOJ        ZXTCOJ                                             
+     C                   MOVEL     NDCOMP        ZXCOMP                                             
+     C                   MOVEL     NDVAR2        ZXVAR2                                             
+     C                   MOVEL     NDMOD2        ZXMOD2                                             
+     C                   MOVEL     NDTCO2        ZXTCO2                                             
+     C     KMSCOJC1      CHAIN     MSCOJD                             81                            
+      * RECUPERO LOS DATOS DEL REGISTRO QUE ESTABAMOS TRATANDO                                      
+     C                   Z-ADD     ZXCIAS        NDCIAS                                             
+     C                   MOVEL     ZXARTI        NDARTI                                             
+     C                   MOVEL     ZXVARI        NDVARI                                             
+     C                   MOVEL     ZXMODE        NDMODE                                             
+     C                   MOVEL     ZXTCOJ        NDTCOJ                                             
+     C                   MOVEL     ZXCOMP        NDCOMP                                             
+     C                   MOVEL     ZXVAR2        NDVAR2                                             
+     C                   MOVEL     ZXMOD2        NDMOD2                                             
+     C                   MOVEL     ZXTCO2        NDTCO2                                             
+     C     KMSCOJD       CHAIN     MSCOJD                             81                            
+     C                   ENDIF                                                                      
+      *   BUSQUEDA DE DESCRIPCIONES Y COSTES DE MATERIALES                                          
+     C                   EVAL      M5ARTI=NDCOMP                                                    
+     C                   EVAL      M5VARI=NDVAR2                                                    
+     C                   EVAL      M5MODE=NDMOD2                                                    
+     C     KMSARTI00     CHAIN     MSARTI00                           81                            
+      * Busco datos de la cdad estándar                                                             
+     C                   EXSR      CS_MSTSCA                                                        
+      *                                                                                             
+     C                   Z-ADD     NDCANT        XZAUXI                                             
+      * Transformación en unidad básica                                                             
+     C                   IF        NDUNIM<>M5UNIM AND M5UNIM<>*BLANKS                               
+     C                   MOVE      @PCIAS        P6CIAS                                             
+     C                   MOVE      NDCOMP        P6ARTI                                             
+     C                   MOVE      NDVAR2        P6VARI                                             
+     C                   MOVE      NDMOD2        P6MODE                                             
+     C                   MOVE      NDUNIM        P6UNIM                                             
+     C                   MOVE      '0'           P6TCOF                                             
+     C                   MOVE      '0'           P6DEC0                                             
+     C                   MOVE      '0'           P6AJU0                                             
+     C                   Z-ADD     0             P6COFA                                             
+     C     KPMUNAL       CHAIN     PMUNAL                             81                            
+     C                   IF        *IN81=*ON                                                        
+     C                   EVAL      P6VARI=*BLANKS                                                   
+     C                   EVAL      P6MODE=*BLANKS                                                   
+     C     KPMUNAL       CHAIN     PMUNAL                             81                            
+     C                   ENDIF                                                                      
+     C                   IF        P6TCOF<>'1'                                                      
+     C                   MULT      P6COFA        XZAUXI                                             
+     C                   ELSE                                                                       
+     C                   IF        P6COFA<>0                                                        
+     C                   DIV       P6COFA        XZAUXI                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   MOVE      P6DEC0        XZDECI                                             
+     C                   MOVE      P6AJU0        XZAJUD                                             
+      * AJUSTE Y DECIMALES                                                                          
+     C/COPY *LIBL/QSRDSRC,SRD001                                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   MULT      ZC(PEN)       XZAUXI                                             
+                                                                                                    
+      *                                                                                             
+     C                   Z-ADD     XZAUXI        ZC(ULT)                                            
+     C                   EVAL      ZU(ULT)=M5UNIM                                                   
+      * Valido stock                                                                                
+     C                   IF        NDTCO2=*BLANKS                                                   
+      * PARA LOS CJTOS BUSCA EN MISMA UBICACION Y CON MISMO Nº DE LOTE                              
+     C                   EVAL      ZXARTI1=NDCOMP                                                   
+     C                   EVAL      ZXVARI1=NDVAR2                                                   
+     C                   EVAL      ZXMODE1=NDMOD2                                                   
+     C                   EVAL      ZXCAST=ZC(ULT)                                                   
+                                                                                                    
+     C                   EVAL      ZXTRABPKEY=1                                                     
+     C                   EXSR      CS_CALPVPKEY                                                     
+      * 2º rebajo de otros formatos                                                                 
+     C                   IF        ZXCAST>0                                                         
+     C                   EVAL      ZXTRABPKEY=0                                                     
+     C                   EXSR      CS_CALPVPKEY                                                     
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     ULT           IFNE      19                                                               
+     C                   ADD       1             PEN                                                
+     C                   ADD       1             ULT                                                
+     C                   ELSE                                                                       
+     C                   LEAVE                                                                      
+     C                   END                                                                        
+      *                                                                                             
+     C                   ELSE                                                                       
+      *                                                                                             
+     C                   MOVE      *BLANKS       ZE(ULT)                                            
+     C                   MOVE      *BLANKS       ZM(ULT)                                            
+     C                   MOVE      *BLANKS       ZV(ULT)                                            
+     C                   MOVE      *BLANKS       ZT(ULT)                                            
+     C                   MOVE      *BLANKS       ZE1(PEN)                                           
+     C                   MOVE      *BLANKS       ZM1(PEN)                                           
+     C                   MOVE      *BLANKS       ZV1(PEN)                                           
+     C                   MOVE      *BLANKS       ZT1(PEN)                                           
+     C                   SUB       1             PEN                                                
+     C                   SUB       1             ULT                                                
+     C                   END                                                                        
+      *                                                                                             
+     C                   END                                                                        
+      *                                                                                             
+     C     EXPCONJT      TAG                                                                        
+      *   RECUPERA DATOS DE ARTICULO                                                                
+     C**** KMSARTIS5     CHAIN     MSARTI00                           81                            
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA                                                                                   
+      *------------------------------------------------------------*                                
+     C     CS_MSTSCA     BEGSR                                                                      
+     C                   EVAL      MOARTI=M5ARTI                                                    
+     C                   EVAL      MOTCST=M5TCS1                                                    
+     C                   EVAL      MOVARI=*BLANKS                                                   
+     C                   EVAL      MOMODE=*BLANKS                                                   
+     C     KMSTSCA       CHAIN     MSTSCA                             81                            
+     C                   EVAL      MOVARI=M5VARI                                                    
+     C                   EVAL      MOMODE=M5MODE                                                    
+     C     KMSTSCA       CHAIN     MSTSCA                             81                            
+      * Valores estandar a guardar                                                                  
+     C                   EVAL      ZXCASTSTD=MO_MOCAST                                              
+     C                   EVAL      ZXUNSTSTD=MO_MOUNST                                              
+     C                   EVAL      ZXPBRUSTD=MO_MOPBRU                                              
+20032C                   EVAL      ZXPNETSTD=MO_MOPESN                                              
+     C                   EVAL      ZXVOLUSTD=MO_MOVOLU                                              
+     C                   EVAL      ZXMED1STD=MO_MOMED1                                              
+     C                   EVAL      ZXMED2STD=MO_MOMED2                                              
+     C                   EVAL      ZXMED3STD=MO_MOMED3                                              
+      *                                                                                             
+     C                   IF        @PUVOL=*BLANKS                                                   
+     C                   EVAL      @PUVOL=MO_MOUVOL                                                 
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        @PUPES=*BLANKS                                                   
+     C                   EVAL      @PUPES=MO_MOUPSO                                                 
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        @PUMED=*BLANKS                                                   
+     C                   EVAL      @PUMED=MO_MOUMEL                                                 
+     C                   ENDIF                                                                      
+      * Si existe nivel de apilabilidad, se trata el coeficiente                                    
+     C                   EVAL      ZXTAJTALT=0                                                      
+     C                   EVAL      ZXCOEAPLB=1                                                      
+     C                   IF        M5APLB<>*BLANKS                                                  
+H3133C                             or M5APLB<>'1'                                                   
+     C                   EVAL      PECTAB='APLB'                                                    
+     C                   EVAL      PECLTA=*BLANKS                                                   
+     C                   EVAL      PECLTA=M5APLB                                                    
+     C                   EVAL      PEBL65=*BLANKS                                                   
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   EVAL      ZXBL65AP=PEBL65                                                  
+      * El coeficiente de apilabilidad se trabajará con coma y maximo 3                             
+      * decimales                                                                                   
+     C                   EVAL      PXALPH=*BLANKS                                                   
+     C                   EVAL      PXALPH=ZXCOEVAP                                                  
+     C                   EVAL      PXNUM=0                                                          
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      2             PXDCCD                                             
+     C                   PARM      '1'           PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   EVAL      ZXCOEAPLB=PXNUM                                                  
+     C                   IF        ZXCOEAPLB<=0                                                     
+     C                   EVAL      ZXCOEAPLB=1                                                      
+     C                   ENDIF                                                                      
+      * Si se ajusta por altura de contenedor y este tiene contenedor                               
+      * asociado, entonces se marca para ajustar altura                                             
+     C                   IF        ZXTAJTAP='1' AND ZXALTU0>0                                       
+     C                   EVAL      ZXTAJTALT=1                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA                                                                                   
+      *------------------------------------------------------------*                                
+     C     CS_MSTSC2     BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      MO_MOARTI=MOARTI                                                 
+     C                   EVAL      MO_MOVARI=MOVARI                                                 
+     C                   EVAL      MO_MOMODE=MOMODE                                                 
+     C                   EVAL      MO_MOTCST=MOTCST                                                 
+                                                                                                    
+     C                   EVAL      M2_MOARTI=MOARTI                                                 
+     C                   EVAL      M2_MOVARI=MOVARI                                                 
+     C                   EVAL      M2_MOMODE=MOMODE                                                 
+     C* Valida que las unidades que trate existan en el artículo                                    
+     C* y que las subcantidades std. también existan                                                
+     C     KMSTSCAB      CHAIN(N)  MSTSC2                             81                            
+     C                   IF        CHAIN=*ON                                                        
+     C                   GOTO      MSTSC2T                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      SSSTCST(Z_PEN)=MOTCST                                            
+     C                   EVAL      SSSTCS2=*BLANKS                                                  
+     C                   EVAL      Z_ULT=2                                                          
+     C*                                                                                             
+     C                   DOW       Z_ULT>=2                                                         
+     C     KULTB         SETGT     MSTSC2                                                           
+     C     KULT0B        READE     MSTSC2                                 83                        
+      *                                                                                             
+     C                   IF        READ1=*OFF                                                       
+     C                   EVAL      SSSTCS2(Z_PEN)=M2_MOTCS2                                         
+     C                   EVAL      SSSTCST(Z_ULT)=M2_MOTCS2                                         
+     C                   EVAL      SSSCAS2(Z_ULT)=M2_MOCAN2                                         
+     C* Valida que las unidades que trate existan en el artículo                                    
+     C* y que las subcantidades std. también existan                                                
+     C                   EVAL      MO_MOTCST=M2_MOTCS2                                              
+     C     KMSTSCAB      CHAIN(N)  MSTSCA                             81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   EVAL      MOCAST=MO_MOCAST                                                 
+     C                   EVAL      MOTPAL=MO_MOTPAL                                                 
+     C                   EVAL      MOUPSO=MO_MOUPSO                                                 
+     C                   EVAL      MOUVOL=MO_MOUVOL                                                 
+     C                   EVAL      MOPBRU=MO_MOPBRU                                                 
+20032C                   EVAL      MOPESN=MO_MOPESN                                                 
+     C                   EVAL      MOMED1=MO_MOMED1                                                 
+     C                   EVAL      MOMED2=MO_MOMED2                                                 
+     C                   EVAL      MOMED3=MO_MOMED3                                                 
+     C                   EVAL      MOUMEL=MO_MOUMEL                                                 
+     C                   EVAL      MOVOLU=MO_MOVOLU                                                 
+     C                   EXSR      CS_CALPV0                                                        
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        ZXCAST<=0                                                        
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      * Si rebaja a primer nivel de formato acabo el proceso                                        
+     C                   IF        ZXERRO='A' AND ZXCASTA>0 AND                                     
+     C                             ZXEXPCONJ<=0                                                     
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        Z_ULT<>10                                                        
+     C                   EVAL      Z_PEN=Z_PEN+1                                                    
+     C                   EVAL      Z_ULT=Z_ULT+1                                                    
+     C                   ELSE                                                                       
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ELSE                                                                       
+                                                                                                    
+     C                   EVAL      SSSTCST(Z_ULT)=*BLANKS                                           
+     C                   EVAL      SSSTCS2(Z_PEN)=*BLANKS                                           
+     C                   EVAL      Z_PEN=Z_PEN-1                                                    
+     C                   EVAL      Z_ULT=Z_ULT-1                                                    
+     C                   EVAL      SSSCAST(Z_ULT)=0                                                 
+     C                   ENDIF                                                                      
+     C                   ENDDO                                                                      
+                                                                                                    
+     C     MSTSC2T       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA                                                                                   
+      *------------------------------------------------------------*                                
+     C     CS_CALPV0     BEGSR                                                                      
+     C                   EVAL      ZXAUX1=0                                                         
+     C                   EVAL      ZXAUX21=0                                                        
+     C                   EVAL      ZXCASTA=0                                                        
+     C                   EVAL      ZXVOLUA=0                                                        
+     C                   EVAL      ZXPBRUA=0                                                        
+     C                   EVAL      ZXOBTPBRU=0                                                      
+20032C                   EVAL      ZXPNETA=0                                                        
+20032C                   EVAL      ZXOBTPNET=0                                                      
+     C                   IF        MOCAST<>0                                                        
+     C     ZXCAST        DIV       MOCAST        ZXAUX1                                             
+     C                   ENDIF                                                                      
+      * El packkey será el 1er packkey                                                              
+     C                   IF        @PTPAL=*BLANKS AND ZXTRABPKEY>=1                                 
+     C                   EVAL      @PTPAL=MOTPAL                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+      * Cada formato es un bulto                                                                    
+     C                   EVAL      ZXNBUL=ZXNBUL+ZXAUX1                                             
+      *                                                                                             
+     C     ZXAUX1        MULT      MOCAST        ZXAUX2                                             
+      *                                                                                             
+     C                   EVAL      ZXMOMED1=MOMED1                                                  
+     C                   EVAL      ZXMOMED2=MOMED2                                                  
+     C                   EVAL      ZXMOMED3=MOMED3                                                  
+                                                                                                    
+     C                   IF        ZXAUX2>0                                                         
+     C                   EVAL      ZXPERROA=1                                                       
+      * Tema apilabilidades. En el caso que se trate del packey (palet)                             
+      * y se deba ajustar a altura, entonces MOVOLU=0 para forzar el calculo                        
+      * de volumen s/medidas ajustadas                                                              
+     C                   IF        MOPKEY>='1' AND ZXTAJTALT>=1                                     
+     C                   EVAL      MOVOLU=0                                                         
+     C                   ENDIF                                                                      
+      * 1º busco cuantas cantidades estándar son la cantidad ZXAUX2                                 
+     C                   EVAL      ZXNTCS1=1                                                        
+     C                   IF        ZXCASTSTD>0                                                      
+     C     ZXAUX2        DIV(H)    ZXCASTSTD     ZXNTCS1                                            
+     C                   IF        ZXNTCS1<=0                                                       
+     C                   EVAL      ZXNTCS1=1                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * Si packkey tiene el peso informado, tomo dicho peso bruto                                   
+     C                   EVAL      XZCOFU=1                                                         
+     C                   EVAL      XZCOFA=1                                                         
+     C                   IF        MOPBRU>0                                                         
+     C                   IF        MOUPSO<>@PUPES AND MOUPSO<>*BLANKS                               
+     C                   IF        @PUPES=*BLANKS                                                   
+     C                   EVAL      @PUPES=MOUPSO                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXUN10=MOUPSO                                                    
+     C                   EVAL      ZXUN11=@PUPES                                                    
+     C                   EXSR      CS_SRD041                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     MOPBRU        MULT      XZCOFU        ZXAUX4                                             
+20032C     MOPESN        MULT      XZCOFU        ZXAUX4N                                            
+     C                   IF        ZXERRO='A'                                                       
+     C                   EVAL      ZXPBRUA=ZXAUX4                                                   
+20032C                   EVAL      ZXPNETA=ZXAUX4N                                                  
+     C                   ENDIF                                                                      
+     C     ZXAUX4        MULT      ZXAUX1        ZXAUX4                                             
+20032C     ZXAUX4N       MULT      ZXAUX1        ZXAUX4N                                            
+     C                   EVAL      ZXPBRU=ZXPBRU+ZXAUX4                                             
+20032C                   EVAL      ZXPNET=ZXPNET+ZXAUX4N                                            
+     C                   ELSE                                                                       
+     C                   IF        MOUPSO<>ZXUPSOSTD AND MOUPSO<>*BLANKS                            
+     C                   IF        @PUPES=*BLANKS                                                   
+     C                   EVAL      @PUPES=ZXUPSOSTD                                                 
+     C                   ELSE                                                                       
+     C                   EVAL      ZXUN10=ZXUPSOSTD                                                 
+     C                   EVAL      ZXUN11=@PUPES                                                    
+     C                   EXSR      CS_SRD041                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ZXNTCS1       MULT      ZXPBRUSTD     ZXAUX4                                             
+20032C     ZXNTCS1       MULT      ZXPNETSTD     ZXAUX4N                                            
+     C                   MULT      XZCOFU        ZXAUX4                                             
+20032C                   MULT      XZCOFU        ZXAUX4N                                            
+     C                   IF        ZXERRO='A'                                                       
+     C                   EVAL      ZXPBRUA=ZXAUX4                                                   
+     C                   EVAL      ZXOBTPBRU=1                                                      
+20032C                   EVAL      ZXPNETA=ZXAUX4N                                                  
+20032C                   EVAL      ZXOBTPNET=1                                                      
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXPBRU=ZXPBRU+ZXAUX4                                             
+20032C                   EVAL      ZXPNET=ZXPNET+ZXAUX4N                                            
+     C                   ENDIF                                                                      
+      * Cálculo volumen                                                                             
+     C                   EVAL      XZCOFU=1                                                         
+     C                   EVAL      XZCOFA=1                                                         
+     C                   IF        MOVOLU>0                                                         
+     C                   IF        MOUVOL<>@PUVOL AND MOUVOL<>*BLANKS                               
+     C                   IF        @PUVOL=*BLANKS                                                   
+     C                   EVAL      @PUVOL=MOUVOL                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXUN10=MOUVOL                                                    
+     C                   EVAL      ZXUN11=@PUVOL                                                    
+     C                   EXSR      CS_SRD041                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     MOVOLU        MULT      ZXCOEAPLB     ZXAUX4                                             
+     C                   MULT      XZCOFU        ZXAUX4                                             
+     C                   IF        ZXERRO='A'                                                       
+     C                   EVAL      ZXVOLUA=ZXAUX4                                                   
+     C                   ENDIF                                                                      
+     C     ZXAUX4        MULT      ZXAUX1        ZXAUX4                                             
+     C                   EVAL      ZXVOLU=ZXVOLU+ZXAUX4                                             
+     C                   ELSE                                                                       
+     C                   IF        MOMED1>0 AND MOMED2>0 AND MOMED3>0                               
+     C                   IF        MOUMEL<>@PUMED AND MOUMEL<>*BLANKS                               
+     C                   IF        @PUMED=*BLANKS                                                   
+     C                   EVAL      @PUMED=MOUMEL                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXUN10=MOUMEL                                                    
+     C                   EVAL      ZXUN11=@PUMED                                                    
+     C                   EXSR      CS_SRD041                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     MOMED1        MULT      MOMED2        ZXAUX4                                             
+      * Multiplica por el coeficiente al cubo                                                       
+     C                   MULT      XZCOFU        ZXAUX4                                             
+     C                   MULT      XZCOFU        ZXAUX4                                             
+      * Segun el sistema trabaje sobre altura máxima aplico dicho                                   
+      * coeficiente si la altura supera el valor inicial marcado por MOMED3                         
+     C                   IF        MOPKEY>='1' AND ZXTAJTALT>=1                                     
+     C                   EVAL      MOMED3=MOMED3*XZCOFU                                             
+     C                   IF        ZXALTU0>MOMED3                                                   
+     C                   EVAL      MOMED3=ZXALTU0                                                   
+     C                   ENDIF                                                                      
+     C                   MULT      MOMED3        ZXAUX4                                             
+     C                   ELSE                                                                       
+     C                   MULT      MOMED3        ZXAUX4                                             
+     C                   MULT      XZCOFU        ZXAUX4                                             
+     C                   ENDIF                                                                      
+      * El volumen tambien queda marcado por el coeficiente de apilabilidad                         
+     C                   MULT      ZXCOEAPLB     ZXAUX4                                             
+     C                   IF        ZXERRO='A'                                                       
+     C                   EVAL      ZXVOLUA=ZXAUX4                                                   
+     C                   ENDIF                                                                      
+     C     ZXAUX4        MULT      ZXAUX1        ZXAUX4                                             
+     C                   EVAL      ZXVOLU=ZXVOLU+ZXAUX4                                             
+     C                   ELSE                                                                       
+     C                   IF        ZXVOLUSTD>0                                                      
+     C                   IF        MOUVOL<>ZXUVOLSTD AND MOUVOL<>*BLANKS                            
+     C                   IF        @PUVOL=*BLANKS                                                   
+     C                   EVAL      @PUVOL=ZXUVOLSTD                                                 
+     C                   ELSE                                                                       
+     C                   EVAL      ZXUN10=ZXUVOLSTD                                                 
+     C                   EVAL      ZXUN11=@PUVOL                                                    
+     C                   EXSR      CS_SRD041                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ZXVOLUSTD     MULT      ZXNTCS1       ZXAUX4                                             
+     C                   MULT      XZCOFU        ZXAUX4                                             
+      *    ZXAUX4        MULT      ZXAUX1        ZXAUX4                                             
+     C                   EVAL      ZXVOLU=ZXVOLU+ZXAUX4                                             
+     C                   ELSE                                                                       
+     C                   IF        ZXUMEDSTD<>@PUMED AND ZXUMEDSTD<>*BLANKS                         
+     C                   IF        @PUMED=*BLANKS                                                   
+     C                   EVAL      @PUMED=ZXUMEDSTD                                                 
+     C                   ELSE                                                                       
+     C                   EVAL      ZXUN10=ZXUMEDSTD                                                 
+     C                   EVAL      ZXUN11=@PUMED                                                    
+     C                   EXSR      CS_SRD041                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ZXMED1STD     MULT      ZXMED2STD     ZXAUX4                                             
+     C                   MULT      ZXMED3STD     ZXAUX4                                             
+      * Multiplica por el coeficiente al cubo                                                       
+     C                   MULT      XZCOFU        ZXAUX4                                             
+     C                   MULT      XZCOFU        ZXAUX4                                             
+     C                   MULT      XZCOFU        ZXAUX4                                             
+      * El volumen tambien queda marcado por el coeficiente de apilabilidad                         
+     C                   MULT      ZXCOEAPLB     ZXAUX4                                             
+     C                   IF        ZXERRO='A'                                                       
+     C                   EVAL      ZXVOLUA=ZXAUX4                                                   
+     C                   ENDIF                                                                      
+     C     ZXAUX4        MULT      ZXAUX1        ZXAUX4                                             
+     C                   EVAL      ZXVOLU=ZXVOLU+ZXAUX4                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDIF                                                                      
+      *****************************************************                                         
+      * Determinacion de medidas fuera de limites contenedores                                      
+     C                   IF        @PVTC1>='1' AND ZXPERROA>=1                                      
+     C                   IF        ZXMOMED1>0 AND ZXMOMED2>0 AND ZXMOMED3>0                         
+     C                   EVAL      ZXUN10=MOUMEL                                                    
+     C                   EVAL      ZXUN11=@PUMED                                                    
+     C                   EXSR      CS_SRD041                                                        
+     C                   EVAL      ZXMED1ST2=ZXMOMED1*XZCOFU                                        
+     C                   EVAL      ZXMED2ST2=ZXMOMED2*XZCOFU                                        
+     C                   EVAL      ZXMED3ST2=ZXMOMED3*XZCOFU                                        
+     C                   IF        ZXMED1ST2>ZXLONG0 OR ZXMED2ST2>ZXANCH0                           
+     C                             OR ZXMED3ST2>ZXALTU0                                             
+     C                   EVAL      @PERRO='A'                                                       
+     C                   ENDIF                                                                      
+     C                   ELSE                                                                       
+     C                   IF        ZXMED1STD>0 AND ZXMED2STD>0 AND                                  
+     C                             ZXMED3STD>0                                                      
+     C                   EVAL      XZCOFU=1                                                         
+     C                   IF        ZXUMEDSTD<>@PUMED                                                
+     C                   EVAL      ZXUN10=ZXUMEDSTD                                                 
+     C                   EVAL      ZXUN11=@PUMED                                                    
+     C                   EXSR      CS_SRD041                                                        
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXMED1ST2=ZXMED1STD*XZCOFU                                       
+     C                   EVAL      ZXMED2ST2=ZXMED2STD*XZCOFU                                       
+     C                   EVAL      ZXMED3ST2=ZXMED3STD*XZCOFU                                       
+     C                   IF        ZXMED1ST2>ZXLONG0 OR ZXMED2ST2>ZXANCH0                           
+     C                             OR ZXMED3ST2>ZXALTU0                                             
+     C                   EVAL      @PERRO='A'                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *****************************************************                                         
+      * Buscaremos cuantos embalajes caben en el volumen máximo                                     
+      * Si pasa por aquí , ya no tiene que buscar nada más en programa                              
+     C                   IF        ZXERRO='A' AND ZXVOLUA>0 AND                                     
+     C                             ZXPERROA>=1                                                      
+     C     ZXPVOLU       DIV       ZXVOLUA       ZXAUX21                                            
+     C                   EVAL      ZXNBUL=ZXAUX21                                                   
+     C     MOCAST        MULT      ZXAUX21       ZXCASTA                                            
+     C     ZXAUX21       MULT      ZXVOLUA       ZXVOLU                                             
+      * Sobre el peso                                                                               
+     C                   IF        ZXOBTPBRU<=0                                                     
+     C     ZXAUX21       MULT      ZXPBRUA       ZXPBRU                                             
+     C                   ELSE                                                                       
+      * Busca peso de cdad estandar si es el caso                                                   
+     C                   EVAL      ZXNTCS1=1                                                        
+     C                   IF        ZXCASTSTD>0                                                      
+     C     ZXCASTA       DIV(H)    ZXCASTSTD     ZXNTCS1                                            
+     C                   IF        ZXNTCS1<=0                                                       
+     C                   EVAL      ZXNTCS1=1                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+20032C                   IF        ZXOBTPNET<=0                                                     
+20032C     ZXAUX21       MULT      ZXPNETA       ZXPNET                                             
+20032C                   ELSE                                                                       
+20032 * Busca peso de cdad estandar si es el caso                                                   
+20032C                   EVAL      ZXNTCS1=1                                                        
+20032C                   IF        ZXCASTSTD>0                                                      
+20032C     ZXCASTA       DIV(H)    ZXCASTSTD     ZXNTCS1                                            
+20032C                   IF        ZXNTCS1<=0                                                       
+20032C                   EVAL      ZXNTCS1=1                                                        
+20032C                   ENDIF                                                                      
+20032C                   ENDIF                                                                      
+20032C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        MOUPSO<>ZXUPSOSTD AND MOUPSO<>*BLANKS                            
+     C                   IF        @PUPES=*BLANKS                                                   
+     C                   EVAL      @PUPES=ZXUPSOSTD                                                 
+     C                   ELSE                                                                       
+     C                   EVAL      ZXUN10=ZXUPSOSTD                                                 
+     C                   EVAL      ZXUN11=@PUPES                                                    
+     C                   EXSR      CS_SRD041                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     ZXNTCS1       MULT      ZXPBRUSTD     ZXAUX4                                             
+     C                   MULT      XZCOFU        ZXAUX4                                             
+20032C     ZXNTCS1       MULT      ZXPNETSTD     ZXAUX4N                                            
+20032C                   MULT      XZCOFU        ZXAUX4N                                            
+     C                   EVAL      ZXPBRU=ZXAUX4                                                    
+20032C                   EVAL      ZXPNET=ZXAUX4N                                                   
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXAUX2=ZXCAST                                                    
+     C                   ENDIF                                                                      
+      *****************************************************                                         
+      * Sino queda cantidad a extraer, ya no continuo                                               
+     C                   EVAL      ZXCAST=ZXCAST-ZXAUX2                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA                                                                                   
+      *------------------------------------------------------------*                                
+     C     CS_SRD041     BEGSR                                                                      
+     C                   EVAL      ZXCA10=1                                                         
+     C                   EVAL      ZXCA11=1                                                         
+     C*  CONVERSION DE UNA CANTIDAD-UNIDAD INICIAL A CANTIDAD-UNIDAD                                
+     C*  FINAL                                                                                      
+     C/COPY *LIBL/QSRDSRC,SRD041                                                                    
+     C                   IF        XZCOFU<=0                                                        
+     C                   EVAL      XZCOFU=1                                                         
+     C                   ENDIF                                                                      
+     C                   ENDSR                                                                      

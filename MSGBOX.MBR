@@ -1,0 +1,252 @@
+     ********************************************************************                          
+     * FECHA:         06/07/2022                                ITOM244 *                          
+     * AUTOR:         Manuel Alonso                                     *                          
+     *                                                                  *                          
+     * DOCUMENTACIÓN: Caja de mensajes genérica, en forma de subfichero *                          
+     *                de carga automática, en la que el texto se divide *                          
+     *                en bloques de 50 caracteres.                      *                          
+     *                El texto será de longitud variable, de hasta      *                          
+     *                5000 caracteres (el subfichero es de un máximo de *                          
+     *                100 líneas de 50 caracteres cada una).            *                          
+     *                Según la funcionalidad requerida se limitarán las *                          
+     *                teclas con las que se podrá salir de la ventana,  *                          
+     *                y se devolverá respuesta según lo tecleado.       *                          
+     *                                                                  *                          
+     * PARÁMETROS:    @pTitulo     Entrada    Título de la ventana      *                          
+     *                @pTexto      Entrada    Puntero al texto          *                          
+     *                @pLongitud   Entrada    Longitud del texto        *                          
+     *                @pFunción    Entrada    '0' = Sólo Intro          *                          
+     *                                        '1' = Sólo F12 o Intro    *                          
+     *                                        '2' = Sólo F10 o F12      *                          
+     *                @pRetorno    Salida     '0' = Se pulsó Intro      *                          
+     *                                        '1' = Se pulsó F12        *                          
+     *                                        '2' = Se pulsó F10        *                          
+IT244*                @pMsgLiteral Entrada    Ausente u                 *                          
+IT244*                                        *Off = Se ajusta mensaje  *                          
+IT244*                                        *On  = El mensaje se      *                          
+IT244*                                               muestra tal cual   *                          
+     ********************************************************************                          
+IT244* Fecha Inicio: 28/07/2022                  MARCA: IT244 (ITOM244) *                          
+IT244*       Autor : Manuel Alonso                                      *                          
+IT244* Descripción : Añadir parámetro opcional para indicar que el      *                          
+IT244*               mensaje tiene que aparecer tal cual se recibe, sin *                          
+IT244*               tratamiento para eliminar espacios o ajustar las   *                          
+IT244*               líneas a palabras completas.                       *                          
+IT244********************************************************************                          
+E7139 *  Data: 21/11/2022    Marca: E7139    Autor: MMontana                                        
+E7139 *  Modificació : Ampliació del camp rebut (varchar 10.000) i dels registres de pantalla       
+E7139 *    que puja fins 200.                                                                       
+E7139 ******************************************************************************************    
+                                                                                                    
+     H Option(*NoDebugIO:*SrcStmt)                                                                  
+                                                                                                    
+     Fmsgboxfm  CF   E             WorkStn SFile(SufD:zxNRR00)                                      
+                                                                                                    
+      *                                                                                             
+      * Parámetros                                                                                  
+      *                                                                                             
+     D  @pTitulo       S             50                                                             
+     D  @pTexto        S               *                                                            
+     D  @pLongitud     S              4S 0                                                          
+     D  @pFuncion      S              1                                                             
+     D  @pRetorno      S              1                                                             
+IT244D  @pMsgLiteral   S               N                                                            
+                                                                                                    
+      *                                                                                             
+      * Indicadores                                                                                 
+      *                                                                                             
+     D  Indicadors   E DS                  Based(indicadorP)                                        
+     D                                     ExtName(indds:rind0199)                                  
+     D  IndicadorP     S               *   Inz(%AddR(*In))                                          
+                                                                                                    
+      *                                                                                             
+      * Variables                                                                                   
+      *                                                                                             
+     D  i              S              2S 0                                                          
+     D  aTexto         S             51    Based(pTexto)                                            
+     D  pTexto         S               *                                                            
+     D  sAjuste        S              2S 0                                                          
+     D  sLongitud      S                   Like(@pLongitud)                                         
+     D  nSalir         S               N   Inz(*Off)                                                
+IT244D  nProcesarMsg   S               N                                                            
+                                                                                                    
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * PROGRAMA PRINCIPAL                                         *                                
+      **************************************************************                                
+      *                                                                                             
+     C                   ExSR      S01Clr                                                           
+     C                   ExSR      S01Dsp                                                           
+     C                   ExSR      S01Cmd                                                           
+      *                                                                                             
+     C                   Eval      *InLR = *On                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * INICIALIZACIONES                                           *                                
+      **************************************************************                                
+      *                                                                                             
+     C     *InzSR        BegSR                                                                      
+      *                                                                                             
+     C     *Entry        PList                                                                      
+     C                   Parm                    @pTitulo                                           
+     C     pTexto        Parm                    @pTexto                                            
+     C     sLongitud     Parm                    @pLongitud                                         
+     C                   Parm                    @pFuncion                                          
+     C                   Parm                    @pRetorno                                          
+IT244C                   Parm                    @pMsgLiteral                   Options(*NoPass)    
+      *                                                                                             
+     C                   Monitor                                                                    
+     C                   Eval      *In(50 + %Int(@pFuncion)) = *On                                  
+     C                   On-Error                                                                   
+     C                   Eval      *In50 = *On                                                      
+     C                   EndMon                                                                     
+      *                                                                                             
+E7139C*                  If        sLongitud > 5000                                                 
+E7139C*                  Eval      sLongitud = 5000                                                 
+E7139C                   If        sLongitud > 10000                                                
+E7139C                   Eval      sLongitud = 10000                                                
+     C                   EndIf                                                                      
+IT244 *                                                                                             
+IT244C                   Eval      nProcesarMsg = %Parms<6  Or  Not @pMsgLiteral                    
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * LIMPIEZA SUBFICHERO                                        *                                
+      **************************************************************                                
+      *                                                                                             
+     C     S01Clr        BegSR                                                                      
+      *                                                                                             
+     C                   Eval      SFLDsp = *Off                                                    
+     C                   Eval      SFLCtl = *Off                                                    
+     C                   Eval      SFLClr = *On                                                     
+     C                   Write     SufC                                                             
+      *                                                                                             
+     C                   Eval      SFLDsp = *On                                                     
+     C                   Eval      SFLCtl = *On                                                     
+     C                   Eval      SFLClr = *Off                                                    
+     C                   Eval      SFLEnd = *Off                                                    
+     C                   Clear                   SufRCDN                                            
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * CARGA Y VISUALIZACIÓN DEL SUBFICHERO                       *                                
+      **************************************************************                                
+      *                                                                                             
+     C     S01Dsp        BegSR                                                                      
+      *                                                                                             
+     C                   Eval      SFLEnd = *Off                                                    
+      *                                                                                             
+      * Carga del subfichero                                                                        
+      *                                                                                             
+     C                   DoW       sLongitud > 0  And  zxNRR00 < 100                                
+      *                                                                                             
+      * Eliminar blancos al inicio de línea                                                         
+      *                                                                                             
+IT244C                   If        nProcesarMsg                                                     
+     C                   DoW       sLongitud > 0  And                                               
+     C                             %SubSt(aTexto:1:1) = *Blanks                                     
+     C                   Eval      sLongitud -= 1                                                   
+     C                   Eval      pTexto += 1                                                      
+     C                   EndDo                                                                      
+IT244C                   EndIf                                                  nProcesarMsg        
+      *                                                                                             
+     C                   If        sLongitud > 0                                                    
+      *                                                                                             
+     C                   Eval      zxNRR00 += 1                                                     
+     C                   Eval      sufData = aTexto                                                 
+     C                   Eval      sAjuste = 0                                                      
+      *                                                                                             
+      * Evitar corte de palabras entre líneas                                                       
+      *                                                                                             
+     C                   If        sLongitud > 50  And                                              
+     C                             %SubSt(aTexto:51:1) <> *Blanks  And                              
+     C                             %Scan(%SubSt(sufdata:50:1):                                      
+     C                                   ' .,:;+-*/!?$%&)€') = 0                                    
+IT244C                             And  nProcesarMsg                                                
+      *                                                                                             
+      * Cortar por el último espacio de la línea, dejando como máximo 15 blancos al final           
+      *                                                                                             
+     C                   For       i = 49 DownTo 35                                                 
+     C                   If        %SubSt(sufData:i:1) = *Blanks                                    
+     C                   Eval      sAjuste = 50 - i                                                 
+     C                   Eval      %SubSt(sufData:i) = *Blanks                                      
+     C                   Leave                                                                      
+     C                   EndIf                                                                      
+     C                   EndFor                                                                     
+      *                                                                                             
+      * Si hay más de 15 caracteres consecutivos, cortar añadiendo un guión                         
+      *                                                                                             
+     C                   If        sAjuste = 0                                                      
+     C                   Eval      sAjuste = 1                                                      
+     C                   Eval      %SubSt(sufData:50:1) = '-'                                       
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   EndIf                                                  sLongitud>50...     
+      *                                                                                             
+     C                   Write     SufD                                                             
+      *                                                                                             
+      * Ajustar inicio de la siguiente línea                                                        
+      *                                                                                             
+     C                   Eval      sLongitud -= 50 - sAjuste                                        
+     C                   Eval      pTexto += 50 - sAjuste                                           
+      *                                                                                             
+     C                   EndIf                                                  sLontitud>0         
+      *                                                                                             
+     C                   EndDo                                                  sLongitud>0...      
+      *                                                                                             
+     C                   Eval      SFLEnd = *On                                                     
+     C                   Eval      sufRCDN = 1                                                      
+      *                                                                                             
+     C                   Eval      %SubSt(ccctit:                                                   
+     C                                    %IntH(26-%Len(%Trim(@pTitulo))/2)) =                      
+     C                                       %Trim(@pTitulo)                                        
+      *                                                                                             
+     C   50              Eval      pppCmd1 = 'CMD7805'                                              
+     C   51              Eval      pppCmd1 = 'CMD7806'                                              
+     C   52              Eval      pppCmd1 = 'CMD7833'                                              
+      *                                                                                             
+     C                   Write     SufP                                                             
+     C                   ExFmt     SufC                                                             
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * VALIDACIÓN COMANDO DE SALIDA                               *                                
+      **************************************************************                                
+      *                                                                                             
+     C     S01Cmd        BegSR                                                                      
+      *                                                                                             
+     C                   DoW       Not nSalir                                                       
+      *                                                                                             
+     C                   Select                                                                     
+      *                                                                                             
+     C                   When      Cmd10 = *On                                  F10                 
+     C                   Eval      @pRetorno = '2'                                                  
+     C                   Eval      nSalir = *On                                                     
+      *                                                                                             
+     C                   When      Retro = *On                                  F12                 
+     C                   Eval      @pRetorno = '1'                                                  
+     C                   Eval      nSalir = *On                                                     
+      *                                                                                             
+     C                   Other                                                  Intro               
+      *                                                                                             
+     C                   If        *In52                                                            
+     C                   Write     SufP                                                             
+     C                   ExFmt     SufC                                                             
+     C                   Else                                                                       
+     C                   Eval      @pRetorno = '0'                                                  
+     C                   Eval      nSalir = *On                                                     
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   EndSl                                                                      
+      *                                                                                             
+     C                   EndDo                                                  Not nSalir          
+      *                                                                                             
+     C                   EndSR                                                                      

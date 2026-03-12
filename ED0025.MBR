@@ -1,0 +1,296 @@
+      **************************************************************                                
+      * TITOL: ED0025  © FLUIDRA SERVICES                          *                                
+      * DATA CREACIO:  15/02/2010                                  *                                
+      * FUNCIO DEL PROGRAMA: ED: Gestión de la Conf. Pedido Vtas.  *                                
+      **************************************************************                                
+0906A * Modificación: 0906A                                        *                                
+0906A *        Autor: X.Bou                                        *                                
+0906A * Fecha Inicio: 09/06/2011                                   *                                
+0906A *  Descripción: Si el pedido es de origen '25' (B2B) no      *                                
+0906A *               cambiar logistica                            *                                
+0906A **************************************************************                                
+      * Modificación: FQ844                                        *                                
+      *        Autor: JMARTINEZP                                   *                                
+      * Fecha Inicio: 30/05/2012                                   *                                
+      *  Descripción: NO PASAR POR ALGORITMO SI ES MOSTRADOR       *                                
+      **************************************************************                                
+C1544 *      Modificació: CR1544                                                                    
+C1544 *            Autor: JLMARTIN                                                                  
+C1544 * Data modificació: 27/02/2014                                                                
+C1544 *       Descripció: LASTCALL                                                                  
+C1544 **************************************************************                                
+C1078 * Modificación: CR1078                                       *                                
+C1078 *        Autor: JMARTINEZP                                   *                                
+C1078 * Fecha Inicio: 17/03/2014                                   *                                
+C1078 *  Descripción: DOM                                          *                                
+C1078 **************************************************************                                
+C1793 * Modificación: CR1793  MARCA C1793                          *                                
+C1793 *        Autor: JLMARTIN                                     *                                
+C1793 * Fecha Inicio: 30/06/2014                                   *                                
+C1793 *  Descripción: GESTIÓN PRE-CARGA PEDIDOS B2B                *                                
+C1793 *               CONTROL LLAMADA A ED0050                     *                                
+C1793 **************************************************************                                
+26F19* Data de Modificació: 26/06/2019  Marca: 26F19              *                                
+26F19* Autor: Conchi Morales                                      *                                
+26F19* Documentació: Logísticas OL en los pedidos B2B             *                                
+26F19**************************************************************                                
+PR519* Data de Modificació: 08/04/2020  Marca: PR519              *                                
+PR519* Autor: Raul                                                *                                
+PR519* Documentació: Click & Collect                              *                                
+PR519**************************************************************                                
+     **************************************************************************                    
+IT244* DATA DE MODIFICACIÓ: 14/06/2022     MARCA: IT244 (ITOM244) *                                
+IT244* AUTOR:        David Grau                                   *                                
+IT244* Si la empresa trabaja con la versión 3, la decisión DOM, será                               
+IT244* redirigida a unos nuevos programas                         *                                
+     **************************************************************************                    
+      *                                                                                             
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+      *                                                                                             
+     FCODEPE    IF   E           K DISK                                                             
+0906AFCOCAPE    IF   E           K DISK                                                             
+C1078FEDPARM    IF   E           K DISK                                                             
+IT244FPMEMPR    IF   E           K DISK                                                             
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+      *                                                                                             
+     D    @FDORIG      S              1  0                                                          
+     D    @PCIAS       S                   LIKE(S5CIAS)                                             
+     D    @PDLGA       S                   LIKE(S5DLGA)                                             
+     D    @PNPCO       S                   LIKE(S5NPCO)                                             
+     D    @PTPED       S                   LIKE(S5TPED)                                             
+     D    @PDATP       S                   LIKE(S5DATP)                                             
+     D    @PNOPL       S                   LIKE(S5NOPL)                                             
+     D    @PERRO       S              1                                                             
+     D    ZXERRO       S              1                                                             
+     D    @PERR2       S              1                                                             
+     D    @POPCI       S              2                                                             
+C1544D    @PXCIAS      S                   LIKE(S5CIAS)                                             
+C1544D    @PXDLGA      S                   LIKE(S5DLGA)                                             
+C1544D    @PXNPCO      S                   LIKE(S5NPCO)                                             
+C1544D    @PXTPED      S                   LIKE(S5TPED)                                             
+C1544D    @PXDATP      S                   LIKE(S5DATP)                                             
+C1544D    @PXNOPL      S                   LIKE(S5NOPL)                                             
+C1544D    @PXRRO       S              1                                                             
+C1544D    ERRGRL       S              1                                                             
+      *                                                                                             
+     D    @PELINE      S                   LIKE(S5LINE)                                             
+      *                                                                                             
+     D DSLDA         E DS                  EXTNAME(PURLDADS)                                        
+      *                                                                                             
+     D                 DS                                                                           
+     D  ZEAMPL                 1    100                                                             
+     D    ZEFMTO               1      2                                                             
+     D    ZESCAP               4      4                                                             
+     D    ZEADCI               5      5                                                             
+     D    ZEABRD              23     23                                         Aviso/bloqueo rd    
+     D    ZERDMI              24     25                                         % rdto. pedido v    
+     D    ZENVCM              19     19                                                             
+     D    ZZTPCL              29     29                                                             
+     D    ZEEDV2              47     47                                                             
+     D    ZEGIND              48     48                                                             
+      *                                                                                             
+FQ844D  S0AMPL         DS                                                                           
+FQ844D    S0MOST              70     70                                                             
+FQ844D    S0EDLG             100    100                                                             
+CR554 *                                                                                             
+CR554d @PLOGS          s             12a                                                            
+CR554d @PORDN          s              4a                                                            
+CR554d @PELOGS         s             12a                                                            
+CR554d @PEORDN         s              4a                                                            
+CR554 *                                                                                             
+C1078                                                                                               
+C1078D T3AMPL          DS                                                                           
+C1708D  T3ADOM                14     14                                                             
+C1078                                                                                               
+C1793D  S0AMP1         DS                                                                           
+C1793D    S0SPLF              40     40                                                             
+C4208 *                                                                                             
+IT244D  P7AMP2         DS                                                                           
+IT244D  P7EDV3                11     11                                                             
+      **********************************************************************                        
+      * Entrada de parámetros                                                                       
+      **********************************************************************                        
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @FDORIG                                            
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PERRO                                             
+CR554C                   PARM                    @PLOGS                                             
+CR554C                   PARM                    @PORDN                                             
+CR554 *                                                                                             
+CR554c                   clear                   @PELOGS                                            
+CR554c                   if        %addr(@PLOGS) <> *null                                           
+CR554c                   move      @PLOGS        @PELOGS                                            
+CR554c                   endif                                                                      
+CR554c                   clear                   @PEORDN                                            
+CR554c                   if        %addr(@PORDN) <> *null                                           
+CR554c                   move      @PORDN        @PEORDN                                            
+CR554c                   endif                                                                      
+      *                                                                                             
+0906AC     KCOCAPE       KLIST                                                                      
+0906AC                   KFLD                    S0CIAS                                             
+0906AC                   KFLD                    S0DLGA                                             
+0906AC                   KFLD                    S0NPCO                                             
+0906AC                   KFLD                    S0TPED                                             
+0906AC                   KFLD                    S0DATP                                             
+0906AC                   KFLD                    S0NOPL                                             
+C1078                                                                                               
+C1078C     KEDPARM       KLIST                                                                      
+C1078C                   KFLD                    T3CIAS                                             
+C1078C                   KFLD                    T3DLGA                                             
+C1078                                                                                               
+IT244C     KPMEMPR       KLIST                                                                      
+IT244C                   KFLD                    P7CIAS                                             
+IT244C                   KFLD                    P7DLGA                                             
+      **********************************************************************                        
+      * Estructura                                                                                  
+      **********************************************************************                        
+IT244 **********************************************************************                        
+IT244 * Access a PMEMPR posició 11 per veure si es versiò 3                                         
+IT244 **********************************************************************                        
+IT244C                   EVAL      P7CIAS=@PCIAS                                                    
+IT244C                   EVAL      P7DLGA=*blanks                                                   
+IT244C     KPMEMPR       CHAIN     PMEMPR                                                           
+IT244C                   IF        P7EDV3='1'                                                       
+IT244C                   CALL      'ED3025CL'                                                       
+IT244c                   PARM                    @FDORIG                                            
+IT244c                   PARM                    @PCIAS                                             
+IT244c                   PARM                    @PDLGA                                             
+IT244c                   PARM                    @PNPCO                                             
+IT244c                   PARM                    @PTPED                                             
+IT244c                   PARM                    @PDATP                                             
+IT244c                   PARM                    @PNOPL                                             
+IT244c                   PARM      *blanks       @PERRO                                             
+IT244c                                                                                              
+IT244C                   ELSE                                                                       
+                                                                                                    
+0906AC                   EVAL      S0CIAS=@PCIAS                                                    
+0906AC                   EVAL      S0DLGA=@PDLGA                                                    
+0906AC                   EVAL      S0NPCO=@PNPCO                                                    
+0906AC                   EVAL      S0TPED=@PTPED                                                    
+0906AC                   EVAL      S0DATP=@PDATP                                                    
+0906AC                   EVAL      S0NOPL=@PNOPL                                                    
+0906AC                   EVAL      S0PPED=*BLANKS                                                   
+0906AC     KCOCAPE       CHAIN     COCAPE                                                           
+      *                                                                                             
+     C                   EVAL      ZXERRO=@PERRO                                                    
+     C                   EVAL      @PERRO=*BLANKS                                                   
+C1078C                   EVAL      T3CIAS=@PCIAS                                                    
+C1078C                   EVAL      T3DLGA=@PDLGA                                                    
+C1078C     KEDPARM       CHAIN     EDPARM                                                           
+      *                                                                                             
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+     C                   EVAL      ZEAMPL=ZZAMPL                                                    
+      *                                                                                             
+      * Comercial: Confirmación del pedido                                                          
+      *                                                                                             
+     C                   IF        @FDORIG=0                                                        
+      *                                                                                             
+      * Algoritmo de calculo ED (Sólo V2 activa)                                                    
+      *                                                                                             
+C1793C*****************************************************************                             
+C1793C** CONTROL SI PEDIDO ES SPLITEADO NO LLAMAR A ED0050                                          
+C1793C*****************************************************************                             
+FQ844C*                  IF        ZEEDV2='1'                                                       
+PR519* Si procedencia pedido = '29', evitamo cálculo del  DOM                                      
+FQ844C                   IF        ZEEDV2='1' AND S0MOST<>'1'                                       
+C1793C                             AND S0SPLF<='0'                                                  
+PR519C                             AND S0PPED<>'29'                                                 
+     C                   CALL      'ED0050'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+CR554C                   PARM                    @PELOGS                                            
+CR554C                   PARM                    @PEORDN                                            
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Programa del KIKE (Sólo si parámetro específico)                                            
+      *                                                                                             
+26F19C*0906A             IF        S0PPED<>'25'                                                     
+     C                   IF        ZEGIND='1' AND ZXERRO<>'R'                                       
+C1078C                             AND T3ADOM<>'1'                                                  
+     C                   CALL      'CO2735'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM      *BLANKS       @POPCI                                             
+     C                   PARM      *BLANKS       @PERR2                                             
+     C                   ENDIF                                                                      
+26F19C*0906A             ENDIF                                                                      
+      *                                                                                             
+      * Pantalla resumen Destinos (Sólo V2 activa)                                                  
+      * y si no venimos por riesgo                                                                  
+      *                                                                                             
+FQ844C*                  IF        ZEEDV2='1'                                                       
+FQ844C                   IF        ZEEDV2='1' AND S0MOST<>'1'                                       
+PR519C                             AND S0PPED<>'29'                                                 
+      *                                                                                             
+     C                   IF        ZXERRO<>'R'                                                      
+26F19C*0906A             IF        S0PPED<>'25'                                                     
+     C                   CALL      'ED0061'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PEMONV           3                                
+     C                   PARM      '1'           @PETFHV           1                                
+     C                   PARM      '1'           @PERRO                                             
+26F19C*0906A             endif                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Crear ED de las líneas analizadas si no cancelaron  (Sólo V2 activa)                        
+      *                                                                                             
+     C                   IF        @PERRO<'1'                                                       
+C1544C*Cambiar Co-Envio del pedido                                                                  
+C1544C                   EVAL      @PXCIAS=@PCIAS                                                   
+C1544C                   EVAL      @PXDLGA=@PDLGA                                                   
+C1544C                   EVAL      @PXNPCO=@PNPCO                                                   
+C1544C                   EVAL      @PXTPED=@PTPED                                                   
+C1544C                   EVAL      @PXDATP=@PDATP                                                   
+C1544C                   EVAL      @PXNOPL=@PNOPL                                                   
+C1544C                   CALL      'LC0220'                                                         
+C1544C                   PARM                    @PXCIAS                                            
+C1544C                   PARM                    @PXDLGA                                            
+C1544C                   PARM                    @PXNPCO                                            
+C1544C                   PARM                    @PXTPED                                            
+C1544C                   PARM                    @PXDATP                                            
+C1544C                   PARM                    @PXNOPL                                            
+C1544C                   PARM      *BLANKS       @PXRRO                                             
+C1544C*                                                                                             
+     C                   CALL      'ED0060'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM      0             @PELINE                                            
+     C                   PARM      0             @PECHKS           1 0                              
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+IT244C                   ENDIF                                                                      
+      *                                                                                             
+     C                   SETON                                        LR                            

@@ -1,0 +1,627 @@
+     ********************************************************************                          
+     * FECHA: 31/05/2022                                      ITOM244-B *                          
+     * AUTOR: Manuel Alonso                                             *                          
+     * DOCUMENTACIÓN: Desglose por Origen de Expedición - Detalle.      *                          
+     *                En ED3061 se tiene un pedido/cliente y con 15     *                          
+     *                se selecciona un origen de expedición.            *                          
+     *                ED3062 muestra las líneas del pedido que tienen   *                          
+     *                ese origen de expedición.                         *                          
+     ********************************************************************                          
+                                                                                                    
+     H DatEdit(*YMD/)                                                                               
+     H Option(*NoDebugIO:*SrcStmt)                                                                  
+     H DftActGrp(*No) ActGrp(*Caller)                                                               
+                                                                                                    
+     Fed3062fm  CF   E             WorkStn InfDS(SFlDS)                                             
+     F                                     SFile(SufD:zxNRR00)                                      
+     Fcoclin    IF   E           K Disk                                                             
+     Fcodepe    IF   E           K Disk                                                             
+     Fmsarti00  IF   E           K Disk                                                             
+     Fmslogi    IF   E           K Disk                                                             
+                                                                                                    
+      *                                                                                             
+      * Estructura INFDS                                                                            
+      *                                                                                             
+     D                SDS                                                                           
+     D  sdspgm                 1     10                                                             
+     D    cccpgm                     10    Overlay(sdspgm)                                          
+     D  sdsjob               244    253                                                             
+     D    cccjob                     10    Overlay(sdsjob)                                          
+     D  sdsusr               254    263                                                             
+     D  sdsjnbr              264    269                                                             
+      *                                                                                             
+      * Área de datos de información de archivo                                                     
+      *                                                                                             
+     D  sflds          DS                                                                           
+     D    sflpocur           370    371B 0                                                          
+     D    sflpos1            378    379B 0                                                          
+     D    sflrcd         *RECORD                                                                    
+      *                                                                                             
+      * Área de datos local                                                                         
+      *                                                                                             
+     D dsLDA         E DS                  ExtName(purLDAds)                                        
+     D    cccdeem                    30    Overlay(zzdeem)                                          
+      *                                                                                             
+      * Indicadores                                                                                 
+      *                                                                                             
+     D  indicadors   E DS                  Based(indicadorp)                                        
+     D                                     ExtName(indds:rind0199)                                  
+     D     InPos01   E                     ExtFld(SetL01)                                           
+     D     VldCmdKey E                     ExtFld(wrk74)                                            
+     D     RollDown  E                     ExtFld(wrk77)                                            
+     D  indicadorp     S               *   Inz(%AddR(*In))                                          
+      *                                                                                             
+      * Control de flujo                                                                            
+      *                                                                                             
+     D                 DS                                                                           
+     D  zxOpt                  1      6    Inz('S01CLR')                                            
+     D    zxOpt1               1      3                                                             
+     D    zxOpt2               4      6                                                             
+                                                                                                    
+      *                                                                                             
+      * Parámetros                                                                                  
+      *                                                                                             
+     D  @pLoge         S                   Like(s5loge)                                             
+     D  @pP            S               N                                                            
+     D  @pDlga         S                   Like(s5dlga)                                             
+     D  @pNpCo         S                   Like(s5npco)                                             
+     D  @pTPed         S                   Like(s5tped)                                             
+     D  @pDatP         S                   Like(s5datp)                                             
+     D  @pNoPl         S                   Like(s5nopl)                                             
+     D  @pCust         S                   Like(s0cust)                                             
+     D  @pCambio       S             15  9                                                          
+     D  @pArtPor       S                   Like(s5arti)                                             
+     D  @pSegCos       S              1                                                             
+      *                                                                                             
+     D  @peOpt         S              2                                                             
+     D  @pePgm         S                   Like(sdsPgm)                                             
+     D  @peFmt         S                   Like(Record)                                             
+     D  @peFld         S                   Like(Field)                                              
+     D  @peErr         S              1                                                             
+     D                                                                                              
+     D  @peCias        S                   Like(s5cias)                                             
+     D  @peArti        S                   Like(s5arti)                                             
+     D  @peVari        S                   Like(s5vari)                                             
+     D  @peMode        S                   Like(s5mode)                                             
+     D  @peTCoj        S                   Like(s5tcoj)                                             
+     D  @peCaSt        S                   Like(s5cant)                                             
+     D  @peUnSt        S                   Like(s5unim)                                             
+     D  @pePBre        S             20P 5                                                          
+     D  @peUPes        S              2                                                             
+     D  @peVolB        S             20P 5                                                          
+     D  @peUVol        S              2                                                             
+     D  @peUMed        S              2                                                             
+     D  @peNBul        S              6S 0                                                          
+     D  @peTPal        S              1                                                             
+     D  @peTCT1        S              2                                                             
+     D  @PeVTC1        S              1                                                             
+                                                                                                    
+      *                                                                                             
+      * Variables                                                                                   
+      *                                                                                             
+     D  zxNRR00        S                   Like(sufrcdn) Inz                                        
+     D  zxNNN00        S                   Like(sufrcdn) Inz                                        
+     D  zxLop00        S                   Like(sufrcdn) Inz                                        
+     D  zxCount        S                   Like(sufrcdn) Inz(1)                                     
+     D  zxLiPag        S                   Like(sufrcdn) Inz(12)                                    
+     D  zxLiPa2        S                   Like(sufrcdn) Inz(12)                                    
+     D  zxNupag        S                   Like(sufrcdn)                                            
+     D  zxResto        S                   Like(sufrcdn)                                            
+     D  zxSemf         S               N                                                            
+     D  zxComCar       S               N                                                            
+     D  zxAu15         S             15S 0                                                          
+     D  zxLine         S                   Like(s5line)                                             
+     D  zxNum          S                   Like(pxNum)                                              
+                                                                                                    
+      *                                                                                             
+      * Formateo numéricos                                                                          
+      *                                                                                             
+     D  pxNum          S             29  9                                                          
+     D  pxAlph         S             29                                                             
+     D  pxFldD         S              2  0 Inz(20)                                                  
+     D  pxDccd         S              1  0                                                          
+     D  pxFmd1         S                   Like(zzfmd1) Inz                                         
+     D  pxEdtC         S                   Like(zzEdtC) Inz('4')                                    
+     D  pxNmer         S              1  0 Inz(0)                                                   
+     D  pxTipa         S              1    Inz('0')                                                 
+                                                                                                    
+      *                                                                                             
+      * Funciones y Procedimientos                                                                  
+      *                                                                                             
+     D  Cantidad       PR                  Like(s5cant)                                             
+      *                                                                                             
+     D  Descuento      PR                  Like(s5dto1)                                             
+     D    @DtoConf                         Like(s5dt1c) Value                                       
+     D    @Dto                             Like(s5dto1) Value                                       
+      *                                                                                             
+     D  Num2AlphaFmt   PR                  Like(pxAlph)                                             
+     D    @Num                       20  5 Value                                                    
+     D    @Dec                        1  0 Value Options(*NoPass)                                   
+      *                                                                                             
+     D  Precio         PR                  Like(s5prec)                                             
+                                                                                                    
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * PROGRAMA PRINCIPAL                                         *                                
+      **************************************************************                                
+      *                                                                                             
+     C                   DoW       zxOpt <> 'END'                                                   
+     C                   ExSR      S01Main                                                          
+     C                   EndDo                                                                      
+      *                                                                                             
+     C                   Eval      *InLR = *On                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * INICIALIZACIONES                                           *                                
+      **************************************************************                                
+      *                                                                                             
+     C     *InzSR        BegSR                                                                      
+      *                                                                                             
+     C     *Entry        PList                                                                      
+     C                   Parm                    @pLoge                                             
+     C                   Parm                    @pP                                                
+     C                   Parm                    @pDlga                                             
+     C                   Parm                    @pNpCo                                             
+     C                   Parm                    @pTPed                                             
+     C                   Parm                    @pDatp                                             
+     C                   Parm                    @pNoPl                                             
+     C                   Parm                    @pCust                                             
+     C                   Parm                    @pCambio                                           
+     C                   Parm                    @pArtPor                                           
+     C                   Parm                    @pSegCos                                           
+      *                                                                                             
+     C     kCoclin       KList                                                                      
+     C                   KFld                    s0cias                                             
+     C                   KFld                    s0cust                                             
+      *                                                                                             
+     C     kCodepe       KList                                                                      
+     C                   KFld                    s5cias                                             
+     C                   KFld                    s5dlga                                             
+     C                   KFld                    s5npco                                             
+     C                   KFld                    s5tped                                             
+     C                   KFld                    s5datp                                             
+     C                   KFld                    s5nopl                                             
+      *                                                                                             
+     C     kMsarti       KList                                                                      
+     C                   KFld                    m5cias                                             
+     C                   KFld                    m5arti                                             
+     C                   KFld                    m5vari                                             
+     C                   KFld                    m5mode                                             
+      *                                                                                             
+     C     kMslogi       KList                                                                      
+     C                   KFld                    micias                                             
+     C                   KFld                    midlga                                             
+     C                   KFld                    milgca                                             
+      *                                                                                             
+     C     *DtaAra       Define    purLDA        dsLDA                                              
+     C                   In        dsLDA                                                            
+      *                                                                                             
+     C                   Eval      cccctit = 'TED3062'                                              
+     C                   Eval      SFLCtl = *On                                                     
+     C                   Eval      ErrGrl = *On                                                     
+      *                                                                                             
+     C                   If        @pP                                                              
+     C                   Eval      sucDesc = '*P'                                                   
+     C                   Else                                                                       
+     C                   Eval      micias = zzcias                                                  
+     C                   Eval      midlga = *Blanks                                                 
+     C                   Eval      milgca = @pLoge                                                  
+     C     kMslogi       Chain     mslogi                                                           
+     C                   If        Not %Found                                                       
+     C                   Eval      midlga = @pDlga                                                  
+     C     kMslogi       Chain     mslogi                                                           
+     C                   EndIf                                                                      
+     C                   Eval      sucDesc = midesc                                                 
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   Eval      s0cias = zzcias                                                  
+     C                   Eval      s0cust = @pCust                                                  
+     C     kCoclin       Chain     coclin                                                           
+     C                   Eval      sucDes1 = s0des1                                                 
+      *                                                                                             
+     C                   Eval      s5cias = zzcias                                                  
+     C                   Eval      s5dlga = @pDlga                                                  
+     C                   Eval      s5npco = @pNpCo                                                  
+     C                   Eval      s5tped = @pTPed                                                  
+     C                   Eval      s5datp = @pDatP                                                  
+     C                   Eval      s5nopl = @pNoPl                                                  
+      *                                                                                             
+     C                   Eval      m5cias = zzcias                                                  
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * CONTROL SUBFICHERO                                         *                                
+      **************************************************************                                
+      *                                                                                             
+     C     S01Main       BegSR                                                                      
+      *                                                                                             
+     C                   DoW       zxOpt1 = 'S01'                                                   
+     C     zxOpt2        CasEq     'CLR'         S01Clr                                             
+     C     zxOpt2        CasEq     'INZ'         S01Inz                                             
+     C     zxOpt2        CasEq     'DSP'         S01Dsp                                             
+     C     zxOpt2        CasEq     'CMD'         S01Cmd                                             
+     C                   EndCS                                                                      
+     C                   EndDo                                                                      
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * LIMPIEZA SUBFICHERO Y CARGA DEL FICHERO DE TRABAJO         *                                
+      **************************************************************                                
+      *                                                                                             
+     C     S01Clr        BegSR                                                                      
+      *                                                                                             
+     C                   Eval      zxOpt2 = 'INZ'                                                   
+     C                   Eval      InPos01 = *On                                                    
+     C                   Eval      SFLDsp = *Off                                                    
+     C                   Eval      SFLCtl = *Off                                                    
+     C                   Eval      SFLClr = *On                                                     
+     C                   Write     SufC                                                             
+      *                                                                                             
+     C                   Eval      SFLDsp = *On                                                     
+     C                   Eval      SFLCtl = *On                                                     
+     C                   Eval      SFLClr = *Off                                                    
+     C                   Clear                   SufRCDN                                            
+     C                   Reset                   zxNRR00                                            
+     C                   Reset                   zxNNN00                                            
+     C                   Eval      zxComCar = *Off                                                  
+     C                   Eval      sucLgca = @pLoge                                                 
+     C                   Eval      sucCust = @pCust                                                 
+     C                   Eval      sucNpCo = @pNpCo                                                 
+     C                   Eval      sucUVol = zzuvol                                                 
+      *                                                                                             
+     C     KCodepe       SetLL     codepe                                                           
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * INICIALIZACIÓN Y CARGA DEL SUBFICHERO                      *                                
+      **************************************************************                                
+      *                                                                                             
+     C     S01Inz        BegSR                                                                      
+      *                                                                                             
+     C                   Eval      zxOPt2 = 'DSP'                                                   
+      *                                                                                             
+      * Parte 1                                                                                     
+      *                                                                                             
+     C                   Reset                   zxLop00                                            
+     C                   Reset                   zxLiPag                                            
+     C                   Eval      zxNRR00 = zxNNN00                                                
+      *                                                                                             
+     C                   If        AccRef = *On                                                     
+     C                   Reset                   zxNRR00                                            
+     C     zxCount       Div       zxLiPag       zxNuPag                                            
+     C                   Mvr                     zxResto                                            
+     C                   If        zxResto > 0  Or  zxNuPag = 0                                     
+     C                   Eval      zxNuPag += 1                                                     
+     C                   EndIf                                                                      
+     C                   Eval      zxLiPag = zxNuPag * zxLiPag                                      
+     C                   Endif                                                  AccRef=*On          
+      *                                                                                             
+     C                   Reset                   zxNNN00                                            
+     C                   Eval      SFLEnd = *Off                                                    
+      *                                                                                             
+      * Carga del subfichero                                                                        
+      *                                                                                             
+     C                   DoW       zxLop00 < zxLiPag                                                
+      *                                                                                             
+     C     kCodepe       ReadE     codepe                                                           
+      *                                                                                             
+     C                   If        %EoF                                                             
+     C                   Leave                                                                      
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   If        s5loge = sucLgca  And                                            
+     C                             ( @pArtPor = *Blanks  Or  s5arti<> @pArtPor )                    
+     C                   Eval      zxNRR00 += 1                                                     
+     C                   Eval      zxLop00 += 1                                                     
+     C                   Eval      sflNxc = *Off                                                    
+     C                   ExSR      S01MFP                                                           
+     C                   ExSR      SavFK                                                            
+     C                   Write     SufD                                                             
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   EndDo                                                  zxLop00<zxLiPag     
+      *                                                                                             
+      * Parte 2                                                                                     
+      *                                                                                             
+     C                   Eval      zxNNN00 = zxNRR00                                                
+     C                   Eval      SufRCDN = zxNRR00                                                
+     C                   Eval      AccRef = *On                                                     
+     C                   If        %EoF                                                             
+     C                   Eval      SFLEnd = *On                                                     
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   If        zxNRR00 = 0                                                      
+     C                   Eval      csrFila = 0                                                      
+     C                   Eval      csrColu = 0                                                      
+     C                   Eval      SFLDsp = *Off                                                    
+     C                   Else                                                                       
+     C                   Eval      SFLDsp = *On                                                     
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   If        zxCount > zxNNN00                                                
+     C                   Eval      csrFila = 0                                                      
+     C                   Eval      csrColu = 0                                                      
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * VISUALIZACIÓN SUBFICHERO                                   *                                
+      **************************************************************                                
+      *                                                                                             
+     C     S01Dsp        BegSR                                                                      
+      *                                                                                             
+     C                   Eval      zxOpt2 = 'CMD'                                                   
+     C                   Eval      pppCmd1 = 'CMD5701'                                              
+     C                   Eval      sufHed1 = 'HED3062'                                              
+      *                                                                                             
+     C                   If        AccRef = *Off  And  SFlDsp = *On                                 
+     C                   Eval      SufRCDN = zxCount                                                
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   Write     SufP                                                             
+     C                   ExFmt     SufC                                                             
+      *                                                                                             
+     C                   Eval      zxCount = SFLPos1                                                
+     C                   Eval      ErrGrl = *Off                                                    
+     C                   Eval      MsgEr = *Blanks                                                  
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * VALIDACIÓN COMANDOS                                        *                                
+      **************************************************************                                
+      *                                                                                             
+     C     S01Cmd        BegSR                                                                      
+      *                                                                                             
+     C                   Eval      zxOpt2 = 'DSP'                                                   
+      *                                                                                             
+     C                   If        VldCmdKey = *On                                                  
+      *                                                                                             
+     C                   Eval      AccRef = *On                                                     
+      *                                                                                             
+     C                   Select                                                                     
+      * F12=Cancelar                                                                                
+     C                   When      Retro = *On                                                      
+     C                   Eval      zxOpt = 'END'                                                    
+      * Arriba                                                                                      
+     C                   When      RollUp = *On                                                     
+      *                                                                                             
+     C                   Eval      AccRef = *Off                                                    
+     C                   Eval      zxOpt2 = 'INZ'                                                   
+     C                   Eval      csrFila = 0                                                      
+     C                   Eval      csrColu = 0                                                      
+      * Abajo                                                                                       
+     C                   When      RollDown = *On                                                   
+      *                                                                                             
+     C                   Eval      zxSemf = *Off                                                    
+     C                   ExSR      RstFK                                                            
+     C                   Reset                   zxLop00                                            
+     C                   Reset                   zxLiPag                                            
+     C                   Eval      zxCount = 1                                                      
+      *                                                                                             
+     C                   If        Not zxSemf                                                       
+     C                   Eval      zxLiPag += 1                                                     
+     C                   EndIf                                                                      
+      *                                                                                             
+     C     kCodepe       SetGT     codepe                                                           
+     C                   ReadPE    codepe                                                           
+      *                                                                                             
+     C                   DoW       Not %EoF  And  zxLop00 < zxLiPag                                 
+     C                   Eval      zxLop00 += 1                                                     
+     C                   ReadPE    codepe                                                           
+     C                   EndDo                                                                      
+      *                                                                                             
+     C                   If        Not zxSemf  And  %EoF  And  zxLop00 = 1                          
+     C                   Eval      ErrGrl = *On                                                     
+     C                   Eval      MsgEr = 'MSG0114'                                                
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   Eval      zxComCar = *Off                                                  
+     C                   ExSR      SavFK                                                            
+     C                   Eval      zxSemf = *Off                                                    
+     C                   Eval      AccRef = *Off                                                    
+     C                   Eval      zxOpt2 = 'CLR'                                                   
+     C                   Eval      csrFila = 0                                                      
+     C                   Eval      csrColu = 0                                                      
+      *                                                                                             
+     C                   EndSl                                                                      
+      *                                                                                             
+     C                   EndIf                                                  VldCmdKey           
+      *                                                                                             
+     C                   If        ErrGrl = *On  And  AccRef = *On                                  
+     C                   Eval      AccRef = *Off                                                    
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * GUARDAR CLAVE DE POSICIONAMIENTO DEL PRIMER REGISTRO TRAS  *                                
+      * SU LIMPIEZA                                                *                                
+      **************************************************************                                
+      *                                                                                             
+     C     SavFK         BEGSR                                                                      
+      *                                                                                             
+     C                   If        Not zxComCar                                                     
+     C                   Eval      zxLine = s5line                                                  
+     C                   Eval      zxComCar = *On                                                   
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * RESTAURAR POSICIONAMIENTO                                  *                                
+      **************************************************************                                
+      *                                                                                             
+     C     RstFK         BegSR                                                                      
+     C                   Eval      s5line = zxLine                                                  
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * MOVER CAMPOS A SUBFICHERO                                  *                                
+      **************************************************************                                
+      *                                                                                             
+     C     S01MFP        BegSR                                                                      
+      *                                                                                             
+     C                   Eval      SFlNxc = *Off                                                    
+      *                                                                                             
+     C                   Eval      sufLine = s5line                                                 
+     C                   Eval      sufArti = s5arti + s5vari + s5mode                               
+     C                   EvalR     sufCant = Num2AlphaFmt(Cantidad())                               
+     C                   Eval      sufUniM = s5unim                                                 
+      *                                                                                             
+     C                   Eval (H)  zxNum = Cantidad() * Precio() *                                  
+     C                                     Descuento(s5dt1c:s5dto1) *                               
+     C                                     Descuento(s5dt2c:s5dto2) *                               
+     C                                     Descuento(s5dt3c:s5dto3) *                               
+     C                                     Descuento(s5dt4c:s5dto4)                                 
+      *                                                                                             
+     C                   EvalR     sufNeto = Num2AlphaFmt(zxNum*@pCambio)                           
+      *                                                                                             
+     C     *NoKey        Clear     *All          rmsarti                                            
+     C                   Eval      m5arti = s5arti                                                  
+     C                   Eval      m5vari = s5vari                                                  
+     C                   Eval      m5mode = s5mode                                                  
+     C     kMsarti       Chain     msarti00                                                         
+     C                   Eval      sufDesc = m5des1                                                 
+      *                                                                                             
+     C                   If        @pSegCos >= '1'                                                  
+     C                   Eval      sufMarg = *All'*'                                                
+     C                   Eval      SufMVol = *All'*'                                                
+     C                   Else                                                                       
+     C                   Eval (H)  zxNum -= Cantidad() * m5cosm                                     
+     C                   EvalR     sufMarg = Num2AlphaFmt(zxNum)                                    
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   Eval      @peCaSt = Cantidad()                                             
+     C                   Call      'MM2686'                                                         
+     C                   Parm      s5cias        @peCias                                            
+     C                   Parm      s5arti        @peArti                                            
+     C                   Parm      s5vari        @peVari                                            
+     C                   Parm      s5mode        @peMode                                            
+     C                   Parm      s5tcoj        @peTCoj                                            
+     C                   Parm                    @peCaSt                                            
+     C                   Parm      s5unim        @peUnSt                                            
+     C                   Parm      0             @pePBre                                            
+     C                   Parm      *Blanks       @peUPes                                            
+     C                   Parm      0             @peVolB                                            
+     C                   Parm      *Blanks       @peUVol                                            
+     C                   Parm      zzUMed        @peUMed                                            
+     C                   Parm      0             @peNBul                                            
+     C                   Parm      *Blanks       @peTPal                                            
+     C                   Parm      *Blanks       @peTCT1                                            
+     C                   Parm      *Blanks       @peVTC1                                            
+     C                   Parm      *Blanks       @peErr                                             
+      *                                                                                             
+     C                   EvalR     sufVolu = Num2AlphaFmt(@peVolB:3)                                
+      *                                                                                             
+     C                   If        @peVolB <> 0  And  @pSegCos < '1'                                
+     C                   EvalR     sufMVol = Num2AlphaFmt(zxNum/@PeVolB)                            
+     C                   EndIf                                                                      
+      *                                                                                             
+     C                   EndSR                                                                      
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * DEVOLVER LA CANTIDAD DE LA LÍNEA                           *                                
+      **************************************************************                                
+      *                                                                                             
+     P Cantidad        B                                                                            
+     D Cantidad        PI                  Like(s5cant)                                             
+      *                                                                                             
+     C                   If        s5canc <> 0                                                      
+     C                   Return    s5canc                                                           
+     C                   Else                                                                       
+     C                   Return    s5cant                                                           
+     C                   EndIf                                                                      
+      *                                                                                             
+     P                 E                                                                            
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * DEVOLVER DESCUENTO                                         *                                
+      **************************************************************                                
+      *                                                                                             
+     P Descuento       B                                                                            
+     D Descuento       PI                  Like(s5dto1)                                             
+     D   @DtoConf                          Like(s5dt1c) Value                                       
+     D   @Dto                              Like(s5dto1) Value                                       
+      *                                                                                             
+     C                   If        @DtoConf <> 0                                                    
+     C                   Return(H) 1 - @DtoConf / 100                                               
+     C                   Else                                                                       
+     C                   Return(H) 1 - @Dto / 100                                                   
+     C                   EndIf                                                                      
+      *                                                                                             
+     P                 E                                                                            
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * PASAR DE NUMÉRICO A ALPHANUMÉRICO FORMATEADO               *                                
+      **************************************************************                                
+      *                                                                                             
+     P Num2AlphaFmt    B                                                                            
+     D Num2AlphaFmt    PI                  Like(pxAlph)                                             
+     D   @Num                        20  5 Value                                                    
+     D   @Dec                         1  0 Value Options(*NoPass)                                   
+      *                                                                                             
+     C                   If        %Parms = 1                                                       
+     C                   Eval      pxDccd = 2                                                       
+     C                   Else                                                                       
+     C                   Eval      pxDccd = @Dec                                                    
+     C                   EndIF                                                                      
+      *                                                                                             
+     C                   Call      'PRD650'                                                         
+     C                   Parm      @Num          pxNum                                              
+     C                   Parm      *Blanks       pxAlph                                             
+     C                   Parm                    pxFldD                                             
+     C                   Parm                    pxDccd                                             
+     C                   Parm                    pxFmd1                                             
+     C                   Parm                    pxEdtC                                             
+     C                   Parm                    pxNmer                                             
+     C                   Parm                    pxTipa                                             
+      *                                                                                             
+     C                   Return    pxAlph                                                           
+      *                                                                                             
+     P                 E                                                                            
+                                                                                                    
+                                                                                                    
+      **************************************************************                                
+      * DEVOLVER EL PRECIO DE LA LÍNEA                             *                                
+      **************************************************************                                
+      *                                                                                             
+     P Precio          B                                                                            
+     D Precio          PI                  Like(s5prec)                                             
+      *                                                                                             
+     C                   If        s5prcc <> 0                                                      
+     C                   If        s5canc <> 0                                                      
+     C                   Return    s5prcc / s5canc                                                  
+     C                   ElseIf    s5cadp <> 0                                                      
+     C                   Return    s5prcc / s5cadp                                                  
+     C                   Else                                                                       
+     C                   Return    s5prcc                                                           
+     C                   EndIf                                                                      
+     C                   Else                                                                       
+     C                   If        s5cadp <> 0                                                      
+     C                   Return    s5prec / s5cadp                                                  
+     C                   ElseIf    s5canc <> 0                                                      
+     C                   Return    s5prec / s5canc                                                  
+     C                   Else                                                                       
+     C                   Return    s5prec                                                           
+     C                   EndIf                                                                      
+     C                   EndIf                                                                      
+      *                                                                                             
+     P                 E                                                                            

@@ -1,0 +1,296 @@
+      **************************************************************                                
+      * Busca en Ficheros Movex y Retorna Valores Movex            *                                
+      **************************************************************                                
+07101 * Modificación: 07101                                        *                                
+07101 *        Autor: Josep Aragonès                               *                                
+07101 * Fecha Inicio: 07/10/2011                                   *                                
+07101 *  Descripción: Buscar Bilbioteca Movex segun CONO y AS400   *                                
+07101 **************************************************************                                
+C3421 * Modificación: C3421                                        *                                
+C3421 *        Autor: Manuel Alonso                                *                                
+C3421 * Fecha Inicio: 28/04/2016                                   *                                
+C3421 *  Descripción: Añadir país y planta al parámetro devuelto   *                                
+C3421 **************************************************************                                
+C3421 * Modificación: CORLE                                        *                                
+C3421 *        Autor: JMP                                          *                                
+C3421 * Fecha Inicio: 20/12/2016                                   *                                
+C3421 *  Descripción:                                              *                                
+C3421 **************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+                                                                                                    
+     FCMNCMP00  IF   E           K DISK    EXTFILE(FILE_CMNCMP00)                                   
+07101F                                     USROPN                                                   
+     FCMNDIV00  IF   E           K DISK    EXTFILE(FILE_CMNDIV00)                                   
+07101F                                     USROPN                                                   
+     FCMNUSR00  IF   E           K DISK    EXTFILE(FILE_CMNUSR00)                                   
+07101F                                     USROPN                                                   
+     FCSYUSR00  IF   E           K DISK    EXTFILE(FILE_CSYUSR00)                                   
+07101F                                     USROPN                                                   
+     FSVUSER    IF   E           K DISK                                                             
+     FPMEMPR    IF   E           K DISK                                                             
+     FPMLIBL    IF   E           K DISK                                                             
+07101FPMTAB2    IF   E           K DISK                                                             
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+      *                                                                                             
+     D  K4AMP4         DS                                                                           
+     D    K4CONO               1      3                                                             
+     D    K4CON2               4      6                                                             
+     D    K4RESTO              7    100                                                             
+      *                                                                                             
+     D  PPBL10         DS                                                                           
+     D  PPBL08                 1      8                                                             
+     D  PPMVXV                 9      9                                                             
+     D  PPMVXE                10     10                                                             
+      *                                                                                             
+     D  @PDIVI         S              3                                                             
+     D  @PUSER         S             10                                                             
+     D  @PVAL          S            250                                                             
+      *                                                                                             
+      * Parámetros para GX2500                                                                      
+     D  @PECONO        S              3P 0                                                          
+     D  @PEDIVI        S              3                                                             
+     D  @PECIAS        S              3P 0                                                          
+     D  @PEMODO        S              1                                                             
+     D  @PEFLDQ        S              1P 0                                                          
+     D  @PEFLD1        S              4                                                             
+     D  @PEFLD2        S              4                                                             
+     D  @PEFLD3        S              4                                                             
+     D  @PEVAL1        S             30                                                             
+     D  @PEVAL2        S             30                                                             
+     D  @PEVAL3        S             30                                                             
+     D  @PEFLDR        S              4                                                             
+     D  @PEVALO        S             30                                                             
+     D  @PEVALT        S             30                                                             
+     D  @PEDESC        S             50                                                             
+     D  @PEPRIO        S              1P 0                                                          
+     D  @PEERRO        S              1                                                             
+      *                                                                                             
+     D                 DS                                                                           
+     D  ZXCONO         S              3P 0 INZ(999)                                                 
+     D  ZXCIAS         S              3S 0                                                          
+      *                                                                                             
+     D  ZXVAL          DS                                                                           
+     D    MXCONO               1      3                                                             
+     D    MXDIVI               4      6                                                             
+     D    MXIDIO               7      8                                                             
+     D    MXMONE               9     11                                                             
+07101D    MXLIBL              12     21                                                             
+C3421D    MXFACI              22     24                                                             
+C3421D    MXPAIS              25     27                                                             
+07101D*   MXRESTO             12    250                                                             
+C3421D*07101    MXRESTO             22    250                                                       
+C3421D    MXRESTO             28    250                                                             
+      *                                                                                             
+07101d*File_CMNCMP00   s             21    INZ('MVXJDTAMST/CMNCMP00')                               
+07101d*File_CMNDIV00   s             21    INZ('MVXJDTAMST/CMNDIV00')                               
+07101d*File_CMNUSR00   s             21    INZ('MVXJDTAMST/CMNUSR00')                               
+07101d*File_CSYUSR00   s             21    INZ('MVXJDTAMST/CSYUSR00')                               
+07101d File_CMNCMP00   s             21                                                             
+07101d File_CMNDIV00   s             21                                                             
+07101d File_CMNUSR00   s             21                                                             
+07101d File_CSYUSR00   s             21                                                             
+      **************************************************************                                
+      * Entrada de Parámetros                                      *                                
+      **************************************************************                                
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PDIVI                                             
+     C                   PARM                    @PUSER                                             
+     C                   PARM                    @PVAL                                              
+      *                                                                                             
+      **************************************************************                                
+      * Definición de Claves                                       *                                
+      **************************************************************                                
+      *                                                                                             
+     C     KPMEMPR       KLIST                                                                      
+     C                   KFLD                    P7CIAS                                             
+     C                   KFLD                    P7DLGA                                             
+      *                                                                                             
+     C     KCMNCMP00     KLIST                                                                      
+     C                   KFLD                    JICONO                                             
+      *                                                                                             
+     C     KCMNDIV00     KLIST                                                                      
+     C                   KFLD                    CCCONO                                             
+     C                   KFLD                    CCDIVI                                             
+      *                                                                                             
+     C     KCMNUSR00     KLIST                                                                      
+     C                   KFLD                    JUCONO                                             
+     C                   KFLD                    JUDIVI                                             
+     C                   KFLD                    JUUSID                                             
+07101                                                                                               
+07101C     KPMTAB2       KLIST                                                                      
+07101C                   KFLD                    PECTAB                                             
+07101C                   KFLD                    PECLTA                                             
+      *                                                                                             
+      **************************************************************                                
+      * Estructura                                                 *                                
+      **************************************************************                                
+      *                                                                                             
+     C                   EVAL      ZXCONO=100                                                       
+      *                                                                                             
+      * Producción es 100                                                                           
+      * Para realizar TEST necesito la 999 y para Migrar la 888                                     
+      * Depende de lo que tenga en SVUSER                                                           
+      *                                                                                             
+     C                   MOVEL     @PDIVI        ZXCIAS                                             
+      *                                                                                             
+      * Busco en nuestro entorno para ver si la empresa es Producción o                             
+      * test                                                                                        
+      * En el campo P7USUA de PMEMPR se pondrá un código de empresa si es                           
+      * una simulación y esto nos ayuda a buscar correctamente                                      
+      *                                                                                             
+     C                   MOVE      @PDIVI        P7CIAS                                             
+     C                   MOVE      *BLANKS       P7DLGA                                             
+     C     KPMEMPR       CHAIN     PMEMPR                                                           
+     C                   IF        %FOUND(PMEMPR)                                                   
+     C                   MOVEL     P7PUN5        ZXCSIM            3                                
+     C                   IF        ZXCSIM>='001' AND ZXCSIM<='999'                                  
+     C                   MOVE      ZXCSIM        @PDIVI                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     @PDIVI        CHAIN     PMLIBL                                                           
+      *                                                                                             
+     C     SDSUSR        CHAIN     SVUSER                                                           
+     C                   IF        %FOUND(SVUSER)                                                   
+      *                                                                                             
+     C                   SELECT                                                                     
+     C                   WHEN      PPMVXE='P'                                                       
+     C                   EVAL      MXCONO=K4CONO                                                    
+     C                   OTHER                                                                      
+CORLEC*                  EVAL      MXCONO=K4CON2                                                    
+CORLEC                   MOVE      ZXCONO        MXCONO                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        MXCONO=*BLANKS                                                   
+     C                   MOVEL     ZXCONO        MXCONO                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Buscar la equivalencia CIAS -> DIVI (MOVEX)                                                 
+      * Siempre busco con la empresa 001 en las equivalencias aunque trabaje                        
+      * con otra                                                                                    
+      *                                                                                             
+     C                   EVAL      @PECONO = ZXCONO                                                 
+     C                   MOVEL     *BLANKS       @PEDIVI                                            
+     C                   EVAL      @PECIAS = ZXCIAS                                                 
+     C                   MOVEL     '1'           @PEMODO                                            
+     C                   EVAL      @PEFLDQ = 1                                                      
+     C                   MOVEL     'CIAS'        @PEFLD1                                            
+     C                   MOVEL     *BLANKS       @PEFLD2                                            
+     C                   MOVEL     *BLANKS       @PEFLD3                                            
+     C                   MOVEL     ZXCIAS        @PEVAL1                                            
+     C                   MOVEL     *BLANKS       @PEVAL2                                            
+     C                   MOVEL     *BLANKS       @PEVAL3                                            
+     C                   MOVEL     'DIVI'        @PEFLDR                                            
+     C                   MOVE      *BLANKS       @PEVALO                                            
+     C                   MOVEL     *BLANKS       @PEVALT                                            
+     C                   MOVEL     *BLANKS       @PEDESC                                            
+     C                   MOVEL     *BLANKS       @PEPRIO                                            
+     C                   MOVEL     *BLANKS       @PEERRO                                            
+                                                                                                    
+     C                   CALL      'GX2500'                                                         
+     C                   PARM                    @PECONO                                            
+     C                   PARM                    @PEDIVI                                            
+     C                   PARM                    @PECIAS                                            
+     C                   PARM                    @PEMODO                                            
+     C                   PARM                    @PEFLDQ                                            
+     C                   PARM                    @PEFLD1                                            
+     C                   PARM                    @PEFLD2                                            
+     C                   PARM                    @PEFLD3                                            
+     C                   PARM                    @PEVAL1                                            
+     C                   PARM                    @PEVAL2                                            
+     C                   PARM                    @PEVAL3                                            
+     C                   PARM                    @PEFLDR                                            
+     C                   PARM                    @PEVALO                                            
+     C                   PARM                    @PEVALT                                            
+     C                   PARM                    @PEDESC                                            
+     C                   PARM                    @PEPRIO                                            
+     C                   PARM                    @PEERRO                                            
+                                                                                                    
+     C                   IF        @PEERRO = *BLANKS                                                
+     C                   MOVEL     @PEVALO       MXDIVI                                             
+     C                   ELSE                                                                       
+     C                   MOVEL     ZXCIAS        MXDIVI                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   MOVE      MXCONO        JICONO                                             
+     C                   MOVE      MXCONO        CCCONO                                             
+     C                   MOVE      MXCONO        JUCONO                                             
+     C                   MOVEL     MXDIVI        CCDIVI                                             
+     C                   MOVEL     MXDIVI        JUDIVI                                             
+     C                   MOVEL     @PUSER        JUUSID                                             
+      *                                                                                             
+07101 * Buscar biblioteca Movex en función de la CONO                                               
+07101C                   EVAL      PECTAB = 'MVXM'                                                  
+07101C                   EVAL      PECLTA = *BLANKS                                                 
+07101C                   EVAL      PECLTA = MXCONO                                                  
+07101C     KPMTAB2       CHAIN     PMTAB2                                                           
+07101C                   IF        %FOUND(PMTAB2)                                                   
+07101C                   EVAL      MXLIBL = PEDESC                                                  
+07101C                   ELSE                                                                       
+07101C                   EVAL      MXLIBL = 'MVXJDTA'                                               
+07101C                   ENDIF                                                                      
+07101                                                                                               
+     C                   EXSR      CS_MVXINIT                                                       
+      *                                                                                             
+     C                   EVAL      @PVAL=ZXVAL                                                      
+      *                                                                                             
+     C                   EVAL      *INLR=*ON                                                        
+      **************************************************************                                
+      * Establecer Entorno de Trabajo Movex                        *                                
+      **************************************************************                                
+      *                                                                                             
+     C     CS_MVXINIT    BEGSR                                                                      
+      *                                                                                             
+      * Busco los Registros de Compañía, División y Usuario                                         
+      *                                                                                             
+07101C                   EVAL      File_CMNCMP00=MXLIBL+'/CMNCMP00'                                 
+07101C                   EVAL      File_CMNDIV00=MXLIBL+'/CMNDIV00'                                 
+07101C                   EVAL      File_CMNUSR00=MXLIBL+'/CMNUSR00'                                 
+07101C                   EVAL      File_CSYUSR00=MXLIBL+'/CSYUSR00'                                 
+07101                                                                                               
+07101C                   OPEN (E)  CMNCMP00                                                         
+07101C                   OPEN (E)  CMNDIV00                                                         
+07101C                   OPEN (E)  CMNUSR00                                                         
+07101C                   OPEN (E)  CSYUSR00                                                         
+07101C                   IF        Not %ERROR                                                       
+07101                                                                                               
+     C     KCMNCMP00     CHAIN     CMNCMP00                                                         
+     C     KCMNDIV00     CHAIN     CMNDIV00                                                         
+     C     KCMNUSR00     CHAIN     CSYUSR00                                                         
+     C                   EVAL      JUCONO=0                                                         
+     C                   MOVEL     *BLANKS       JUDIVI                                             
+     C     KCMNUSR00     CHAIN     CMNUSR00                                                         
+     C                   MOVEL     JULANC        MXIDIO                                             
+     C                   IF        MXIDIO=*BLANKS                                                   
+     C                   MOVEL     CRLANC        MXIDIO                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        %CHAR(CCLOCD)<>*BLANKS                                           
+     C                   MOVEL     CCLOCD        MXMONE                                             
+     C                   ELSE                                                                       
+     C                   MOVEL     JICCUC        MXMONE                                             
+     C                   ENDIF                                                                      
+C3421                                                                                               
+C3421C                   EVAL      MXPAIS = CCCSCD                                                  
+C3421C                   EVAL      MXFACI = CCFACI                                                  
+C3421 *                                                                                             
+C3421C                   IF        MXFACI = *BLANKS                                                 
+C3421C                   EVAL      MXFACI = MXDIVI                                                  
+C3421C                   ENDIF                                                                      
+07101                                                                                               
+07101C                   ENDIF                                                                      
+07101C                   CLOSE(E)  CMNCMP00                                                         
+07101C                   CLOSE(E)  CMNDIV00                                                         
+07101C                   CLOSE(E)  CMNUSR00                                                         
+07101C                   CLOSE(E)  CSYUSR00                                                         
+      *                                                                                             
+     C                   ENDSR                                                                      

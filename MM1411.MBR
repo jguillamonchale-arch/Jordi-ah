@@ -1,0 +1,230 @@
+      *****************************************************************                             
+      * TITOL: MM1411    FLUIDRA                                      *                             
+      * DATA CREACIO:  03/11/2021    AUTOR: JCAMPILLO                 *                             
+      * FUNCIO DEL PROGRAMA: SELECCIÓN ALMACEN VIRTUAL/ALMACEN OL     *                             
+      *                                                               *                             
+      * DOCUMENTACIO: DEVUELVE ALMACEN OL/LOGISTICA VIRTUAL           *                             
+      *  si nos pasan almacén tipo 8 devuelve virtual/si nos pasan    *                             
+      *  virtual devuelve OL del virtual.                             *                             
+      *****************************************************************                             
+      *         PARAMETROS                                            *                             
+      *                  @PALMA                                       *                             
+      *                  @PRESP --> OL/VIRTUAL                        *                             
+      *                  @PTIPO --> TIPO tipo blanco devuelve virtual *                             
+      *                                  tipo '1'    devuelve OL      *                             
+      *                                  tipo '2'    devuelve FD      *                             
+      *                                  tipo '3'    valida virtual   *                             
+      *****************************************************************                             
+E7589* DATA DE MODIFICACIÓ: 28/06/2023     MARCA: E7589                                            
+E7589* AUTOR:        Mmontana                                                                      
+E7589* Correcció (txapu) per problemes quan el magatzem real AS = magatzem real M3                 
+E7589* Per entendrens:                                                                             
+E7589*    aquest pgm realitza 'traduccions' entre valors de logística i magatzem M3 i AS           
+E7589*    Per tant juguem amb 3 valors: Maga AS - Virtual AS - Maga M3                             
+E7589* Mentre aquests 3 valors siguin diferents NO hi ha problema                                  
+E7589* Però quan Maga AS = Maga M3 pot donar problemes                                             
+E7589* Solució:                                                                                    
+E7589*   'marcar' el registre que NO hauria d'agafar en el camp PEBL64 amb un valor                
+E7589*   D'aquesta forma el programa pot saltar el registre que NO volem.                          
+E7589* Aquesta 'txapu' sols és pels tipo 2. Registres amb PECLTA like 'MAGA%'                      
+E7589******************************************************************************************    
+E7660* DATA DE MODIFICACIÓ: 20/09/2023     MARCA: E7660                                            
+E7660* AUTOR:        Mmontana                                                                      
+E7660* Correcció assignació logística enllòc del magatzem quan cerquem la virtual                  
+E7660******************************************************************************************    
+      /free                                                                                         
+         //===========================================================                              
+         // Control Options                                                                         
+         //-----------------------------------------------------------                              
+         ctl-opt datedit(*ymd/) dftactgrp(*no)                                                      
+         debug option(*nodebugio:*srcstmt)                                                          
+         copyright('2021 Fluidra S.A.');                                                            
+                                                                                                    
+         //===========================================================                              
+         // File declaration                                                                        
+         //-----------------------------------------------------------                              
+         dcl-f msalma usage(*input) keyed ;                                                         
+         dcl-f edparm usage(*input) keyed ;                                                         
+         dcl-f pmtabd90 usage(*input) keyed rename(RPMTABD:RPMTABD90);                              
+         dcl-f pmtabd usage(*input) keyed ;                                                         
+                                                                                                    
+         //===========================================================                              
+         //AREA DE DADES DE PROGRAMA                                                                
+         //-----------------------------------------------------------                              
+         dcl-ds *n   psds ;                                                                         
+           sdspgm *proc;                                                                            
+           sdsjob char(10) pos(244);                                                                
+           sdsusr char(10) pos(254);                                                                
+           sdsjnbr char(6) pos(264);                                                                
+         end-ds;                                                                                    
+         //PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                            
+         dcl-ds indicadors extname('INDDS':'RIND0199') based(indicadorp) end-ds;                    
+         dcl-s  indicadorp pointer inz(%addr(*in));                                                 
+                                                                                                    
+         //AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                    
+         dcl-ds dslda extname('PURLDADS') dtaara(*auto:*usrctl:'PURLDA');                           
+           cccdeem char(30) overlay(zzdeem);                                                        
+         end-ds;                                                                                    
+                                                                                                    
+         //CONTROL DEL FLUXE DEL PROGRAMA AMB INICIALITZACIÓ DE POSIC. INICIAL                      
+         dcl-ds *n;                                                                                 
+           zxopt  char(6);                                                                          
+           zxopt1 char(3) overlay(zxopt);                                                           
+           zxopt2 char(3) overlay(zxopt:*next);  // :004);                                          
+         end-ds;                                                                                    
+                                                                                                    
+         dcl-s @perro char(1);                                                                      
+         dcl-s zxerro char(1);                                                                      
+                                                                                                    
+         //Paràmetres                                                                               
+         dcl-pi *n;  // *n per programes. Functions posem la var retorn                             
+           @PCIAS  LIKE(M0CIAS);                                                                    
+           @PALMA  LIKE(M0MAGA);                                                                    
+           @PTIPO  LIKE(M0BAJA);                                                                    
+           @PDLGA  LIKE(T3DLGA);                                                                    
+           @PRESP  like(M0MAGA);                                                                    
+         end-pi;                                                                                    
+      *                                                                                             
+      //============================================================                                
+      //RUTINA  PRINCIPAL DEL PROGRAMA                                                              
+      //------------------------------------------------------------                                
+        dow       ZXOPT1 <> 'END';                                                                  
+           select;                                                                                  
+           when ZXOPT1 = 'CHK';                                                                     
+             exsr SUBCHK;                                                                           
+           endsl;                                                                                   
+         enddo;                                                                                     
+                                                                                                    
+         *inlr = *on;                                                                               
+                                                                                                    
+       //------------------------------------------------------------------                         
+       // *inzsr: subrutina inicial.                                                                
+       //------------------------------------------------------------------                         
+         begsr *inzsr;                                                                              
+           // Dimensionar variables & inicialitzar                                                  
+           in dslda;                                                                                
+           ZXOPT1='CHK';                                                                            
+           T3CIAS=@PCIAS;                                                                           
+           T3DLGA=@PDLGA;                                                                           
+           M0CIAS=@PCIAS;                                                                           
+           PECIAS=@PCIAS;                                                                           
+           PECTAB='INO2';                                                                           
+           @PRESP=*blanks;                                                                          
+                                                                                                    
+         endsr;                                                                                     
+                                                                                                    
+      //--------------------------------------------------------------                              
+      // SUBRUTINA DE LIMPIEZA  Y POSICIONAMIENTO                                                   
+      //--------------------------------------------------------------                              
+         begsr subchk;                                                                              
+           ZXOPT1 = 'END';                                                                          
+           select;                                                                                  
+           when @ptipo = *blanks; // RECUPERA VIRTUAL                                               
+             GetLogVI(@PALMA);                                                                      
+           when @ptipo ='1';      // RECUPERA OL                                                    
+             GetLogalOL(@PALMA);                                                                    
+           when @ptipo ='2';      // RECUPERA FD                                                    
+             GetLogFD(@PALMA);                                                                      
+           when @ptipo ='3';      // VALIDA VIRTUAL                                                 
+             GetLogV2(@PALMA);                                                                      
+         endsl;                                                                                     
+         endsr;                                                                                     
+                                                                                                    
+       //================================================================                           
+       // Procedures                                                                                
+       //----------------------------------------------------------------                           
+                                                                                                    
+       //----------------------------------------------------------------                           
+       // GetLogVI: recupera les logístiques virtuals                                               
+       //----------------------------------------------------------------                           
+       dcl-proc GetLogVI;                                                                           
+         dcl-pi *n;                                                                                 
+           wmag  like(m0maga);                                                                      
+         end-pi;                                                                                    
+                                                                                                    
+         chain (@PCIAS:wmag) msalma;                                                                
+E7660      if %found;                                                                               
+E7660        @PRESP=M0LOGE;                                                                         
+E7660      endif;                                                                                   
+           if %found and m0tal1='8' and m0baja<>'1';                                                
+             setll (@PCIAS:'INO2':wmag) PMTABD90;                                                   
+             reade (@PCIAS:'INO2':wmag) PMTABD90;                                                   
+             dow not %eof;                                                                          
+               if %subst(peclta:1:4)='MAGV' and pebaja<>'1';                                        
+                 @PRESP=%trim(pebl64);                                                              
+                 leave;                                                                             
+               else;                                                                                
+                 reade (@PCIAS:'INO2':wmag) PMTABD90;                                               
+               endif;                                                                               
+             enddo;                                                                                 
+             if @PRESP = *blanks;                                                                   
+                 setll (@PCIAS:@PDLGA) EDPARM;                                                      
+                 reade (@PCIAS:@PDLGA) EDPARM;                                                      
+                   if %found and t3baja<>'1';                                                       
+                     @PRESP=%subst(t3ampl:9:3);                                                     
+                   endif;                                                                           
+             endif;                                                                                 
+           endif;                                                                                   
+           if  @PRESP=*blanks;                                                                      
+             @PRESP=wmag;                                                                           
+             if  @PRESP=*blanks;                                                                    
+               @PRESP='X@X';                                                                        
+             endif;                                                                                 
+           endif;                                                                                   
+       end-proc;                                                                                    
+       //----------------------------------------------------------------                           
+       // GetLogalOL: recupera almacén de log.virtual                                               
+       //----------------------------------------------------------------                           
+       dcl-proc GetLogalOL;                                                                         
+         dcl-pi *n;                                                                                 
+           wmag  like(m0maga);                                                                      
+         end-pi;                                                                                    
+         dcl-s xclta like(peclta);                                                                  
+                                                                                                    
+             xclta = 'MAGV'+%TRIM(wmag);                                                            
+             setll (@PCIAS:'INO2':xclta) PMTABD;                                                    
+             reade (@PCIAS:'INO2':xclta) PMTABD;                                                    
+               if %found and pebaja<>'1';                                                           
+                 @PRESP=%trim(pedesc);                                                              
+               else;                                                                                
+                 @PRESP= *blanks;                                                                   
+               endif;                                                                               
+       end-proc;                                                                                    
+       //----------------------------------------------------------------                           
+       // GetLogFD: recupera les logístiques FD                                                     
+       //----------------------------------------------------------------                           
+       dcl-proc GetLogFD;                                                                           
+         dcl-pi *n;                                                                                 
+           wmag  like(m0maga);                                                                      
+         end-pi;                                                                                    
+                                                                                                    
+             setll (@PCIAS:'INO2':wmag) PMTABD90;                                                   
+             reade (@PCIAS:'INO2':wmag) PMTABD90;                                                   
+             dow not %eof;                                                                          
+               if %subst(peclta:1:4)='MAGA' and pebaja<>'1'                                         
+E7589             and pebl64= *blanks                                                               
+                  and %subst(peclta:5:3) <> ' ';                                                    
+                 @PRESP=%subst(peclta:5:3);                                                         
+                 leave;                                                                             
+               else;                                                                                
+                 reade (@PCIAS:'INO2':wmag) PMTABD90;                                               
+               endif;                                                                               
+             enddo;                                                                                 
+       end-proc;                                                                                    
+       //----------------------------------------------------------------                           
+       // GetLogV2: recupera les logístiques virtuals                                               
+       //----------------------------------------------------------------                           
+       dcl-proc GetLogV2;                                                                           
+         dcl-pi *n;                                                                                 
+           wmag  like(m0maga);                                                                      
+         end-pi;                                                                                    
+         dcl-s xclta like(peclta);                                                                  
+             xclta = 'MAGV'+%TRIM(wmag);                                                            
+             setll (@PCIAS:'INO2':xclta) PMTABD;                                                    
+             reade (@PCIAS:'INO2':xclta) PMTABD;                                                    
+               if %found and pebaja<>'1';                                                           
+                 @PRESP=%trim(pebl64);                                                              
+               else;                                                                                
+                 @PRESP=*blanks;                                                                    
+               endif;                                                                               
+       end-proc;                                                                                    

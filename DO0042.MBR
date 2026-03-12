@@ -1,0 +1,1903 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      **************************************************************                                
+      * TITOL: DO0042  © ASTRAL GRUP                               *                                
+      * DATA CREACIO:  23/07/1997                                  *                                
+      * FUNCIO DEL PROGRAMA: MANTENIMENTO PARAMETROS PROPUESTA COMPRAS                              
+      *           DELEGACION/PROVEEDOR                             *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      * ZXOPT1 = NOM DEL PROCÉS                                    *                                
+      *        - SN = SUBFITXER N.          N=[01,02,...,99]       *                                
+      *        - N TAMBÉ EQUIVAL AL NÚMERO DE FORMAT DEL SFL       *                                
+      *          I COINCIDEIX AMB EL Nº DE LÒGIC (ESSENT N=00 EL   *                                
+      *          FITXER FÍSIC)                                     *                                
+      * ZXOPT2 = RUTINA DINTRE DEL PROCÉS                          *                                
+      *        - 'INZ'= INICILITZAR                                *                                
+      *        - 'DSP'= VISUALITZA DE PANTALLA                     *                                
+      *        - 'CHK'= VALIDACIÓ DE LA PANTALLA                   *                                
+      *        - 'CLR'= NETEJA DEL SFL                             *                                
+      *        - 'UPD"= ACTUALITZACIONS DELS FITXERS               *                                
+      *                                                            *                                
+      * ZXNNN00= Últim nº de registre carregat en subarxiu         *                                
+      * ZXNRR00= Numerador de registres de subarxiu                *                                
+      * ZXCOUNT= ZXNRR00 del 1er registre de la últ. pag.          *                                
+      *          que visualizaba el usuario                        *                                
+      * ZXLOP00= Numerador de registres en carrega de pantalla     *                                
+      * SUFRCDN= SFLRCDNBR del subarxiu                            *                                
+      * PREFIXE DE CAMP: CCC- (CAMP COMÚ DE CAPÇALERA: CAMP QUE EL *                                
+      *        SEU CONTINGUT NO VARIA EN LES ALTRES CAPÇALERES DE  *                                
+      *        L'APLICACIÓ. P.EX.: NOM DEL PGM O DEL TREBALL)      *                                
+      *                                                            *                                
+      * CS_(NOM): COMMON SUBRUTINE (COL·LOCADES FINAL PGM)        *                                 
+      * @PE(NOM) : PARAMETRES D'EXPORTACIÓ                         *                                
+      **************************************************************                                
+      * DOCUMENTACIÓ:                                              *                                
+      **************************************************************                                
+                                                                                                    
+     H DATEDIT(*YMD/)                                                                               
+                                                                                                    
+     FDO0042FM  CF   E             WORKSTN INFDS(SFLDS)                                             
+     F                                     SFILE(SUFD:ZXNRR00)                                      
+     FPMTABD    IF   E           K DISK                                                             
+     FMSDDOM    IF   E           K DISK                                                             
+     FMSDDOM11  IF   E           K DISK    RENAME(RMSDDOM:RMSDDOM11)                                
+     FMSDDOM12  IF   E           K DISK    RENAME(RMSDDOM:RMSDDOM12)                                
+     FMSDDOM13  IF   E           K DISK    RENAME(RMSDDOM:RMSDDOM13)                                
+     FMSDDOM14  IF   E           K DISK    RENAME(RMSDDOM:RMSDDOM14)                                
+     FPMSETP    UF A E           K DISK                                                             
+     FMSZPAI03  IF   E           K DISK                                                             
+     FMSSGGA    IF   E           K DISK                                                             
+                                                                                                    
+      * ESTRUCTURA DE LA INFDS                                                                      
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D    CCCPGM                     10    OVERLAY(SDSPGM)                                          
+     D  SDSJOB               244    253                                                             
+     D    CCCJOB                     10    OVERLAY(SDSJOB)                                          
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+                                                                                                    
+      * AREA DE DADES D'INFORMACIÓ ARXIU                                                            
+     D  SFLDS          DS                                                                           
+     D    SFLPOCUR           370    371B 0                                                          
+     D    SFLPOS1            378    379B 0                                                          
+     D    SFLRCD         *RECORD                                                                    
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXBL62                 1     10                                                             
+     D   ZXDESDE               1      5                                                             
+     D   ZXHASTA               6     10                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXBL65                 1      5                                                             
+     D   ZXTTOB                1      1                                                             
+      * AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                       
+     D DSLDA         E DS                  EXTNAME(PURLDADS)                                        
+     D    CCCDEEM                    30    OVERLAY(ZZDEEM)                                          
+                                                                                                    
+      * AREA DE PARAMETRES DE PROGRAMA                                                              
+     D  DO0042       E DS                  EXTNAME(DO0042DS)                                        
+                                                                                                    
+      * PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                               
+      * ELS DE TREBALL ES PODEN REDENOMINAR MITJANÇANT OVERLAY                                      
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D     INPOS01   E                     EXTFLD(SETL01)                                           
+     D     VLDCMDKEY E                     EXTFLD(WRK74)                                            
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+      * CONTROL DEL FLUXE DEL PROGRAMA AMB INICIALITZACIÓ DE POSIC. INICIAL                         
+     D                 DS                                                                           
+     D  ZXOPT                  1      6    INZ('S01CLR')                                            
+     D    ZXOPT1               1      3                                                             
+     D    ZXOPT2               4      6                                                             
+                                                                                                    
+      * ESTRUCTURA DE DADES PELS DIFERENTS FORMATS DE SUBARXIU                                      
+      * W1DATA -> S01D                                                                              
+     D                 DS                                                                           
+     D  W1DATA                 1     74                                                             
+     D    S01DLG2              1     10                                                             
+     D    S01DESC             12     39                                                             
+     D    S01PR01             41     42                                                             
+     D    S01PR02             48     49                                                             
+     D    S01PR03             56     57                                                             
+     D    S01PR04             64     65                                                             
+     D    S01DIST             67     72                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  W2DATA                 1     74                                                             
+     D    S02DLG2              1     10                                                             
+     D    S02DESC             12     39                                                             
+     D    S02PR02             41     42                                                             
+     D    S02PR01             48     49                                                             
+     D    S02PR03             56     57                                                             
+     D    S02PR04             64     65                                                             
+     D    S02DIST             67     72                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  W3DATA                 1     74                                                             
+     D    S03DLG2              1     10                                                             
+     D    S03DESC             12     39                                                             
+     D    S03PR03             41     42                                                             
+     D    S03PR01             48     49                                                             
+     D    S03PR02             56     57                                                             
+     D    S03PR04             64     65                                                             
+     D    S03DIST             67     72                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  W4DATA                 1     74                                                             
+     D    S04DLG2              1     10                                                             
+     D    S04DESC             12     39                                                             
+     D    S04PR04             41     42                                                             
+     D    S04PR01             48     49                                                             
+     D    S04PR02             56     57                                                             
+     D    S04PR03             64     65                                                             
+     D    S04DIST             67     72                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  W5DATA                 1     74                                                             
+     D    S05DLG2              1     10                                                             
+     D    S05DESC             12     39                                                             
+     D    S05PRIR             41     42                                                             
+     D    S05PRIU             44     45                                                             
+     D    S05PRIS             47     48                                                             
+     D    S05PRIL             50     51                                                             
+     D    S05DIST             52     54                                                             
+     D    S05AGEN             58     60                                                             
+     D    S05DI01             65     65                                                             
+     D    S05DI02             66     66                                                             
+     D    S05DI03             67     67                                                             
+     D    S05DI04             68     68                                                             
+     D    S05DI05             69     69                                                             
+     D    S05DI06             70     70                                                             
+     D    S05DI07             71     71                                                             
+                                                                                                    
+                                                                                                    
+      * EXPORTACIÓ DE PARÀMETRES                                                                    
+     D  @PEXPORT       DS                                                                           
+     D    @PECIAS      S                   LIKE(PECIAS) INZ                                         
+     D    @PECLTA      S                   LIKE(PECLTA) INZ                                         
+     D    @PEDLGA      S                   LIKE(PK0DLGA) INZ                                        
+     D    @PECLAB      S                   LIKE(XADLG2) INZ                                         
+     D    @PEDESC      S                   LIKE(PEDESC) INZ                                         
+     D    @PEOPT       S                   LIKE(SUFOPCI)INZ                                         
+     D    @PEPGM       S                   LIKE(SDSPGM) INZ                                         
+     D    @PEFMT       S                   LIKE(RECORD) INZ                                         
+     D    @PEFLD       S                   LIKE(FIELD)  INZ                                         
+     D    @PEERR       S              1                 INZ                                         
+     D    @PERRO       S              1                 INZ                                         
+                                                                                                    
+     D    @PCIAS       S                   LIKE(PECIAS)                                             
+     D    @PDLGA       S                   LIKE(XADLG2)                                             
+     D    @PCLTA       S                   LIKE(PECLTA) INZ                                         
+     D    @PCTAB       S                   LIKE(PECTAB) INZ                                         
+                                                                                                    
+09106D  @PEFAMT        S              6                                                             
+09106D  @PEPRVR        S             10                                                             
+                                                                                                    
+     D* SERIES A UTILITZAR EN PROGRAMA                                                              
+     DSSSECPA          S              1A   DIM(10)                                                  
+                                                                                                    
+     D* DEFINICIO DE CAMPS DE TREBALL                                                               
+     D  ZXNRR00        S                   LIKE(SUFRCDN)INZ                                         
+     D  ZXNNN00        S                   LIKE(SUFRCDN)INZ                                         
+     D  ZXLOP00        S                   LIKE(SUFRCDN)INZ                                         
+     D  ZXCOUNT        S                   LIKE(SUFRCDN)INZ(1)                                      
+     D  ZXFMT          S                   LIKE(CCCFMT) INZ                                         
+     D  ZXCLTA         S                   LIKE(PECLTA) INZ                                         
+     D  ZXCIAS         S                   LIKE(PECIAS) INZ                                         
+     D  ZXDIGI         S              1                                                             
+     D  ZXAL05         S              5                                                             
+     D  ZXAU15         S             15  0                                                          
+                                                                                                    
+     D* Los Campos que vienen a continuacion guardan los valores                                    
+     D* de la primera clave con que se cargo el subarchivo y a partir de                            
+     D* los cuales se realizara cualquier accion de refrescar segun                                 
+     D* ACCREF 1=SI 0=NO                                                                            
+     D  ZXCLTA_1       S                   LIKE(PECLTA) INZ                                         
+     D  ZXCIAS_1       S                   LIKE(PECIAS) INZ                                         
+                                                                                                    
+      * El valor ZXCOMCAR marcara cuando se deben guardar los valores                               
+      * de primera clave anteriores                                                                 
+     D  ZXCOMCAR       S              1  0                                                          
+      * Campos de uso para trabajar con la API QCMDEXC                                              
+     D  ZXQCMD         S            150                                                             
+     D  ZXLOGC         S             15  5 INZ(150)                                                 
+      * El valor ZXLIPAG tiene el numero de registros a cargar despues de                           
+      * un Clear de subfichero                                                                      
+     D  ZXLIPAG        S                   LIKE(SUFRCDN)INZ(12)                                     
+     D  ZXLIPA2        S                   LIKE(SUFRCDN)INZ(12)                                     
+     D  ZXNUPAG        S                   LIKE(SUFRCDN)                                            
+     D  ZXRESTO        S                   LIKE(SUFRCDN)                                            
+      * Definicion de posición del cursor en subarchivo                                             
+     D  ZXLINEA        S              3  0                                                          
+     D  ZXCOLU         S              3  0                                                          
+      * Definicion de algunas constantes                                                            
+     D  ZXZERO10       S             10A   INZ(*ALL'0')                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXCLTAX                1     10                                                             
+     D    ZXDLGA               1      5                                                             
+     D    ZXPRVR               6     10                                                             
+                                                                                                    
+      * DEFINICIO DE CAMPS DE PARÀMETRES PER CALL (SENSE IMPORT/EXPORT)                             
+      * PARÀMETRES PEL PRD650 I CAMPS DE TREBALL ASSOCIATS                                          
+      * VALOR NUMÈRIC                                                                               
+     D   PXNUM         S             29  9                                                          
+      * VALOR ALFANUMÈRIC                                                                           
+     D   PXALPH        S             29                                                             
+      * LONGITUD TOTAL DEL CAMP (Nº CARÀCTERS INCLÒS CODI EDICIÓ)                                   
+     D   PXFLDD        S              2  0 INZ(20)                                                  
+      * Nº DE DECIMALS DEL CAMP                                                                     
+     D  PXDCCD         S              1  0 INZ(0)                                                   
+      * TIPUS DE FORMAT DECIMAL (.,)                                                                
+     D  PXFMD1         S                   LIKE(ZZFMD1)INZ                                          
+      * CODI D'EDICIÓ (4,M,Q,Z)                                                                     
+     D  PXEDTC         S                   LIKE(ZZEDTC)INZ('Z')                                     
+      * RETORN CODI D'ERROR                                                                         
+     D  PXNMER         S              1  0 INZ(0)                                                   
+      * TIPUS D'AJUST DECIMAL (0=MIG 1=PER SOBRE 2=PER SOTA)                                        
+     D  PXTIPA         S              1                                                             
+AUTSK *                                                                                             
+AUTSKD  ZXTZOP         S              1                                                             
+AUTSK *                                                                                             
+      **************************************************************                                
+      * RUTINA PRINCIPAL DEL PGM : DISTRIBUCIÓ DEL PAS PELS 3 SFL  *                                
+      *------------------------------------------------------------*                                
+     C     ZXOPT1        DOWNE     'END'                                                            
+     C     ZXOPT1        CASEQ     'PA0'         PA0MAIN                                            
+     C     ZXOPT1        CASEQ     'PK0'         PK0MAIN                                            
+     C     ZXOPT1        CASEQ     'S01'         S01MAIN                                            
+     C     ZXOPT1        CASEQ     'S02'         S02MAIN                                            
+     C     ZXOPT1        CASEQ     'S03'         S03MAIN                                            
+     C     ZXOPT1        CASEQ     'S04'         S04MAIN                                            
+     C     ZXOPT1        CASEQ     'S05'         S05MAIN                                            
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+                                                                                                    
+      * DEFINICIO DE LES KLIST DEL PGM                                                              
+     C     KPMTABD0      KLIST                                                                      
+     C                   KFLD                    PECIAS                                             
+     C                   KFLD                    PECTAB                                             
+     C     KPMTABD       KLIST                                                                      
+     C                   KFLD                    PECIAS                                             
+     C                   KFLD                    PECTAB                                             
+     C                   KFLD                    PECLTA                                             
+     C     KMSDDOM0      KLIST                                                                      
+     C                   KFLD                    XACIAS                                             
+     C                   KFLD                    XADLGA                                             
+     C     KMSDDOM       KLIST                                                                      
+     C                   KFLD                    XACIAS                                             
+     C                   KFLD                    XADLGA                                             
+     C                   KFLD                    XADLG2                                             
+     C     KMSSETP       KLIST                                                                      
+     C                   KFLD                    PICIAS                                             
+     C                   KFLD                    PIPROG                                             
+     C                   KFLD                    PIUSU1                                             
+                                                                                                    
+AUTSKC     KMSSGGA       KLIST                                                                      
+AUTSKC                   KFLD                    MMCIAS                                             
+AUTSKC                   KFLD                    MMUSER                                             
+AUTSKC     KMSZPAI03     KLIST                                                                      
+AUTSKC                   KFLD                    N4CIAS                                             
+AUTSKC                   KFLD                    N4DLGA                                             
+AUTSKC                   KFLD                    N4PAIS                                             
+                                                                                                    
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+      * RECUPERACIÓ DE LA LDA DE COMPRES                                                            
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+                                                                                                    
+     C                   EVAL      Z1ASTE='*'                                                       
+     C* CAPÇALERES D'OPCIONS DEL SFL  (CODIS D'ARXIU DE MISSATGES)                                  
+     C                   IF        ZZNPGM=' '                                                       
+     C                   EVAL      SUFOPC1='OPG0020'                                                
+     C                   ELSE                                                                       
+     C                   EVAL      SUFOPC1='OPB0020'                                                
+     C                   ENDIF                                                                      
+     C                   EVAL      SUFOPC2=*BLANKS                                                  
+     C* TITOLS DE PANTALLES (CODIS D'ARXIU DE MISSATGES)                                            
+     C* Segun nivel de seguridad enseño un titulo u otro                                            
+     C                   EVAL      CCCCTIT='TDO0042'                                                
+     C* ACTIVEM EL SFLDSPCTL                                                                        
+     C                   EVAL      SFLCTL=*ON                                                       
+      * ACTUALITZACIÓ DELS CAMPS DEL PMSETP I ALTRES CAMPS AMB VALORS COMUNS                        
+     C                   EVAL      @PECIAS=ZZCIAS                                                   
+     C                   EVAL      PECIAS=ZZCIAS                                                    
+     C                   EVAL      XACIAS=ZZCIAS                                                    
+     C                   EVAL      @PCIAS=ZZCIAS                                                    
+     C                   EVAL      PICIAS=ZZCIAS                                                    
+     C                   EVAL      PIPROG=SDSPGM                                                    
+     C                   EVAL      PIUSU1=ZZUSUA                                                    
+                                                                                                    
+      * RECUPEREM DEL FITXER DE SETUP EL FORMAT QUE EM DE MOSTRAR PER OMISIÓ                        
+     C     KMSSETP       CHAIN (N) PMSETP                             81                            
+     C                   CLEAR                   DO0042                                             
+     C     PIDATR        CAT       DO0042:0      DO0042                                             
+     C                   EVAL      ZXFMT=MÑS492                                                     
+                                                                                                    
+     C* RECUPEREM ELS VALORS DE L'AREA DE PARÀMETRES DE PROGRAMA                                    
+     C                   IF        CHAIN=*OFF                                                       
+     C                   SELECT                                                                     
+     C                   WHEN      MÑS492=' ' OR MÑS492='0'                                         
+     C                   EVAL      ZXOPT='PK0CLR'                                                   
+     C                   WHEN      MÑS492='1'                                                       
+     C                   EVAL      ZXOPT='S01CLR'                                                   
+     C                   WHEN      MÑS492='2'                                                       
+     C                   EVAL      ZXOPT='S02CLR'                                                   
+     C                   WHEN      MÑS492='3'                                                       
+     C                   EVAL      ZXOPT='S03CLR'                                                   
+     C                   WHEN      MÑS492='4'                                                       
+     C                   EVAL      ZXOPT='S04CLR'                                                   
+     C                   WHEN      MÑS492='5'                                                       
+     C                   EVAL      ZXOPT='S05CLR'                                                   
+     C                   ENDSL                                                                      
+     C                   ENDIF                                                                      
+AUTSK *                                                                                             
+AUTSK * Busqueda temas de seguridad de usuario                                                      
+AUTSK *                                                                                             
+AUTSKC                   EVAL      MMCIAS=ZZCIAS                                                    
+AUTSKC                   EVAL      MMUSER=SDSUSR                                                    
+AUTSKC     KMSSGGA       CHAIN     MSSGGA                             81                            
+AUTSK *                                                                                             
+AUTSK * Nos guardamos el tipo de ZONA de la delegación                                              
+AUTSK *                                                                                             
+AUTSKC                   EVAL      N4CIAS=ZZCIAS                                                    
+AUTSKC                   EVAL      N4DLGA=ZZDLGA                                                    
+AUTSKC                   EVAL      N4PAIS=ZZPAIS                                                    
+AUTSKC     KMSZPAI03     CHAIN     MSZPAI03                           81                            
+AUTSKC                   EVAL      ZXTZOP=N4TZOP                                                    
+AUTSK *                                                                                             
+                                                                                                    
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL SFL S01                              *                                
+      *------------------------------------------------------------*                                
+     C     S01MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='S01'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         S01CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         S01INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         S01DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         S01CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         S01CHK                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ I CARREGA DEL SFL                 *                                
+      *------------------------------------------------------------*                                
+     C     S01INZ        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_SFLIN1                                                        
+                                                                                                    
+     C                   DOW       ZXLOP00 < ZXLIPAG                                                
+     C     KMSDDOM0      READE     MSDDOM11                               82                        
+     C                   IF        EOF=*ON                                                          
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXNRR00=ZXNRR00 + 1                                              
+     C                   EVAL      ZXLOP00=ZXLOP00 + 1                                              
+     C                   EXSR      CS_MOVFP                                                         
+     C                   EXSR      CS_SAVFK                                                         
+     C                   WRITE     SUFD                                                             
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   EXSR      CS_SFLIN2                                                        
+     C     S01INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S01DSP        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   IF        ZZNPGM=' '                                                       
+     C                   EVAL      PPPCMD1='CMD3026'                                                
+     C                   ELSE                                                                       
+     C                   EVAL      PPPCMD1='CMD3016'                                                
+     C                   ENDIF                                                                      
+CHGLGC                   EVAL      SUFHED1='HDO042A'                                                
+     C                   EVAL      WRK61=*ON                                                        
+     C                   EVAL      WRK62=*OFF                                                       
+     C                   EVAL      WRK63=*OFF                                                       
+     C                   EVAL      WRK64=*OFF                                                       
+     C                   EXSR      CS_SFLDSP                                                        
+     C     S01DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMD'S                             *                                
+      *------------------------------------------------------------*                                
+     C     S01CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+     C                   EXSR      CS_SFLCMD                                                        
+     C     S01CMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DEL SFL: FORMAT SFL I OPCIONS          *                                
+      *------------------------------------------------------------*                                
+     C     S01CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+                                                                                                    
+      * SUBRUTINA COMÚ DE VALIDACIÓ DEL SFL                                                         
+     C                   EXSR      CS_SFLCHK                                                        
+                                                                                                    
+     C     S01CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE NETEJA DEL SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S01CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT='S01INZ'                                                   
+     C                   EVAL      CCCFMT='1'                                                       
+     C                   MOVEA     ZXZERO10      *IN(90)                                            
+     C                   EVAL      INPOS01=*ON                                                      
+     C                   EXSR      CS_SFLCLR                                                        
+     C                   EVAL      XADLGA=@PDLGA                                                    
+29045C                   IF        PSUCLTA <> *BLANKS                                               
+29045C                   EVAL      XADLG2 = PSUCLTA                                                 
+29045c                   endif                                                                      
+     C     KMSDDOM0      SETLL     MSDDOM11                                                         
+     C     S01CLRT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMD'S                             *                                
+      *------------------------------------------------------------*                                
+     C     CS_SECCMD     BEGSR                                                                      
+      * Validacion de seguridad teclas de función                                                   
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD='OPCI'                                                    
+     C                   EVAL      @PEPGM=*BLANKS                                                   
+     C                   EVAL      @PEPGM=SDSPGM                                                    
+     C                   IF        CREATE=*ON                                                       
+     C                   EVAL      @PEOPT='1 '                                                      
+     C                   ENDIF                                                                      
+     C                   EXSR      CS_SECMDOP                                                       
+     C     ERRGRL        CABEQ     *ON           SECCMDT                                            
+     C     SECCMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIAL PARA PANTALLA PA0                        *                                
+      *------------------------------------------------------------*                                
+     C     PA0MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='PA0'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         PA0CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         PA0INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         PA0DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         PA0CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         PA0CHK                                             
+     C     ZXOPT2        CASEQ     'UPD'         PA0UPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C     PA0MAINT      ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE NETEJA DE PA0                                 *                                
+      *------------------------------------------------------------*                                
+     C     PA0CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C     *NOKEY        CLEAR     *ALL          RPMSETP                                            
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C     PA0CLRT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE INICI DE PA0                                 *                                 
+      *------------------------------------------------------------*                                
+     C     PA0INZ        BEGSR                                                                      
+     C     KMSSETP       CHAIN (N) PMSETP                             81                            
+     C                   CLEAR                   DO0042                                             
+     C     PIDATR        CAT       DO0042:0      DO0042                                             
+     C                   EXSR      CS_MOVFP                                                         
+                                                                                                    
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     PA0INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DE PA0                             *                                
+      *------------------------------------------------------------*                                
+     C     PA0DSP        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD3031'                                                
+     C                   EXFMT     PA0                                                              
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+                                                                                                    
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C     PA0DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMD'S                             *                                
+      *------------------------------------------------------------*                                
+     C     PA0CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+                                                                                                    
+     C                   SELECT                                                                     
+                                                                                                    
+      * F03=FINALITZAR                                                                              
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+                                                                                                    
+      * F04=AJUDA DE CAMPS                                                                          
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_POSCUR                                                        
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD=FIELD                                                     
+     C                   EVAL      @PEFMT=RECORD                                                    
+                                                                                                    
+     C                   IF        FIELD='PA0S001'                                                  
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFLD='CFMT'                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+                                                                                                    
+     C     TPA0F4        TAG                                                                        
+     C     ERRGRL        CABEQ     *ON           PA0CMDT                                            
+                                                                                                    
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     PA0CMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DE PANTALLA PA0                        *                                
+      *------------------------------------------------------------*                                
+     C     PA0CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='UPD'                                                     
+                                                                                                    
+      * VALIDACIO DE LES OPCIONS DE DETALL DE PA0                                                   
+     C* Validación de PA0S001                                                                       
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEOPT=PA0S001                                                   
+     C                   EVAL      @PEFLD='CFMT'                                                    
+     C                   CALL      'MMPROM'                                                         
+     C                   PARM                    @PEOPT                                             
+     C                   PARM      SDSPGM        @PEPGM                                             
+     C                   PARM                    @PEFMT                                             
+     C                   PARM                    @PEFLD                                             
+     C                   PARM      'V'           @PEERR                                             
+                                                                                                    
+     C                   IF        @PEERR>='0' AND PA0S001<>*BLANKS                                 
+     C                             AND PA0S001<>'0'                                                 
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TPA0CHK                                            
+                                                                                                    
+     C     TPA0CHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     PA0CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA ACTUALITZACIO PANTALLA PA0                        *                               
+      *------------------------------------------------------------*                                
+     C     PA0UPD        BEGSR                                                                      
+      * Actualización datos de PMSETUP                                                              
+     C                   DOU       LCKRCD=*OFF                                                      
+     C     KMSSETP       CHAIN     PMSETP                             8180                          
+     C                   ENDDO                                                                      
+     C                   CLEAR                   PIDATR                                             
+     C                   EXSR      CS_MOVPF                                                         
+     C     DO0042        CAT       PIDATR:0      PIDATR                                             
+     C                   EVAL      PIDAT8=ZZDATS                                                    
+     C                   TIME                    PIHORA                                             
+     C                   EVAL      PIPANT=SDSJOB                                                    
+     C                   EVAL      PIUSUA=SDSUSR                                                    
+                                                                                                    
+     C                   IF        CHAIN=*OFF                                                       
+     C                   UPDATE    RPMSETP                                                          
+     C                   ELSE                                                                       
+     C                   EVAL      PIDAT1=PIDAT8                                                    
+     C                   WRITE     RPMSETP                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      ZXOPT='S01CLR'                                                   
+     C                   EVAL      ZXFMT='0'                                                        
+                                                                                                    
+     C* Limpieza de parametros de subarchivo                                                        
+     C                   EVAL      ACCREF=*ON                                                       
+     C                   EXSR      CS_CLRK                                                          
+                                                                                                    
+     C                   SELECT                                                                     
+     C                   WHEN      PA0S001=' ' OR PA0S001='0'                                       
+     C                   EVAL      ZXOPT='PK0CLR'                                                   
+     C                   WHEN      PA0S001='1'                                                      
+     C                   EVAL      ZXOPT='S01CLR'                                                   
+     C                   WHEN      PA0S001='2'                                                      
+     C                   EVAL      ZXOPT='S02CLR'                                                   
+     C                   WHEN      PA0S001='3'                                                      
+     C                   EVAL      ZXOPT='S03CLR'                                                   
+     C                   WHEN      PA0S001='4'                                                      
+     C                   EVAL      ZXOPT='S04CLR'                                                   
+     C                   WHEN      PA0S001='4'                                                      
+     C                   EVAL      ZXOPT='S04CLR'                                                   
+     C                   ENDSL                                                                      
+                                                                                                    
+     C                   EVAL      ERRGRL=*ON                                                       
+     C     PA0UPDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIAL PARA PANTALLA PK0                        *                                
+      *------------------------------------------------------------*                                
+     C     PK0MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='PK0'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         PK0CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         PK0INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         PK0DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         PK0CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         PK0CHK                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C     PK0MAINT      ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE NETEJA DE PK0                                 *                                
+      *------------------------------------------------------------*                                
+     C     PK0CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   EVAL      PK0OPCI=*BLANKS                                                  
+     C                   EVAL      PK0DLGA=*BLANKS                                                  
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C     PK0CLRT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE INICI DE PK0                                 *                                 
+      *------------------------------------------------------------*                                
+     C     PK0INZ        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C     PK0INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ DE PK0                             *                                
+      *------------------------------------------------------------*                                
+     C     PK0DSP        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   EVAL      PPPCMD1='CMD3027'                                                
+     C                   EXFMT     PK0                                                              
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C     PK0DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DE CMD'S                               *                                
+      *------------------------------------------------------------*                                
+     C     PK0CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+     C                   SELECT                                                                     
+                                                                                                    
+      * F03=FINALITZAR                                                                              
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+                                                                                                    
+      * F04=AJUDA ASSOCIADA A CAMP                                                                  
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_POSCUR                                                        
+     C                   EVAL      ACCREF=*OFF                                                      
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD=FIELD                                                     
+     C                   EVAL      @PEFMT=RECORD                                                    
+      * CAMPOS DE AYUDA                                                                             
+      * Ayudas en tablas                                                                            
+     C                   IF        FIELD='PK0DLGA'                                                  
+     C                   EVAL      @PCLTA=*BLANKS                                                   
+     C                   EVAL      @PCTAB=*BLANKS                                                   
+     C                   EVAL      @PCTAB='DLGA'                                                    
+     C                   EVAL      @PCLTA=PK0DLGA                                                   
+                                                                                                    
+     C                   CALL      'MMTABL'                                                         
+     C                   PARM                    @PCLTA                                             
+     C                   PARM                    @PCTAB                                             
+     C                   PARM                    @PCIAS                                             
+     C                   PARM      *BLANKS       @PEERR                                             
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      MSGER='ADP0304'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           PK0CMDT                                            
+     C                   EVAL      PK0DLGA=@PCTAB                                                   
+     C                   GOTO      PK0CMDT                                                          
+     C                   ENDIF                                                                      
+      *VALIDACION DE OPCIONES Y CLASE DE SUBARCHIVO                                                 
+     C                   IF        FIELD='PK0OPCI'                                                  
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFLD='OPCI      '                                              
+     C                   EVAL      @PEPGM=*BLANKS                                                   
+     C                   EVAL      @PEPGM=SDSPGM                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   CALL      'MMPROM'                                                         
+     C                   PARM      *BLANKS       @PEOPT                                             
+     C                   PARM      SDSPGM        @PEPGM                                             
+     C                   PARM                    @PEFMT                                             
+     C                   PARM                    @PEFLD                                             
+     C                   PARM      *BLANKS       @PEERR                                             
+      * Si el dato no tiene soporte F4 avisamos                                                     
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      MSGER='ADP0304'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           PK0CMDT                                            
+      * Si no han realizado ninguna selección no tocamos nada                                       
+     C                   IF        @PEERR='A'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           PK0CMDT                                            
+     C                   EVAL      PK0OPCI=@PEOPT                                                   
+                                                                                                    
+      * F05=REFRESCAR PANTALLA                                                                      
+     C                   WHEN      REFRES=*ON                                                       
+     C                   EVAL      ZXOPT2='CLR'                                                     
+                                                                                                    
+      * F13=SETUP DE PROGRAMA                                                                       
+     C                   WHEN      SETUP=*ON                                                        
+     C                   EVAL      ZXOPT='PA0CLR'                                                   
+                                                                                                    
+      * F14=SETUP DE PROGRAMA                                                                       
+     C                   WHEN      WRKSPL=*ON                                                       
+     C                   CLEAR                   ZXQCMD                                             
+     C                   EVAL                    ZXQCMD='WRKSPLF'                                   
+     C                   CALL      'QCMDEXC'                                                        
+     C                   PARM                    ZXQCMD                                             
+     C                   PARM                    ZXLOGC                                             
+                                                                                                    
+      * F16=TREBALLAR AMB TREBALLS SOTMESOS                                                         
+     C                   WHEN      WRKSBM=*ON                                                       
+     C                   CLEAR                   ZXQCMD                                             
+     C                   EVAL                    ZXQCMD='WRKSBMJOB'                                 
+     C                   CALL      'QCMDEXC'                                                        
+     C                   PARM                    ZXQCMD                                             
+     C                   PARM                    ZXLOGC                                             
+                                                                                                    
+      * F22=TREBALLAR AMB TRANSCRIPTORS                                                             
+     C                   WHEN      WRKWTR=*ON                                                       
+     C                   CLEAR                   ZXQCMD                                             
+     C                   EVAL                    ZXQCMD='WRKWTR'                                    
+     C                   CALL      'QCMDEXC'                                                        
+     C                   PARM                    ZXQCMD                                             
+     C                   PARM                    ZXLOGC                                             
+                                                                                                    
+     C                   ENDSL                                                                      
+     C     PK0CMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DE PANTALLA PK0                        *                                
+      *------------------------------------------------------------*                                
+     C     PK0CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+                                                                                                    
+     C* Validación de PK0OPCI                                                                       
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   MOVEL     PK0OPCI       @PEOPT                                             
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFLD='OPCI      '                                              
+     C                   EVAL      @PEPGM=*BLANKS                                                   
+     C                   EVAL      @PEPGM=SDSPGM                                                    
+     C                   EXSR      CS_SECMDOP                                                       
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           PK0CHK0T                                           
+                                                                                                    
+                                                                                                    
+     C* SI LA OPCION o CLTA es blanco NO CONTINUAMOS                                                
+     C     PK0OPCI       CABEQ     *BLANKS       PK0CHK0T                                           
+     C     PK0DLGA       CABEQ     *BLANKS       PK0CHK0T                                           
+                                                                                                    
+     C* no pueden darse altas si el CLTA    ya existe                                               
+     C                   SELECT                                                                     
+     C                   WHEN      PK0OPCI=' 1' OR PK0OPCI='1 '                                     
+     C                   EVAL      PECLTA=@PDLGA                                                    
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      WRK41=*ON                                                        
+     C                   EVAL      MSGER='MSG0008'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           PK0CHK0T                                           
+                                                                                                    
+     C                   EVAL      @PECLTA=@PDLGA                                                   
+     C                   CALL      'DO0043'                                                         
+     C                   PARM      ZZCIAS        @PECIAS                                            
+     C                   PARM                    @PEDLGA                                            
+     C                   PARM                    @PECLAB                                            
+     C                   PARM      '1B'          @PEOPT                                             
+     C                   PARM      *BLANKS       @PEERR                                             
+     C                   EVAL      ZXOPT2='CLR'                                                     
+                                                                                                    
+     C                   OTHER                                                                      
+     C                   EVAL      PECLTA=PK0DLGA                                                   
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      WRK41=*ON                                                        
+     C                   EVAL      MSGER='MSG0051'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           PK0CHK0T                                           
+                                                                                                    
+     C                   EVAL      @PEDLGA=PK0DLGA                                                  
+     C                   EVAL      @PECLAB=XADLG2                                                   
+     C                   CALL      'DO0043'                                                         
+     C                   PARM      ZZCIAS        @PECIAS                                            
+     C                   PARM                    @PEDLGA                                            
+     C                   PARM                    @PECLAB                                            
+     C                   PARM      PK0OPCI       @PEOPT                                             
+     C                   PARM      *BLANKS       @PEERR                                             
+                                                                                                    
+     C                   EVAL      ZXOPT2='CLR'                                                     
+                                                                                                    
+     C                   ENDSL                                                                      
+     C* VALIDACION DE ACTUACIONES EN MSALMA                                                         
+     C     PK0CHK0T      TAG                                                                        
+     C     ERRGRL        CABEQ     *ON           PK0CHKT                                            
+      *                                                                                             
+AUTSKC                   IF        PK0OPCI='2 ' OR PK0OPCI=' 2' OR                                  
+AUTSKC                             PK0OPCI='3 ' OR PK0OPCI=' 3'                                     
+01076C                             or PK0OPCI='4 ' OR PK0OPCI=' 4'                                  
+AUTSK *                                                                                             
+AUTSKC                   IF        @PERRO>='2'                                                      
+AUTSKC                   ENDIF                                                                      
+AUTSK *                                                                                             
+AUTSKC                   IF        @PERRO>='2'                                                      
+AUTSKC                   EVAL      WRK40=*ON                                                        
+AUTSKC                   EVAL      ERRGRL=*ON                                                       
+AUTSKC                   EVAL      MSGER='COM0257'                                                  
+AUTSKC                   ENDIF                                                                      
+AUTSK *                                                                                             
+AUTSKC                   ENDIF                                                                      
+AUTSK *                                                                                             
+AUTSKC     ERRGRL        CABEQ     *ON           PK0CHKT                                            
+     C     PK0CHKT       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE NETEJA DEL SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     CS_SFLCLR     BEGSR                                                                      
+     C                   EVAL      SFLDSP=*OFF                                                      
+     C                   EVAL      SFLCTL=*OFF                                                      
+     C                   EVAL      SFLCLR=*ON                                                       
+     C                   EVAL      PSUDLGA=@PDLGA                                                   
+     C                   EVAL      PECLTA=@PDLGA                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   EVAL      SUCDES1=PEDESC                                                   
+     C                   WRITE     SUFC                                                             
+     C                   EVAL      SFLDSP=*ON                                                       
+     C                   EVAL      SFLCTL=*ON                                                       
+     C                   EVAL      SFLCLR=*OFF                                                      
+     C                   CLEAR                   SUFRCDN                                            
+     C                   RESET                   ZXNRR00                                            
+     C                   RESET                   ZXNNN00                                            
+     C                   EVAL      ZXFMT=CCCFMT                                                     
+      * Inicialitza la variable que indica inici de carrega de subarxiu                             
+     C                   EVAL      ZXCOMCAR=0                                                       
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C     SFLCLRT       ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA INICIALITZACIÓ DEL SFL (1º PART)                 *                                
+      *------------------------------------------------------------*                                
+     C     CS_SFLIN1     BEGSR                                                                      
+     C                   RESET                   ZXLOP00                                            
+     C                   RESET                   ZXLIPAG                                            
+     C                   CLEAR                   PSUCLTA                                            
+     C                   EVAL      ZXNRR00=ZXNNN00                                                  
+     C                   IF        ACCREF=*ON                                                       
+     C                   RESET                   ZXNRR00                                            
+     C     ZXCOUNT       DIV       ZXLIPAG       ZXNUPAG                                            
+     C                   MVR                     ZXRESTO                                            
+     C                   IF        ZXRESTO>0 OR ZXNUPAG=0                                           
+     C                   EVAL      ZXNUPAG=ZXNUPAG+1                                                
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXLIPAG=ZXNUPAG*ZXLIPAG                                          
+     C                   ENDIF                                                                      
+     C                   RESET                   ZXNNN00                                            
+     C                   EVAL      SFLEND=*OFF                                                      
+     C                   EVAL      EOF=*OFF                                                         
+     C     SFLIN1T       ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE MOURE CAMPS                                   *                                
+      *------------------------------------------------------------*                                
+     C     CS_MOVFP      BEGSR                                                                      
+     C                   SELECT                                                                     
+     C                   WHEN      ZXOPT1='S01'                                                     
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   EXSR      S01MFP                                                           
+                                                                                                    
+     C                   WHEN      ZXOPT1='S02'                                                     
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   EXSR      S02MFP                                                           
+                                                                                                    
+     C                   WHEN      ZXOPT1='S03'                                                     
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   EXSR      S03MFP                                                           
+                                                                                                    
+     C                   WHEN      ZXOPT1='S04'                                                     
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   EXSR      S04MFP                                                           
+CHGLG                                                                                               
+CHGLGC                   WHEN      ZXOPT1='S05'                                                     
+CHGLGC                   EVAL      SUFOPCI=*BLANKS                                                  
+CHGLGC                   EVAL      SFLNXC=*OFF                                                      
+CHGLGC                   EXSR      S05MFP                                                           
+                                                                                                    
+     C                   WHEN      ZXOPT1='PA0'                                                     
+     C                   EVAL      PA0S001=MÑS492                                                   
+     C                   MOVEA     MÑSECP        SSSECPA                                            
+     C                   ENDSL                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE MOURE CAMPS a FICHERO                         *                                
+      *------------------------------------------------------------*                                
+     C     CS_MOVPF      BEGSR                                                                      
+     C                   SELECT                                                                     
+     C                   WHEN      ZXOPT1='PA0'                                                     
+     C                   CLEAR                   SSSECPA                                            
+     C                   EVAL      MÑS492=PA0S001                                                   
+     C                   MOVEA     SSSECPA       MÑSECP                                             
+                                                                                                    
+     C                   ENDSL                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * GUARDO LA CLAU DE POSICIONAMENT DEL PRIMER REGISTRE DESPRES*                                
+      * DE LA NETEJA DEL SUBARXIU                                  *                                
+      *------------------------------------------------------------*                                
+     C     CS_SAVFK      BEGSR                                                                      
+     C                   IF        ZXCOMCAR=0                                                       
+                                                                                                    
+     C                   EVAL      ZXCLTA_1=XADLG2                                                  
+     C                   EVAL      ZXCOMCAR=1                                                       
+                                                                                                    
+     C                   ENDIF                                                                      
+     C     CS_SAVFKT     ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA INICIALITZACIÓ DEL SFL  (2ª PART)                *                                
+      *------------------------------------------------------------*                                
+     C     CS_SFLIN2     BEGSR                                                                      
+     C                   EVAL      ZXNNN00=ZXNRR00                                                  
+     C                   EVAL      SUFRCDN=ZXNRR00                                                  
+     C                   EVAL      ACCREF=*ON                                                       
+     C                   IF        EOF=*ON                                                          
+     C                   EVAL      SFLEND=*ON                                                       
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ZXNRR00=0                                                        
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C                   EVAL      SFLDSP=*OFF                                                      
+     C                   ELSE                                                                       
+     C                   EVAL      SFLDSP=*ON                                                       
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ZXCOUNT>ZXNNN00                                                  
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C                   ENDIF                                                                      
+     C     SFLIN2T       ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA VALIDACIÓ DELS CMD'S                             *                                
+      *------------------------------------------------------------*                                
+     C     CS_SFLCMD     BEGSR                                                                      
+     C                   IF        VLDCMDKEY=*OFF                                                   
+     C                   GOTO      SFLCMDT                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      ACCREF=*ON                                                       
+     C                   EXSR      CS_SECCMD                                                        
+     C     ERRGRL        CABEQ     *ON           SFLCMDT                                            
+     C                   SELECT                                                                     
+      * F03=SORTIR DEL PROGRAMA                                                                     
+     C                   WHEN      EXIT=*ON                                                         
+     C                   EVAL      ZXOPT1='END'                                                     
+      * F04=AJUDA DE PANTALLA                                                                       
+     C                   WHEN      HELP=*ON                                                         
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_POSCUR                                                        
+     C                   EVAL      ACCREF=*OFF                                                      
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFMT=RECORD                                                    
+     C                   EVAL      @PEFLD=FIELD                                                     
+                                                                                                    
+     C                   IF        FIELD='CCCFMT'                                                   
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFLD='CFMT'                                                    
+     C                   ENDIF                                                                      
+     C                   IF        FIELD='SUFOPCI'                                                  
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFLD='OPCI      '                                              
+     C                   EVAL      @PEPGM=*BLANKS                                                   
+     C                   EVAL      @PEPGM=SDSPGM                                                    
+     C                   ENDIF                                                                      
+     C                   CALL      'MMPROM'                                                         
+     C                   PARM      *BLANKS       @PEOPT                                             
+     C                   PARM                    @PEPGM                                             
+     C                   PARM                    @PEFMT                                             
+     C                   PARM                    @PEFLD                                             
+     C                   PARM      *BLANKS       @PEERR                                             
+      * Si el dato no tiene soporte F4 avisamos                                                     
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      MSGER='ADP0304'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           HELPT                                              
+      * Si no han realizado ninguna selección no tocamos nada                                       
+     C                   IF        @PEERR='A'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           HELPT                                              
+     C                   IF        FIELD='CCCFMT'                                                   
+     C                   EVAL      CCCFMT=@PEOPT                                                    
+     C                   ENDIF                                                                      
+     C                   IF        FIELD='SUFOPCI'                                                  
+     C                   EVAL      ZXNRR00=SFLPOS1+CSRFILA-9                                        
+     C     ZXNRR00       CHAIN     SUFD                               81                            
+     C                   IF        CHAIN=*OFF                                                       
+     C                   EVAL      SUFOPCI=@PEOPT                                                   
+     C                   EVAL      SFLNXC=*ON                                                       
+     C                   UPDATE    SUFD                                                             
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C     HELPT         TAG                                                                        
+     C     ERRGRL        CABEQ     *ON           SFLCMDT                                            
+     C                   EXSR      CS_CLRK                                                          
+     C                   IF        ZXFMT<>CCCFMT                                                    
+     C                   EVAL      ACCREF=*ON                                                       
+     C                   EVAL      ZXCOUNT=1                                                        
+     C     CCCFMT        CASEQ     ' '           PK0CLR                                             
+     C     CCCFMT        CASEQ     '0'           PK0CLR                                             
+     C     CCCFMT        CASEQ     '1'           S01CLR                                             
+     C     CCCFMT        CASEQ     '2'           S02CLR                                             
+     C     CCCFMT        CASEQ     '3'           S03CLR                                             
+     C     CCCFMT        CASEQ     '4'           S04CLR                                             
+CHGLGC     CCCFMT        CASEQ     '5'           S04CLR                                             
+     C                   CAS                     S01CLR                                             
+     C                   ENDCS                                                                      
+     C                   ENDIF                                                                      
+      * F05=REFRESCAR PANTALLA                                                                      
+     C                   WHEN      REFRES=*ON                                                       
+     C                   EXSR      CS_RSTFK                                                         
+     C                   EVAL      ZXOPT2='CLR'                                                     
+      * F06=CREAR REGISTRE                                                                          
+     C                   WHEN      CREATE=*ON                                                       
+     C                   EVAL      @PEOPT='1 '                                                      
+     C                   EVAL      @PEDLGA=@PDLGA                                                   
+     C                   CALL      'DO0043'                                                         
+     C                   PARM      ZZCIAS        @PECIAS                                            
+     C                   PARM                    @PEDLGA                                            
+     C                   PARM                    @PECLAB                                            
+     C                   PARM      '1 '          @PEOPT                                             
+     C                   PARM      *BLANKS       @PEERR                                             
+     C                   EXSR      CS_RSTFK                                                         
+     C                   EVAL      ZXOPT2='CLR'                                                     
+      * F13=SETUP DEL PROGRAMA                                                                      
+     C                   WHEN      SETUP=*ON                                                        
+     C                   EVAL      ZXOPT='PA0CLR'                                                   
+     C                   EVAL      ZXCOUNT=SFLPOS1                                                  
+      * F14=TREBALLAR AMB EL SPOOL                                                                  
+     C                   WHEN      WRKSPL=*ON                                                       
+     C                   EVAL      ACCREF=*OFF                                                      
+     C                   CLEAR                   ZXQCMD                                             
+     C                   EVAL                    ZXQCMD='WRKSPLF'                                   
+     C                   CALL      'QCMDEXC'                                                        
+     C                   PARM                    ZXQCMD                                             
+     C                   PARM                    ZXLOGC                                             
+      * F16=TREBALLAR AMB TREBALLS SOTMESOS                                                         
+     C                   WHEN      WRKSBM=*ON                                                       
+     C                   EVAL      ACCREF=*OFF                                                      
+     C                   CLEAR                   ZXQCMD                                             
+     C                   EVAL                    ZXQCMD='WRKSBMJOB'                                 
+     C                   CALL      'QCMDEXC'                                                        
+     C                   PARM                    ZXQCMD                                             
+     C                   PARM                    ZXLOGC                                             
+      * F22=TREBALLAR AMB TRANSCRIPTORS                                                             
+     C                   WHEN      WRKWTR=*ON                                                       
+     C                   EVAL      ACCREF=*OFF                                                      
+     C                   CLEAR                   ZXQCMD                                             
+     C                   EVAL                    ZXQCMD='WRKWTR'                                    
+     C                   CALL      'QCMDEXC'                                                        
+     C                   PARM                    ZXQCMD                                             
+     C                   PARM                    ZXLOGC                                             
+      * PAGINAR                                                                                     
+     C                   WHEN      ROLLUP=*ON                                                       
+     C                   EVAL      ACCREF=*OFF                                                      
+     C                   EVAL      ZXOPT2='INZ'                                                     
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      CSRCOLU=0                                                        
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     SFLCMDT       TAG                                                                        
+     C                   IF        ERRGRL=*ON AND ACCREF=*ON                                        
+     C                   EVAL      ACCREF=*OFF                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA VALIDACIÓ DEL SFL: FORMAT SFL I OPCIONS          *                                
+      *------------------------------------------------------------*                                
+     C     CS_SFLCHK     BEGSR                                                                      
+     C                   EVAL      ACCREF=*ON                                                       
+     C                   SELECT                                                                     
+      * Validación del posicionamiento de cabecera                                                  
+     C                   WHEN      PSUCLTA <> *BLANKS                                               
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      CSRCOLU=0                                                        
+     C                   EVAL      CSRFILA=0                                                        
+     C                   EVAL      ZXCOUNT=1                                                        
+     C                   EXSR      CS_CLRK                                                          
+     C                   EVAL      PECLTA=PSUCLTA                                                   
+     C                   EVAL      ZXOPT2='CLR'                                                     
+                                                                                                    
+      * Validacion clase de subarchivo (FORMAT DE LA PANTALLA)                                      
+     C                   WHEN      ZXFMT<>CCCFMT                                                    
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD='CFMT'                                                    
+     C                   EVAL      @PEOPT=CCCFMT                                                    
+     C                   CALL      'MMPROM'                                                         
+     C                   PARM                    @PEOPT                                             
+     C                   PARM      SDSPGM        @PEPGM                                             
+     C                   PARM                    @PEFMT                                             
+     C                   PARM                    @PEFLD                                             
+     C                   PARM      'V'           @PEERR                                             
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ZXFMT=CCCFMT                                                     
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           SFLCHKT                                            
+      * Si el subarchivo es valido continuo                                                         
+     C                   EVAL      ZXCOUNT=1                                                        
+     C                   EVAL      ZXOPT1='S01'                                                     
+     C                   EVAL      ZXOPT2='CLR'                                                     
+     C                   IF        CCCFMT=' ' OR CCCFMT='0'                                         
+     C                   EXSR      CS_CLRK                                                          
+     C                   EVAL      ZXOPT1='PK0'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        CCCFMT='1'                                                       
+     C                   EXSR      CS_CLRK                                                          
+     C                   EVAL      ZXOPT1='S01'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        CCCFMT='2'                                                       
+     C                   EXSR      CS_CLRK                                                          
+     C                   EVAL      ZXOPT1='S02'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        CCCFMT='3'                                                       
+     C                   EXSR      CS_CLRK                                                          
+     C                   EVAL      ZXOPT1='S03'                                                     
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        CCCFMT='4'                                                       
+     C                   EXSR      CS_CLRK                                                          
+     C                   EVAL      ZXOPT1='S04'                                                     
+     C                   ENDIF                                                                      
+CHGLG                                                                                               
+CHGLGC                   IF        CCCFMT='5'                                                       
+CHGLGC                   EXSR      CS_CLRK                                                          
+CHGLGC                   EVAL      ZXOPT1='S05'                                                     
+CHGLGC                   ENDIF                                                                      
+                                                                                                    
+     C                   OTHER                                                                      
+     C                   EXSR      CS_CHKOPT                                                        
+     C     ERRGRL        CABEQ     *ON           SFLCHKT                                            
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     SFLCHKT       TAG                                                                        
+     C                   IF        ERRGRL=*ON AND ACCREF=*ON                                        
+     C                   EVAL      ACCREF=*OFF                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE 1er REGISTRE DE PANTALLA DE SUBARXIUS         *                                
+      *------------------------------------------------------------*                                
+     C     CS_RSTFK      BEGSR                                                                      
+     C                   EVAL      XADLG2=ZXCLTA_1                                                  
+     C     RSTFKT        ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE NETEJA DE CAMPS DE POSIBLES CLAUS             *                                
+      *------------------------------------------------------------*                                
+     C     CS_CLRK       BEGSR                                                                      
+     C                   CLEAR                   PECLTA                                             
+     C                   CLEAR                   PEDESC                                             
+     C     CLRKT         ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE TRATAMIENTO DE OPCIONES EN SUBARCHIVO         *                                
+      *------------------------------------------------------------*                                
+     C     CS_CHKOPT     BEGSR                                                                      
+      * Validacion clase de subarchivo                                                              
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEOPT=*BLANKS                                                   
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD='CFMT'                                                    
+     C                   EVAL      @PEOPT=CCCFMT                                                    
+     C                   CALL      'MMPROM'                                                         
+     C                   PARM                    @PEOPT                                             
+     C                   PARM      SDSPGM        @PEPGM                                             
+     C                   PARM                    @PEFMT                                             
+     C                   PARM                    @PEFLD                                             
+     C                   PARM      'V'           @PEERR                                             
+                                                                                                    
+     C                   IF        @PEERR>'0'                                                       
+     C                   EVAL      ZXFMT=CCCFMT                                                     
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   EVAL      WRK40=*ON                                                        
+     C                   EVAL      MSGER='ASG1003'                                                  
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           CHKOPTT                                            
+      * VALIDACIO DE LES OPCIONS DE DETALL DEL SFL                                                  
+     C                   EVAL      ACCREF=*OFF                                                      
+     C                   EVAL      EOF=*OFF                                                         
+     C                   IF        SFLDSP=*ON                                                       
+                                                                                                    
+     C                   DO        *HIVAL                                                           
+     C                   READC     SUFD                                   82                        
+     C                   IF        EOF=*ON                                                          
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   EVAL      ACCREF=*ON                                                       
+     C                   EVAL      ZXOPT2='CLR'                                                     
+      * Validacion opciones de subarchivo                                                           
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   IF        SUFOPCI=*BLANKS                                                  
+     C                   GOTO      TNEXOPC                                                          
+     C                   ELSE                                                                       
+     C                   EVAL      ZXCOUNT=ZXNRR00                                                  
+     C                   ENDIF                                                                      
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFMT=*BLANKS                                                   
+     C                   EVAL      @PEFLD=*BLANKS                                                   
+     C                   EVAL      @PEFLD='OPCI      '                                              
+     C                   EVAL      @PEPGM=*BLANKS                                                   
+     C                   EVAL      @PEPGM=SDSPGM                                                    
+     C                   EVAL      @PEOPT=SUFOPCI                                                   
+                                                                                                    
+     C                   EXSR      CS_SECMDOP                                                       
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      WRK41=*ON                                                        
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TNEXOPC                                            
+                                                                                                    
+     C                   SELECT                                                                     
+                                                                                                    
+     C                   WHEN      @PEOPT=' 2' OR @PEOPT='2 '                                       
+     C                             OR @PEOPT=' 3' OR @PEOPT='3 '                                    
+     C                             OR @PEOPT=' 4' OR @PEOPT='4 '                                    
+     C                             OR @PEOPT=' 5' OR @PEOPT='5 '                                    
+     C                   CALL      'DO0043'                                                         
+     C                   PARM      SUFCIAS       @PECIAS                                            
+     C                   PARM      SUFDLGA       @PEDLGA                                            
+     C                   PARM      SUFCLAB       @PECLAB                                            
+     C                   PARM      SUFOPCI       @PEOPT                                             
+     C                   PARM      *BLANKS       @PEERR                                             
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   ENDSL                                                                      
+                                                                                                    
+     C     TNEXOPC       TAG                                                                        
+     C                   UPDATE    SUFD                                                             
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EVAL      ZXCOUNT=ZXNRR00                                                  
+     C                   EXSR      CS_POSCER0                                                       
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDDO                                                                      
+      * Si existen errores entonces mantengo la posicion del primer error                           
+      * y muestro pantalla                                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ERRGRL=*OFF                                                      
+     C                   EXSR      CS_RSTFK                                                         
+     C                   EXSR      CS_POSCER0                                                       
+     C                   ENDIF                                                                      
+     C     CHKOPTT       ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE POSICIONAMENT DEL CURSOR                      *                                
+      *------------------------------------------------------------*                                
+     C     CS_POSCUR     BEGSR                                                                      
+     C* Línea de subarchivo donde se encuentra el cursor                                            
+     C     SFLPOCUR      DIV       256           CSRFILA                                            
+     C                   MVR                     CSRCOLU                                            
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA DE POSICIONAMENT DEL CURSOR                      *                                
+      *------------------------------------------------------------*                                
+     C     CS_POSCER0    BEGSR                                                                      
+     C* Línea de subarchivo donde se posiciona cursor si error en opción                            
+     C                   IF        ZXLIPAG<>0                                                       
+     C     ZXCOUNT       DIV       ZXLIPA2       ZXAU15                                             
+     C                   MVR                     CSRFILA                                            
+     C                   IF        CSRFILA=0 AND ZXAU15>0                                           
+     C                   EVAL      CSRFILA=ZXLIPA2                                                  
+     C                   ENDIF                                                                      
+     C                   EVAL      CSRFILA=CSRFILA+9-1                                              
+     C                   ENDIF                                                                      
+     C                   IF        CSRFILA<=0                                                       
+     C                   EVAL      CSRFILA=9                                                        
+     C                   ENDIF                                                                      
+     C                   EVAL      CSRCOLU=4                                                        
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * SUBRUTINA VISUALITZACIÓ SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     CS_SFLDSP     BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CMD'                                                     
+      * Posicionament en el subarxiu si no s'ha realitzat cap acció                                 
+     C                   IF        ACCREF=*OFF AND SFLDSP=*ON                                       
+     C                   EVAL      SUFRCDN=ZXCOUNT                                                  
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   CLEAR                   PSUCLTA                                            
+     C                   WRITE     SUFP                                                             
+     C                   EXFMT     SUFC                                                             
+     C* Guardem el nº de registre que es visualitza actualment per no                               
+     C* canviar de pàgina si no fan res                                                             
+     C                   EVAL      ZXCOUNT=SFLPOS1                                                  
+     C                   EVAL      ERRGRL=*OFF                                                      
+     C                   EVAL      MSGER=*BLANKS                                                    
+     C                   MOVEA     ZXZERO10      *IN(40)                                            
+     C                   MOVEA     ZXZERO10      *IN(50)                                            
+     C     SFLDSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PER MOURE CAMPS AL SFL                           *                                
+      *------------------------------------------------------------*                                
+     C     S01MFP        BEGSR                                                                      
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   EVAL      S01DLG2=XADLG2                                                   
+     C                   EVAL      PECLTA=XADLG2                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   EVAL      S01DESC=PEDESC                                                   
+     C                   EVAL      S01PR01=XAPR01                                                   
+     C                   EVAL      S01PR02=XAPR02                                                   
+     C                   EVAL      S01PR03=XAPR03                                                   
+15089C                   EVAL      S01PR04=XAPR04                                                   
+      *                                                                                             
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XADIST                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      0             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        S01DIST                                            
+                                                                                                    
+     C                   EXSR      CS_KEYPF                                                         
+     C                   EVAL      SUFDATA=W1DATA                                                   
+     C     S01MFPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PER MOURE CAMPS AL SFL                           *                                
+      *------------------------------------------------------------*                                
+     C     S02MFP        BEGSR                                                                      
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   EVAL      S02DLG2=XADLG2                                                   
+     C                   EVAL      PECLTA=XADLG2                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   EVAL      S02DESC=PEDESC                                                   
+     C                   EVAL      S02PR01=XAPR01                                                   
+     C                   EVAL      S02PR02=XAPR02                                                   
+     C                   EVAL      S02PR03=XAPR03                                                   
+15089C                   EVAL      S02PR04=XAPR04                                                   
+                                                                                                    
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XADIST                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      0             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        S02DIST                                            
+                                                                                                    
+     C                   EXSR      CS_KEYPF                                                         
+     C                   EVAL      SUFDATA=W2DATA                                                   
+     C     S02MFPT       ENDSR                                                                      
+      **************************************************************                                
+      **************************************************************                                
+      * SUBRUTINA PER MOURE CAMPS AL SFL                           *                                
+      *------------------------------------------------------------*                                
+     C     S03MFP        BEGSR                                                                      
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   EVAL      S03DLG2=XADLG2                                                   
+     C                   EVAL      PECLTA=XADLG2                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   EVAL      S03DESC=PEDESC                                                   
+     C                   EVAL      S03PR01=XAPR01                                                   
+     C                   EVAL      S03PR02=XAPR02                                                   
+     C                   EVAL      S03PR03=XAPR03                                                   
+15089C                   EVAL      S03PR04=XAPR04                                                   
+                                                                                                    
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XADIST                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      0             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        S03DIST                                            
+                                                                                                    
+     C                   EXSR      CS_KEYPF                                                         
+     C                   EVAL      SUFDATA=W3DATA                                                   
+     C     S03MFPT       ENDSR                                                                      
+      **************************************************************                                
+      **************************************************************                                
+      * SUBRUTINA PER MOURE CAMPS AL SFL                           *                                
+      *------------------------------------------------------------*                                
+     C     S04MFP        BEGSR                                                                      
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   EVAL      S04DLG2=XADLG2                                                   
+     C                   EVAL      PECLTA=XADLG2                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   EVAL      S04DESC=PEDESC                                                   
+     C                   EVAL      S04PR01=XAPR01                                                   
+     C                   EVAL      S04PR02=XAPR02                                                   
+     C                   EVAL      S04PR03=XAPR03                                                   
+15089C                   EVAL      S04PR04=XAPR04                                                   
+                                                                                                    
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XADIST                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      0             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        S04DIST                                            
+                                                                                                    
+     C                   EXSR      CS_KEYPF                                                         
+     C                   EVAL      SUFDATA=W4DATA                                                   
+     C     S04MFPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA PER MOURE CAMPS AL SFL                           *                                
+      *------------------------------------------------------------*                                
+     C     S05MFP        BEGSR                                                                      
+     C                   EVAL      SUFOPCI=*BLANKS                                                  
+     C                   EVAL      SFLNXC=*OFF                                                      
+     C                   EVAL      S05DLG2=XADLG2                                                   
+     C                   EVAL      PECLTA=XADLG2                                                    
+     C                   EVAL      PECTAB='DLGA'                                                    
+     C     KPMTABD       CHAIN     PMTABD                             81                            
+     C                   EVAL      S05DESC=PEDESC                                                   
+     C                   EVAL      S05PRIR=XAPRIR                                                   
+     C                   EVAL      S05PRIU=XAPRIU                                                   
+     C                   EVAL      S05PRIS=XAPRIS                                                   
+15089C                   EVAL      S05PRIL=XAPRI2                                                   
+     C                   EVAL      S05AGEN=XAAGEN                                                   
+     C                   EVAL      S05DI01=XADI01                                                   
+     C                   EVAL      S05DI02=XADI02                                                   
+     C                   EVAL      S05DI03=XADI03                                                   
+     C                   EVAL      S05DI04=XADI04                                                   
+     C                   EVAL      S05DI05=XADI05                                                   
+     C                   EVAL      S05DI06=XADI06                                                   
+     C                   EVAL      S05DI07=XADI07                                                   
+                                                                                                    
+     C                   MOVE      *BLANKS       PXALPH                                             
+     C                   EVAL      PXNUM=XADIST                                                     
+     C                   CALL      'PRD650'                                                         
+     C                   PARM                    PXNUM                                              
+     C                   PARM                    PXALPH                                             
+     C                   PARM                    PXFLDD                                             
+     C                   PARM      0             PXDCCD                                             
+     C                   PARM                    PXFMD1                                             
+     C                   PARM                    PXEDTC                                             
+     C                   PARM                    PXNMER                                             
+     C                   PARM                    PXTIPA                                             
+     C                   MOVE      PXALPH        S05DIST                                            
+                                                                                                    
+     C                   EXSR      CS_KEYPF                                                         
+     C                   EVAL      SUFDATA=W5DATA                                                   
+     C     S05MFPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA QUE GUARDA LAS CLAVES DE TODOS TIPOS DE SFL      *                                
+      *------------------------------------------------------------*                                
+     C     CS_KEYPF      BEGSR                                                                      
+     C                   EVAL      SUFCIAS=XACIAS                                                   
+     C                   EVAL      SUFDLGA=XADLGA                                                   
+     C                   EVAL      SUFCLAB=XADLG2                                                   
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL SFL S02                              *                                
+      *------------------------------------------------------------*                                
+     C     S02MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='S02'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         S02CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         S02INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         S02DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         S02CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         S02CHK                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ I CARREGA DEL SFL                 *                                
+      *------------------------------------------------------------*                                
+     C     S02INZ        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_SFLIN1                                                        
+                                                                                                    
+     C                   DOW       ZXLOP00 < ZXLIPAG                                                
+     C     KMSDDOM0      READE     MSDDOM12                               82                        
+     C                   IF        EOF=*ON                                                          
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXNRR00=ZXNRR00 + 1                                              
+     C                   EVAL      ZXLOP00=ZXLOP00 + 1                                              
+     C                   EXSR      CS_MOVFP                                                         
+     C                   EXSR      CS_SAVFK                                                         
+     C                   WRITE     SUFD                                                             
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   EXSR      CS_SFLIN2                                                        
+     C     S02INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S02DSP        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   IF        ZZNPGM=' '                                                       
+     C                   EVAL      PPPCMD1='CMD3026'                                                
+     C                   ELSE                                                                       
+     C                   EVAL      PPPCMD1='CMD3016'                                                
+     C                   ENDIF                                                                      
+CHGLGC                   EVAL      SUFHED1='HDO042B'                                                
+     C                   EVAL      WRK61=*OFF                                                       
+     C                   EVAL      WRK62=*ON                                                        
+     C                   EVAL      WRK63=*OFF                                                       
+     C                   EVAL      WRK64=*OFF                                                       
+     C                   EXSR      CS_SFLDSP                                                        
+     C     S02DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMD'S                             *                                
+      *------------------------------------------------------------*                                
+     C     S02CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+     C                   EXSR      CS_SFLCMD                                                        
+     C     S02CMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DEL SFL: FORMAT SFL I OPCIONS          *                                
+      *------------------------------------------------------------*                                
+     C     S02CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+                                                                                                    
+      * SUBRUTINA COMÚ DE VALIDACIÓ DEL SFL                                                         
+     C                   EXSR      CS_SFLCHK                                                        
+                                                                                                    
+     C     S02CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE NETEJA DEL SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S02CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT='S02INZ'                                                   
+     C                   EVAL      CCCFMT='2'                                                       
+     C                   MOVEA     ZXZERO10      *IN(90)                                            
+     C                   EVAL      INPOS01=*ON                                                      
+     C                   EXSR      CS_SFLCLR                                                        
+     C                   EVAL      XADLGA=@PDLGA                                                    
+29045C                   IF        PSUCLTA <> *BLANKS                                               
+29045C                   EVAL      XADLG2 = PSUCLTA                                                 
+29045c                   endif                                                                      
+     C     KMSDDOM0      SETLL     MSDDOM12                                                         
+     C     S02CLRT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL SFL S03                              *                                
+      *------------------------------------------------------------*                                
+     C     S03MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='S03'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         S03CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         S03INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         S03DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         S03CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         S03CHK                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ I CARREGA DEL SFL                 *                                
+      *------------------------------------------------------------*                                
+     C     S03INZ        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_SFLIN1                                                        
+                                                                                                    
+     C                   DOW       ZXLOP00 < ZXLIPAG                                                
+     C     KMSDDOM0      READE     MSDDOM13                               82                        
+     C                   IF        EOF=*ON                                                          
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXNRR00=ZXNRR00 + 1                                              
+     C                   EVAL      ZXLOP00=ZXLOP00 + 1                                              
+     C                   EXSR      CS_MOVFP                                                         
+     C                   EXSR      CS_SAVFK                                                         
+     C                   WRITE     SUFD                                                             
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   EXSR      CS_SFLIN2                                                        
+     C     S03INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S03DSP        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   IF        ZZNPGM=' '                                                       
+     C                   EVAL      PPPCMD1='CMD3026'                                                
+     C                   ELSE                                                                       
+     C                   EVAL      PPPCMD1='CMD3016'                                                
+     C                   ENDIF                                                                      
+CHGLGC*                  EVAL      SUFHED1='HE09602'                                                
+CHGLGC                   EVAL      SUFHED1='HDO042C'                                                
+     C                   EVAL      WRK61=*OFF                                                       
+     C                   EVAL      WRK62=*OFF                                                       
+     C                   EVAL      WRK63=*ON                                                        
+     C                   EVAL      WRK64=*OFF                                                       
+     C                   EXSR      CS_SFLDSP                                                        
+     C     S03DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMD'S                             *                                
+      *------------------------------------------------------------*                                
+     C     S03CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+     C                   EXSR      CS_SFLCMD                                                        
+     C     S03CMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DEL SFL: FORMAT SFL I OPCIONS          *                                
+      *------------------------------------------------------------*                                
+     C     S03CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+                                                                                                    
+      * SUBRUTINA COMÚ DE VALIDACIÓ DEL SFL                                                         
+     C                   EXSR      CS_SFLCHK                                                        
+                                                                                                    
+     C     S03CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE NETEJA DEL SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S03CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT='S03INZ'                                                   
+     C                   EVAL      CCCFMT='3'                                                       
+     C                   MOVEA     ZXZERO10      *IN(90)                                            
+     C                   EVAL      INPOS01=*ON                                                      
+     C                   EXSR      CS_SFLCLR                                                        
+     C                   EVAL      XADLGA=@PDLGA                                                    
+29045C                   IF        PSUCLTA <> *BLANKS                                               
+29045C                   EVAL      XADLG2 = PSUCLTA                                                 
+29045c                   endif                                                                      
+     C     KMSDDOM0      SETLL     MSDDOM13                                                         
+     C     S03CLRT       ENDSR                                                                      
+      **************************************************************                                
+      *------------------------------------------------------------*                                
+     C     S04MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='S04'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         S04CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         S04INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         S04DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         S04CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         S04CHK                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ I CARREGA DEL SFL                 *                                
+      *------------------------------------------------------------*                                
+     C     S04INZ        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_SFLIN1                                                        
+                                                                                                    
+     C                   DOW       ZXLOP00 < ZXLIPAG                                                
+     C     KMSDDOM0      READE     MSDDOM14                               82                        
+     C                   IF        EOF=*ON                                                          
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXNRR00=ZXNRR00 + 1                                              
+     C                   EVAL      ZXLOP00=ZXLOP00 + 1                                              
+     C                   EXSR      CS_MOVFP                                                         
+     C                   EXSR      CS_SAVFK                                                         
+     C                   WRITE     SUFD                                                             
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   EXSR      CS_SFLIN2                                                        
+     C     S04INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S04DSP        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   IF        ZZNPGM=' '                                                       
+     C                   EVAL      PPPCMD1='CMD3026'                                                
+     C                   ELSE                                                                       
+     C                   EVAL      PPPCMD1='CMD3016'                                                
+     C                   ENDIF                                                                      
+CHGLGC                   EVAL      SUFHED1='HDO042D'                                                
+     C                   EVAL      WRK61=*OFF                                                       
+     C                   EVAL      WRK62=*OFF                                                       
+     C                   EVAL      WRK63=*OFF                                                       
+     C                   EVAL      WRK64=*ON                                                        
+     C                   EXSR      CS_SFLDSP                                                        
+     C     S04DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMD'S                             *                                
+      *------------------------------------------------------------*                                
+     C     S04CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+     C                   EXSR      CS_SFLCMD                                                        
+     C     S04CMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DEL SFL: FORMAT SFL I OPCIONS          *                                
+      *------------------------------------------------------------*                                
+     C     S04CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+                                                                                                    
+      * SUBRUTINA COMÚ DE VALIDACIÓ DEL SFL                                                         
+     C                   EXSR      CS_SFLCHK                                                        
+                                                                                                    
+     C     S04CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE NETEJA DEL SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S04CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT='S04INZ'                                                   
+     C                   EVAL      CCCFMT='4'                                                       
+     C                   MOVEA     ZXZERO10      *IN(90)                                            
+     C                   EVAL      INPOS01=*ON                                                      
+     C                   EXSR      CS_SFLCLR                                                        
+     C                   EVAL      XADLGA=@PDLGA                                                    
+29045C                   IF        PSUCLTA <> *BLANKS                                               
+29045C                   EVAL      XADLG2 = PSUCLTA                                                 
+29045c                   endif                                                                      
+     C     KMSDDOM0      SETLL     MSDDOM14                                                         
+     C     S04CLRT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL SFL S05                              *                                
+      *------------------------------------------------------------*                                
+     C     S05MAIN       BEGSR                                                                      
+     C                   DOW       ZXOPT1='S05'                                                     
+     C     ZXOPT2        CASEQ     'CLR'         S05CLR                                             
+     C     ZXOPT2        CASEQ     'INZ'         S05INZ                                             
+     C     ZXOPT2        CASEQ     'DSP'         S05DSP                                             
+     C     ZXOPT2        CASEQ     'CMD'         S05CMD                                             
+     C     ZXOPT2        CASEQ     'CHK'         S05CHK                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA INICIALITZACIÓ I CARREGA DEL SFL                 *                                
+      *------------------------------------------------------------*                                
+     C     S05INZ        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+     C                   EXSR      CS_SFLIN1                                                        
+                                                                                                    
+     C                   DOW       ZXLOP00 < ZXLIPAG                                                
+     C     KMSDDOM0      READE     MSDDOM14                               82                        
+     C                   IF        EOF=*ON                                                          
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+     C                   EVAL      ZXNRR00=ZXNRR00 + 1                                              
+     C                   EVAL      ZXLOP00=ZXLOP00 + 1                                              
+     C                   EXSR      CS_MOVFP                                                         
+     C                   EXSR      CS_SAVFK                                                         
+     C                   WRITE     SUFD                                                             
+     C                   ENDDO                                                                      
+                                                                                                    
+     C                   EXSR      CS_SFLIN2                                                        
+     C     S05INZT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VISUALITZACIÓ SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S05DSP        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CMD'                                                     
+     C                   IF        ZZNPGM=' '                                                       
+     C                   EVAL      PPPCMD1='CMD3026'                                                
+     C                   ELSE                                                                       
+     C                   EVAL      PPPCMD1='CMD3016'                                                
+     C                   ENDIF                                                                      
+CHGLGC                   EVAL      SUFHED1='HE09603'                                                
+     C                   EXSR      CS_SFLDSP                                                        
+     C     S05DSPT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DELS CMD'S                             *                                
+      *------------------------------------------------------------*                                
+     C     S05CMD        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='CHK'                                                     
+     C                   EXSR      CS_SFLCMD                                                        
+     C     S05CMDT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA VALIDACIÓ DEL SFL: FORMAT SFL I OPCIONS          *                                
+      *------------------------------------------------------------*                                
+     C     S05CHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT2='DSP'                                                     
+                                                                                                    
+      * SUBRUTINA COMÚ DE VALIDACIÓ DEL SFL                                                         
+     C                   EXSR      CS_SFLCHK                                                        
+                                                                                                    
+     C     S05CHKT       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA DE NETEJA DEL SFL                                *                                
+      *------------------------------------------------------------*                                
+     C     S05CLR        BEGSR                                                                      
+     C                   EVAL      ZXOPT='S05INZ'                                                   
+     C                   EVAL      CCCFMT='5'                                                       
+     C                   MOVEA     ZXZERO10      *IN(90)                                            
+     C                   EVAL      INPOS01=*ON                                                      
+     C                   EXSR      CS_SFLCLR                                                        
+     C                   EVAL      XADLGA=@PDLGA                                                    
+29045C                   IF        PSUCLTA <> *BLANKS                                               
+29045C                   EVAL      XADLG2 = PSUCLTA                                                 
+29045c                   endif                                                                      
+     C     KMSDDOM0      SETLL     MSDDOM14                                                         
+     C     S05CLRT       ENDSR                                                                      
+      **************************************************************************                    
+     C* validación de opciones                                                                      
+      **************************************************************************                    
+     C/COPY *LIBL/QSRDSRC,SRD030                                                                    

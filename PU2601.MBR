@@ -1,0 +1,593 @@
+     H DATEDIT(*YMD/)                                                                               
+      *  Este programa,a través de las entradas de pedidos a cliente    ,                           
+      *  @ptppr '1' seleccionada promocion            NO SE USA                                     
+      *  @ptppr '2' selecionado precio cliente  -articulo                                           
+      *  @ptppr '3' selecionado tarifa y politica por fam/subfam                                    
+      *  @ptppr '4' selecionado tarifa dto. por cliente                                             
+      *  @ptppr '5' selecionada tarifa                                                              
+      *  @perro '1' no seleccionado nada                                                            
+      *  @perro '2' no seleccionado nada - NO HAY PRECIOS ESPECIAL                                  
+      *  Parametros que pasamos para obterner precio son : @PCIAS, @PCUST                           
+      *  @PARVM, @PTCOJ, @PDATP(fecha pedido), @PCANT, @PCLTR(clase tarifa)                         
+      *  @PTCST, @PPRMO, @PMONP(moneda pedido) @PMONB(moneda de cambio pac-                         
+      *  tado) , @PZXCO (parametro de conversion si moneda tiene cambio pac-                        
+      *  tado)                                                                                      
+      *  Los parametros que retornan son: @PPREC, @PDTO1; @PDTO2, @PDTO3,                           
+      *  @PDTO4, @PMONE, @PCADP, @PUNDP, @PTCST, @PTPPR(explicado arriba)                           
+      *  @PPRMO, @PERRO(expliacdo arriba)                                                           
+      *                                                                                             
+      *  ZZGRT1 indica si es '1' que trabajamos con una única tarifa para                           
+      *  nacional e internacional si es '0' o ' ' quiere decir que trabaja                          
+      *  con la tarifa '0' o '1' dependiendo del TNEX del Cliente                                   
+      *****************************************************************                             
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FCOCPPR01  IF   E           K DISK                                                             
+     FCOTARI03  IF   E           K DISK                                                             
+     FMSARTI00  IF   E           K DISK                                                             
+     FPUPROV    IF   E           K DISK                                                             
+     FPMUNAL    IF   E           K DISK                                                             
+27094FPMEMPR    IF   E           K DISK                                                             
+     D                SDS                                                       Datos               
+     D  SDSPGM                 1     10                                         Progra              
+     D  SDSJOB               244    253                                         Id Job              
+     D  SDSUSR               254    263                                         Id Usu              
+     D  SDSJNBR              264    269                                         Id Usu              
+                                                                                                    
+     D* AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                       
+     D  DSLDA        E DS                  EXTNAME(PURLDADS)                                        
+     D    CCCDEEM                    30    OVERLAY(ZZDEEM)                                          
+                                                                                                    
+      * PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                               
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+      * CONTROL DEL FLUXE DEL PROGRAMA AMB INICIALITZACIÓ DE POSIC. INICIAL                         
+     D                 DS                                                                           
+     D  ZXOPT                  1      6    INZ('PK0CLR')                                            
+     D    ZXOPT1               1      3                                                             
+     D    ZXOPT2               4      6                                                             
+                                                                                                    
+     D* CONTROL DEL FLUXE DEL PROGRAMA                                                              
+     D                 DS                                                                           
+     D  ZXARVM                 1     25                                                             
+     D    ZXARTI1              1     15                                                             
+     D    ZXVARI1             16     18                                                             
+     D    ZXMODE1             19     21                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXCLAB                 1     25                                                             
+     D    ZXFMIL               1      3                                                             
+     D    ZXSMIL               4      6                                                             
+     D    ZXSUPE               5      6                                                             
+     D    ZXBLAN               7     25                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXARVMX                1     25                                                             
+     D    ZXARTIX              1     15                                                             
+     D    ZXVARIX             16     18                                                             
+     D    ZXMODEX             19     21                                                             
+                                                                                                    
+     D    @PCIAS       S                   LIKE(T0CIAS)                                             
+     D    @PCUST       S                   LIKE(L3CUST)                                             
+     D    @PPRVR       S                   LIKE(L3CUST)                                             
+     D    @PARVM       S                   LIKE(T0ARVM)                                             
+     D    @PFDES       S                   LIKE(T0FDES)                                             
+     D    @PTCOJ       S                   LIKE(L3TCOJ)                                             
+     D    @PDATP       S                   LIKE(L3DAT8)                                             
+     D    @PDATA       S                   LIKE(L3DAT8)                                             
+     D    @PHORA       S                   LIKE(L3HORA)                                             
+     D    @PCANT       S                   LIKE(L3CADP)                                             
+     D    @PCLTR       S                   LIKE(T0CLTR)                                             
+     D    @PPREC       S                   LIKE(L3PREC)                                             
+     D    @PDTO1       S                   LIKE(L3DTO1)                                             
+     D    @PDTO2       S                   LIKE(L3DTO2)                                             
+     D    @PDTO3       S                   LIKE(L3DTO3)                                             
+     D    @PDTO4       S                   LIKE(L3DTO4)                                             
+     D    @PMONE       S                   LIKE(L3MONE)                                             
+     D    @PMONP       S                   LIKE(L3MONE)                                             
+     D    @PMONB       S                   LIKE(L3MONE)                                             
+     D    @PMON1       S                   LIKE(L3MONE)                                             
+     D    @PMON2       S                   LIKE(L3MONE)                                             
+     D    @PCADP       S                   LIKE(L3CADP)                                             
+     D    @PUNDP       S                   LIKE(L3UNDP)                                             
+     D    @PUNIM       S                   LIKE(L3UNDP)                                             
+     D    @PCMCOCO     S             20  9                                                          
+     D    @PCMCCCO     S             20  9                                                          
+     D    @PTPPR       S              1                                                             
+     D    @PZXCO       S             12  7                                                          
+     D    @PERRO       S              1                                                             
+     D    @PEERR       S              1                                                             
+27094D    @PTIPJ       S              1                                                             
+      *                                                                                             
+     D    ZXDATP       S                   LIKE(L3FHAS)                                             
+     D    ZXCANT       S                   LIKE(L3CADP)                                             
+     D    XZCIAS       S                   LIKE(M5CIAS)                                             
+     D    XZARTI       S                   LIKE(M5ARTI)                                             
+     D    XZVARI       S                   LIKE(M5VARI)                                             
+     D    XZMODE       S                   LIKE(M5MODE)                                             
+     D  ZXANYY         S              4  0                                                          
+     D  ZXANY2         S              4  0                                                          
+     D  ZXCOCAMB       S             15  9                                                          
+      **************************************************************                                
+      * RUTINA  PRINCIPAL DEL PROGRAMA                             *                                
+      *------------------------------------------------------------*                                
+     C                   DOW       ZXOPT1 <> 'END'                                                  
+     C     ZXOPT1        CASEQ     'INZ'         SUBINZ                                             
+     C     ZXOPT1        CASEQ     'CHK'         SUBCHK                                             
+     C     ZXOPT1        CASEQ     'UPD'         SUBUPD                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+      * CLAVE PARA CHEQUEAR SI SE TIENE PRECIO ESPECIAL                                             
+     C     KPUPROV       KLIST                                                                      
+     C                   KFLD                    C0CIAS                                             
+     C                   KFLD                    C0PRVR                                             
+      *                                                                                             
+     C     KCOCPPRCK     KLIST                                                                      
+     C                   KFLD                    L3CIAS                                             
+     C                   KFLD                    L3CUST                                             
+      *                                                                                             
+     C     KCOCPPR01     KLIST                                                                      
+     C                   KFLD                    L3CIAS                                             
+     C                   KFLD                    L3CUST                                             
+     C                   KFLD                    L3TPLI                                             
+     C                   KFLD                    L3ARVM                                             
+     C                   KFLD                    L3TCOJ                                             
+     C                   KFLD                    L3TPTA                                             
+     C                   KFLD                    L3FHAS                                             
+     C                   KFLD                    L3HORA                                             
+                                                                                                    
+     C     KCOCPPR010    KLIST                                                                      
+     C                   KFLD                    L3CIAS                                             
+     C                   KFLD                    L3CUST                                             
+     C                   KFLD                    L3TPLI                                             
+     C                   KFLD                    L3ARVM                                             
+     C                   KFLD                    L3TCOJ                                             
+     C                   KFLD                    L3TPTA                                             
+      *                                                                                             
+     C     KMSARTI00     KLIST                                                                      
+     C                   KFLD                    M5CIAS                                             
+     C                   KFLD                    M5ARTI                                             
+     C                   KFLD                    M5VARI                                             
+     C                   KFLD                    M5MODE                                             
+      *                                                                                             
+      *                                                                                             
+     C     KCOCPPR00     KLIST                                                                      
+     C                   KFLD                    L3CIAS                                             
+     C                   KFLD                    L3CUST                                             
+     C                   KFLD                    L3TPLI                                             
+     C                   KFLD                    L3ARVM                                             
+     C                   KFLD                    L3TCOJ                                             
+     C                   KFLD                    L3TPTA                                             
+      *                                                                                             
+     C     KCOTARI03     KLIST                                                                      
+     C                   KFLD                    T0CIAS                                             
+     C                   KFLD                    T0CLTR                                             
+     C                   KFLD                    T0TPTA                                             
+     C                   KFLD                    T0ARVM                                             
+     C                   KFLD                    T0GRTR                                             
+     C                   KFLD                    T0FDES                                             
+     C                   KFLD                    T0HORA                                             
+     C     KCOTARI031    KLIST                                                                      
+     C                   KFLD                    T0CIAS                                             
+     C                   KFLD                    T0CLTR                                             
+     C                   KFLD                    T0TPTA                                             
+     C                   KFLD                    T0ARVM                                             
+     C                   KFLD                    T0GRTR                                             
+      *                                                                                             
+     C     KPMUNAL       KLIST                                                                      
+     C                   KFLD                    P6CIAS                                             
+     C                   KFLD                    P6ARTI                                             
+     C                   KFLD                    P6VARI                                             
+     C                   KFLD                    P6MODE                                             
+     C                   KFLD                    P6UNIM                                             
+27094C     KPMEMPR       KLIST                                                                      
+27094C                   KFLD                    @PCIAS                                             
+27094C                   KFLD                    P7DLGA                                             
+27094                                                                                               
+27094* ANTES DE NADA RECUPERO EL TIPO DE TRABAJO (INTERACTIVO O BATCH)                             
+27094* SI EL TRABAJO ES BATCH TRANSFORMO TODO LO MANUAL EN AUTOMATICO                              
+27094* '0' SIGNIFICA BATCH                                                                         
+27094* '1' SIGNIFICA INTERACTIVO                                                                   
+27094C                   CALL      'RTVTIJ'                                                         
+27094C                   PARM      *BLANKS       @PTIPJ                                             
+27094C                   IF        @PTIPJ = '1'                                                     
+      *                                                                                             
+      * RECUPERACIÓ DE LA LDA DE COMPRES                                                            
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+27094C                   ENDIF                                                                      
+                                                                                                    
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PCUST                                             
+     C                   PARM                    @PPRVR                                             
+     C                   PARM                    @PARVM                                             
+     C                   PARM                    @PTCOJ                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PCANT                                             
+     C                   PARM                    @PUNIM                                             
+     C                   PARM                    @PMONP                                             
+     C                   PARM                    @PMONB                                             
+     C                   PARM                    @PZXCO                                             
+     C                   PARM                    @PCLTR                                             
+     C                   PARM                    @PPREC                                             
+     C                   PARM                    @PDTO1                                             
+     C                   PARM                    @PDTO2                                             
+     C                   PARM                    @PDTO3                                             
+     C                   PARM                    @PDTO4                                             
+     C                   PARM                    @PMONE                                             
+     C                   PARM                    @PCADP                                             
+     C                   PARM                    @PUNDP                                             
+     C                   PARM                    @PTPPR                                             
+     C                   PARM                    @PERRO                                             
+                                                                                                    
+27094* Si estamos en batch, recuperar parámetros de empresa del archivo PMEMPR                     
+27094C                   IF        @PTIPJ = '0'                                                     
+27094C     KPMEMPR       CHAIN     PMEMPR                                                           
+27094C                   IF        %FOUND                                                           
+27094* Cargo campos ZZxxx utilizados en el programa con campos del archivo PMEMPR                  
+27094C                   EVAL      ZZGRT1 = P7GRT1                                                  
+27094C                   EVAL      ZZNVPR = P7NVPR                                                  
+27094C                   EVAL      ZZNVP2 = P7NVP2                                                  
+27094C                   EVAL      ZZTDFC = P7TDFC                                                  
+27094C                   EVAL      ZZPCCO = P7PCCO                                                  
+27094C                   ENDIF                                                                      
+27094C                   ENDIF                                                                      
+27094*                                                                                             
+     C                   EVAL      ZXOPT1='INZ'                                                     
+                                                                                                    
+     C                   EVAL      C0CIAS=@PCIAS                                                    
+     C                   EVAL      P6CIAS=@PCIAS                                                    
+     C                   EVAL      L3CIAS=@PCIAS                                                    
+     C                   EVAL      M5CIAS=@PCIAS                                                    
+     C                   EVAL      T0CIAS=@PCIAS                                                    
+     C                   EVAL      L3CUST=@PCUST                                                    
+     C                   EVAL      C0PRVR=@PPRVR                                                    
+     C                   EVAL      L3ARVM=@PARVM                                                    
+     C                   EVAL      T0ARVM=@PARVM                                                    
+     C                   EVAL      ZXARVM=@PARVM                                                    
+     C                   EVAL      M5ARTI=ZXARTI1                                                   
+     C                   EVAL      M5VARI=ZXVARI1                                                   
+     C                   EVAL      M5MODE=ZXMODE1                                                   
+     C                   EVAL      L3TCOJ=@PTCOJ                                                    
+     C                   EVAL      T0CLTR=@PCLTR                                                    
+     C                   EVAL      L3FHAS=@PDATP                                                    
+     C                   EVAL      T0FDES=@PDATP                                                    
+     C                   EVAL      ZXDATP=@PDATP                                                    
+     C                   EVAL      ZXCANT=@PCANT                                                    
+     C                   EVAL      ZXBLAN=*BLANKS                                                   
+                                                                                                    
+                                                                                                    
+     C                   IF        ZZGRT1<'1'                                                       
+     C     KPUPROV       CHAIN     PUPROV                             81                            
+     C                   EVAL      T0GRTR=C0TNEX                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      T0GRTR='2'                                                       
+     C                   ENDIF                                                                      
+                                                                                                    
+                                                                                                    
+     C     TINZSR        ENDSR                                                                      
+      *                                                                                             
+      **************************************************************                                
+      * SUBRUTINA LectuRA. DEFINICIO DE TOTS ELS PARÀMETRES          *                              
+      *------------------------------------------------------------*                                
+     C     SUBINZ        BEGSR                                                                      
+     C                   EVAL      ZXOPT1='CHK'                                                     
+      * POR OMISIÓN @PERRO='2'---> NO SE SELECCIONA PRECIO ESPECIAL                                 
+     C                   EVAL      @PERRO='2'                                                       
+     C     TSUBINZ       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA LectuRA. DEFINICIO DE TOTS ELS PARÀMETRES          *                              
+      *------------------------------------------------------------*                                
+     C     SUBCHK        BEGSR                                                                      
+     C                   EVAL      ZXOPT1='UPD'                                                     
+      * VALIDAMOS EN EL FICHERO SI EL CLIENTE TIENE PRECIO ESPECIAL                                 
+     C     KCOCPPRCK     CHAIN     COCPPR01                           81                            
+     C                   IF        CHAIN=*ON                                                        
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C     ERRGRL        CABEQ     *ON           TSUBCHK                                            
+      * INICIALIZAMOS TODOS LOS CAMPOS                                                              
+     C                   EVAL      L3CIAS=@PCIAS                                                    
+     C                   EVAL      L3CUST=@PCUST                                                    
+     C                   EVAL      L3ARVM=@PARVM                                                    
+     C                   EVAL      L3TCOJ=@PTCOJ                                                    
+     C                   EVAL      L3FHAS=@PDATP                                                    
+      * EN CASO DE ERROR, SALIMOS DEL PROGRAMA INDICANDO QUE NO HAY PRECIOS                         
+     C     TSUBCHK       TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      ZXOPT1='END'                                                     
+     C                   EVAL      @PERRO='2'                                                       
+     C                   EVAL      @PPREC=0                                                         
+     C                   ENDIF                                                                      
+     C     FSUBCHK       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA LectuRA. DEFINICIO DE TOTS ELS PARÀMETRES          *                              
+      *------------------------------------------------------------*                                
+     C     SUBUPD        BEGSR                                                                      
+                                                                                                    
+     C                   EVAL      ZXOPT1='END'                                                     
+      * Buscamos en fichero de articulos                                                            
+     C     KMSARTI00     CHAIN     MSARTI00                           81                            
+     C                   IF        CHAIN=*OFF AND M5BAJA<>'0'                                       
+     C                   EVAL      L3TPTA=M5TPTA                                                    
+     C                   EVAL      T0TPTA=M5TPTA                                                    
+     C                   EVAL      ZXFMIL=M5FMIL                                                    
+     C                   ENDIF                                                                      
+      * Buscamos en PMUNAL UNIDADES ALTERNATIVAS si son diferentes de las                           
+      * que nos llegan                                                                              
+     C                   EVAL      XZCOFU=1                                                         
+     C                   IF        M5UNIM<>@PUNIM                                                   
+     C                   EVAL      XZCIAS=@PCIAS                                                    
+     C                   EVAL      XZARTI=M5ARTI                                                    
+     C                   EVAL      XZVARI=M5VARI                                                    
+     C                   EVAL      XZMODE=M5MODE                                                    
+     C                   EVAL      ZXCA10=ZXCANT                                                    
+     C                   EVAL      ZXCA11=ZXCANT                                                    
+     C                   EVAL      ZXUN10=M5UNIM                                                    
+     C                   EVAL      ZXUN11=@PUNIM                                                    
+     C* CAMBIO de unidades                                                                          
+     C/COPY *LIBL/QSRDSRC,SRD021                                                                    
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   MULT      XZCOFU        ZXCANT                                             
+     C                                                                                              
+                                                                                                    
+      * Buscamos en fichero de precios por proveedor-artículo                                       
+      * TIPO DE POLITICA = '0'                                                                      
+     C                   EVAL      L3TPLI='0'                                                       
+      *                                                                                             
+     C                   TIME                    L3HORA                                             
+     C     KCOCPPR01     SETLL     COCPPR01                                                         
+     C     KCOCPPR010    READE     COCPPR01                               84                        
+     C                   DOW       READ2=*OFF AND ZXDATP>=L3FDES                                    
+     C                   IF        ZXDATP>=L3FDES AND ZXDATP<=L3FHAS                                
+     C                   EVAL      @PPREC=L3PREC                                                    
+     C                   EVAL      @PDTO1=L3DTO1                                                    
+     C                   EVAL      @PDTO2=L3DTO2                                                    
+     C                   EVAL      @PDTO3=L3DTO3                                                    
+     C                   EVAL      @PDTO4=L3DTO4                                                    
+     C                   EVAL      @PMONE=L3MONE                                                    
+     C                   EVAL      @PCADP=L3CADP                                                    
+     C                   EVAL      @PUNDP=L3UNDP                                                    
+     C                   EVAL      @PTPPR='2'                                                       
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   IF        L3PREC=0                                                         
+     C                   EXSR      CS_TARIFA                                                        
+     C                   ENDIF                                                                      
+     C                   GOTO      TFI9A                                                            
+     C                   ENDIF                                                                      
+     C     KCOCPPR010    READE     COCPPR01                               84                        
+     C                   ENDDO                                                                      
+     C                                                                                              
+      * Si nos pasan TCOJ<>*BLANKS y no encontramos precio neto buscaremos c                        
+      * con TCOJ=*BLANKS                                                                            
+                                                                                                    
+     C                   TIME                    L3HORA                                             
+     C                   IF        @PTCOJ<>*BLANKS                                                  
+     C                   EVAL      L3TCOJ=' '                                                       
+     C     KCOCPPR01     SETLL     COCPPR01                                                         
+     C     KCOCPPR010    READE     COCPPR01                               84                        
+     C                   DOW       READ2=*OFF AND ZXDATP>=L3FDES                                    
+     C                   IF        ZXDATP>=L3FDES AND ZXDATP<=L3FHAS                                
+     C                   EVAL      @PPREC=L3PREC                                                    
+     C                   EVAL      @PDTO1=L3DTO1                                                    
+     C                   EVAL      @PDTO2=L3DTO2                                                    
+     C                   EVAL      @PDTO3=L3DTO3                                                    
+     C                   EVAL      @PDTO4=L3DTO4                                                    
+     C                   EVAL      @PMONE=L3MONE                                                    
+     C                   EVAL      @PCADP=L3CADP                                                    
+     C                   EVAL      @PUNDP=L3UNDP                                                    
+     C                   EVAL      @PTPPR='2'                                                       
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   IF        L3PREC=0                                                         
+     C                   EXSR      CS_TARIFA                                                        
+     C                   ENDIF                                                                      
+     C                   GOTO      TFI9A                                                            
+     C                   ENDIF                                                                      
+     C     KCOCPPR010    READE     COCPPR01                               84                        
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+      * NO SE CONTROLAN NIVELES                                                                     
+      *                  IF        ZZNVP2='1'                                                       
+      *                  EVAL      ERRGRL=*ON                                                       
+      *                  EVAL      @PPREC=0                                                         
+      *                  GOTO      TFI9                                                             
+      *                  ENDIF                                                                      
+                                                                                                    
+      * Buscamos en si tiene asignada tarifa                                                        
+                                                                                                    
+     C                   EVAL      T0HORA=240000                                                    
+     C     KCOTARI03     SETGT     COTARI03                                                         
+     C     KCOTARI031    READPE    COTARI03                               83                        
+     C                   MOVEL     T0FDES        ZXANYY                                             
+     C                   MOVEL     *DATE         ZXANY2                                             
+     C                   IF        READ1=*OFF AND ZXANY2>=ZXANYY                                    
+     C                   EVAL      @PPREC=T0PREC                                                    
+     C                   EVAL      @PMONE=T0MONE                                                    
+     C                   EVAL      @PCADP=T0CADP                                                    
+     C                   EVAL      @PUNDP=T0UNDP                                                    
+     C                   EVAL      @PTPPR='5'                                                       
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   ELSE                                                                       
+      * Buscamos en si tiene asignada tarifa ARTICULO SIN MODELO                                    
+                                                                                                    
+     C                   IF        ZXVARI1<>*BLANKS                                                 
+     C                   EVAL      READ1=*OFF                                                       
+     C                   EVAL      T0ARVM=*BLANKS                                                   
+     C                   MOVEL     ZXARTI1       T0ARVM                                             
+     C                   EVAL      T0HORA=240000                                                    
+     C     KCOTARI03     SETGT     COTARI03                                                         
+     C     KCOTARI031    READPE    COTARI03                               83                        
+     C                   MOVEL     T0FDES        ZXANYY                                             
+     C                   MOVEL     *DATE         ZXANY2                                             
+     C                   IF        READ1=*OFF AND ZXANY2>=ZXANYY                                    
+     C                   EVAL      @PPREC=T0PREC                                                    
+     C                   EVAL      @PMONE=T0MONE                                                    
+     C                   EVAL      @PCADP=T0CADP                                                    
+     C                   EVAL      @PUNDP=T0UNDP                                                    
+     C                   EVAL      @PTPPR='5'                                                       
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   ELSE                                                                       
+     C                   EVAL      @PERRO='1'                                                       
+     C                   EVAL      @PPREC=0                                                         
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                                                                                              
+     C     ERRGRL        CABEQ     *ON           TFI9                                               
+                                                                                                    
+      * Buscamos descuentos en por familia                                                          
+                                                                                                    
+      * Primero buscamos en subfamilia                                                              
+                                                                                                    
+     C                   EVAL      L3TPLI='2'                                                       
+     C                   EVAL      ZXSMIL=M5SMIL                                                    
+     C                   EVAL      L3ARVM=ZXCLAB                                                    
+     C                   TIME                    L3HORA                                             
+     C     KCOCPPR01     SETLL     COCPPR01                                                         
+     C     KCOCPPR00     READE     COCPPR01                               84                        
+     C                   DOW       READ2=*OFF AND ZXDATP>=L3FDES                                    
+     C                   IF        ZXDATP>=L3FDES AND ZXDATP<=L3FHAS                                
+     C                   EVAL      @PDTO1=L3DTO1                                                    
+     C                   EVAL      @PDTO2=L3DTO2                                                    
+     C                   EVAL      @PDTO3=L3DTO3                                                    
+     C                   EVAL      @PDTO4=L3DTO4                                                    
+     C                   EVAL      @PTPPR='3'                                                       
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   GOTO      TFI9A                                                            
+     C                   ENDIF                                                                      
+     C     KCOCPPR00     READE     COCPPR01                               84                        
+     C                   ENDDO                                                                      
+                                                                                                    
+      * Segundo buscamos en familia                                                                 
+                                                                                                    
+     C                   CLEAR                   L3FDES                                             
+     C                   EVAL      L3FHAS=@PDATP                                                    
+                                                                                                    
+     C                   EVAL      L3TPLI='1'                                                       
+     C                   EVAL      ZXSMIL=*BLANKS                                                   
+     C                   EVAL      L3ARVM=ZXCLAB                                                    
+     C                   TIME                    L3HORA                                             
+     C     KCOCPPR01     SETLL     COCPPR01                                                         
+     C     KCOCPPR00     READE     COCPPR01                               85                        
+     C                   DOW       READ3=*OFF AND ZXDATP>=L3FDES                                    
+     C                   IF        ZXDATP>=L3FDES AND ZXDATP<=L3FHAS                                
+     C                   EVAL      @PDTO1=L3DTO1                                                    
+     C                   EVAL      @PDTO2=L3DTO2                                                    
+     C                   EVAL      @PDTO3=L3DTO3                                                    
+     C                   EVAL      @PDTO4=L3DTO4                                                    
+     C                   EVAL      @PTPPR='3'                                                       
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   GOTO      TFI9A                                                            
+     C                   ENDIF                                                                      
+     C     KCOCPPR00     READE     COCPPR01                               85                        
+     C                   ENDDO                                                                      
+      * NO SE CONTROLAN NIVELES                                                                     
+      *                  IF        ZZNVP2='2'                                                       
+      *                  EVAL      @PPREC=0                                                         
+      *                  EVAL      ERRGRL=*ON                                                       
+      *                  GOTO      TFI9                                                             
+      *                  ENDIF                                                                      
+                                                                                                    
+                                                                                                    
+     C                   CLEAR                   L3FDES                                             
+     C                   EVAL      L3FHAS=@PDATP                                                    
+      * 3º buscamos para el proveedor en general                                                    
+     C                   EVAL      L3TPLI='3'                                                       
+     C                   EVAL      ZXSMIL=*BLANKS                                                   
+     C                   EVAL      L3ARVM=*BLANKS                                                   
+     C                   TIME                    L3HORA                                             
+     C     KCOCPPR01     SETLL     COCPPR01                                                         
+     C     KCOCPPR00     READE     COCPPR01                               85                        
+     C                   DOW       READ3=*OFF AND ZXDATP>=L3FDES                                    
+     C                   IF        ZXDATP>=L3FDES AND ZXDATP<=L3FHAS                                
+     C                   EVAL      @PDTO1=L3DTO1                                                    
+     C                   EVAL      @PDTO2=L3DTO2                                                    
+     C                   EVAL      @PDTO3=L3DTO3                                                    
+     C                   EVAL      @PDTO4=L3DTO4                                                    
+     C                   EVAL      @PTPPR='4'                                                       
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   GOTO      TFI9A                                                            
+     C                   ENDIF                                                                      
+     C     KCOCPPR00     READE     COCPPR01                               85                        
+     C                   ENDDO                                                                      
+      * NO SE CONTROLAN NIVELES                                                                     
+      *                  IF        ZZNVP2='3'                                                       
+      *                  EVAL      @PPREC=0                                                         
+      *                  EVAL      ERRGRL=*ON                                                       
+      *                  GOTO      TFI9                                                             
+      *                  ENDIF                                                                      
+      * NO SE CONTROLAN NIVELES                                                                     
+      *                  IF        ZZNVPR=' ' OR ZZNVPR='0'                                         
+      *                  EVAL      ERRGRL=*OFF                                                      
+      *                  ELSE                                                                       
+      *                  EVAL      ERRGRL=*ON                                                       
+      *                  EVAL      @PPREC=0                                                         
+      *                  ENDIF                                                                      
+      *    ERRGRL        CABEQ     *ON           TFI9                                               
+                                                                                                    
+     C     TFI9A         TAG                                                                        
+                                                                                                    
+      * Obtenemos precio en otra moneda si la que pasa es diferente de la                           
+      * que hemos obtenido                                                                          
+     C                   IF        @PPREC<>*ZEROS AND @PMONE<>@PMONP                                
+     C                   IF        @PMONB<>@PMONE AND @PMONB<>*BLANKS                               
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ELSE                                                                       
+     C                   IF        @PZXCO<>*ZEROS                                                   
+     C                   MULT      @PZXCO        @PPREC                                             
+     C                   EVAL      @PMONE=@PMONP                                                    
+     C                   ELSE                                                                       
+     C                   CALL      'MM2555'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM      @PMONE        @PMON1                                             
+     C                   PARM      @PMONP        @PMON2                                             
+     C                   PARM      @PDATP        @PDATA                                             
+     C                   PARM      240000        @PHORA                                             
+     C                   PARM      0             @PCMCOCO                                           
+     C                   PARM      0             @PCMCCCO                                           
+     C                   PARM      *BLANKS       @PEERR                                             
+     C                   EVAL      ZXCOCAMB=@PCMCOCO                                                
+     C                   MULT      ZXCOCAMB      @PPREC                                             
+     C                   EVAL      @PMONE=@PMONP                                                    
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     TFI9          TAG                                                                        
+     C                   IF        ERRGRL=*ON                                                       
+     C                   EVAL      @PERRO='1'                                                       
+     C                   ENDIF                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * LECTURA DE TARIFA SI PRECIO NETO  ES 0 Y TIENE DESCUENTOS  *                                
+      *------------------------------------------------------------*                                
+     C     CS_TARIFA     BEGSR                                                                      
+      * Buscamos en si tiene asignada tarifa                                                        
+                                                                                                    
+     C                   EVAL      T0HORA=240000                                                    
+     C     KCOTARI03     SETGT     COTARI03                                                         
+     C     KCOTARI031    READPE    COTARI03                               83                        
+     C                   MOVEL     T0FDES        ZXANYY                                             
+     C*                  MOVEL     ZZDATS        ZXANY2                                             
+     C                   MOVEL     *DATE         ZXANY2                                             
+     C                   IF        READ1=*OFF AND ZXANY2>=ZXANYY                                    
+     C                   EVAL      @PPREC=T0PREC                                                    
+     C                   EVAL      @PMONE=T0MONE                                                    
+     C                   EVAL      @PCADP=T0CADP                                                    
+     C                   EVAL      @PUNDP=T0UNDP                                                    
+     C                   EVAL      @PTPPR='2'                                                       
+     C                   EVAL      @PERRO=*BLANKS                                                   
+     C                   ELSE                                                                       
+     C                   EVAL      @PERRO='1'                                                       
+     C                   EVAL      ERRGRL=*ON                                                       
+     C                   ENDIF                                                                      
+     C                   ENDSR                                                                      

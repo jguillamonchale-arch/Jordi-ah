@@ -1,0 +1,516 @@
+      **************************************************************                                
+      * ED0530  © Fluidra                                                                           
+      * Gestión de E-MAILS EDI: ENVÍO                                                               
+      * Diciembre 2009 by Carlos del Valle                                                          
+      **************************************************************                                
+      * Los Parámetros de entrada nos ayudarán a construir el E-MAIL                                
+      *                                                                                             
+      * @PCIAS Empresa                                                                              
+      * @PDLGA Delegación                                                                           
+      * @PEVEN Código de evento E-Mail                                                              
+      * @PTENV Tipo de envío                                                                        
+      * @PCODE Código de busqueda (Cliente, proveedor, empleado,etc..)                              
+      * @PNDOC Documento                                                                            
+      * @PFDOC Fecha documento                                                                      
+      * @PLDOC Línea del documento                                                                  
+      * @PIDIO Idioma de Salida documentos                                                          
+      * @PEEMA E-Mail del emisor forzado                                                            
+      * @PREMA E-Mail del receptor forzado                                                          
+      *                                                                                             
+      * El tipo de envío nos puede llegar de varias maneras, sobretodo                              
+      * para evento 00900 de Factura OUT                                                            
+      *                                                                                             
+      * @PTENV=' ' '0' No comprobar nada, intenta enviar y almacenar                                
+      * @PTENV='1'  Sólo intenta E-MAIL en cualquier caso                                           
+      * @PTENV='2'  Sólo intenta E-MAIL, pero sólo la 1ª vez                                        
+      * @PTENV='3'  Sólo intenta Almacenaje en cualquier caso                                       
+      * @PTENV='4'  Sólo intenta Almacenaje, pero sólo la 1ª vez                                    
+      * @PTENV='5'  Intenta E-MAIL y Almacenaje, pero sólo la 1ª vez                                
+      **************************************************************                                
+     * DATA DE MODIFICACIÓ: 10/06/2020  MARCA: PR588                                               
+     * AUTOR: Raul                                                                                 
+     * DOCUMENTACIÓ: Recuperar datos de cliente correctamente.                                     
+     *========================================================================                    
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+      *                                                                                             
+     FEDMAIC    IF   E           K DISK                                                             
+     FEDMAID    IF   E           K DISK                                                             
+      *                                                                                             
+     FPMJOBC    UF   E           K DISK                                                             
+     FCOFACC12  UF   E           K DISK                                                             
+     FCOCLIN    IF   E           K DISK                                                             
+     FPMEMPR    IF   E           K DISK                                                             
+      *                                                                                             
+      * ESTRUCTURA DE LA INFDS                                                                      
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSSTATUS             11     15S 0                                                          
+     D  SDSCODERR             91    170                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+      *                                                                                             
+      * IMPORT/EXPORT PARÀMETRES                                                                    
+      *                                                                                             
+     D  @PJOBC         S             18                                                             
+     D  @PPGMP         S             10                                                             
+     D  @PCIASA        S              3                                                             
+     D  @PCIAS         S                   LIKE(VWCIAS)                                             
+     D  @PDLGA         S                   LIKE(VWDLG2)                                             
+     D  @PEVEN         S                   LIKE(E0EVEN)                                             
+     D  @PTDAJ         S              1                                                             
+     D  @PTENV         S              1                                                             
+     D  @PCODE         S             25                                                             
+     D  @PNDOC         S             25                                                             
+     D  @PFDOC         S                   LIKE(VWFFAC)                                             
+     D  @PFDOCA        S              8                                                             
+     D  @PLDOC         S              3S 0                                                          
+     D  @PLDOCA        S              3                                                             
+     D  @PIDIO         S              1                                                             
+     D  @PEEMA         S                   LIKE(E2EEMA)                                             
+     D  @PREMA         S                   LIKE(E2REMA)                                             
+     D  @FEEMA         S                   LIKE(E2EEMA)                                             
+     D  @FREMA         S                   LIKE(E2REMA)                                             
+      *                                                                                             
+     D  ZXENVIO        S              1                                                             
+     D  ZXEMAI         S              1                                                             
+     D  ZXADJD         S              1                                                             
+     D  ZXALMA         S              1                                                             
+     D  ZXPDEE         S              2  0                                                          
+     D  ZXADJUN        S              1  0                                                          
+     D  ZXGVAR         S              1  0                                                          
+      *                                                                                             
+      * Ampliación COFACC                                                                           
+      *                                                                                             
+     D  VWAMPL         DS                                                                           
+     D    VWDE1A45             1     45                                                             
+     D    VWPDEE              46     47                                                             
+     D    VWPDAI              48     48                                                             
+     D    VWPDAO              49     49                                                             
+     D    VWRESTO             52    100                                                             
+      *                                                                                             
+      * Campos de uso para trabajar con la API QCMDEXC                                              
+      *                                                                                             
+     D  ZXQCMD         S            150                                                             
+     D  ZXLOGC         S             15  5 INZ(150)                                                 
+      *                                                                                             
+     D Z1COMA          DS          2000                                                             
+     D  CO1030       E DS                  EXTNAME(CO1030DS)                                        
+      **************************************************************                                
+      * Definir Claves                                                                              
+      **************************************************************                                
+      *                                                                                             
+     C     KEDMAIC       KLIST                                                                      
+     C                   KFLD                    E0EVEN                                             
+      *                                                                                             
+     C     KEDMAID       KLIST                                                                      
+     C                   KFLD                    E2EVEN                                             
+     C                   KFLD                    E2TMAI                                             
+     C                   KFLD                    E2CIAS                                             
+     C                   KFLD                    E2CODE                                             
+      *                                                                                             
+     C     KEDMAIDX5     KLIST                                                                      
+     C                   KFLD                    E2EVEN                                             
+     C                   KFLD                    E2TMAI                                             
+     C                   KFLD                    E2CIAS                                             
+      *                                                                                             
+     C     KEDMAID0      KLIST                                                                      
+     C                   KFLD                    E2EVEN                                             
+     C                   KFLD                    E2TMAI                                             
+     C                   KFLD                    E2CIAS                                             
+     C                   KFLD                    E2CODE                                             
+     C                   KFLD                    E2REMA                                             
+      *                                                                                             
+     C     KCOFACC12     KLIST                                                                      
+     C                   KFLD                    VWCIAS                                             
+     C                   KFLD                    VWCUST                                             
+     C                   KFLD                    VWNFAC                                             
+     C                   KFLD                    VWFFAC                                             
+      *                                                                                             
+     C     KPMJOBC       KLIST                                                                      
+     C                   KFLD                    @PJOBC                                             
+     C                   KFLD                    JOLINE                                             
+      *                                                                                             
+     C     KCOCLIN       KLIST                                                                      
+     C                   KFLD                    S0CIAS                                             
+     C                   KFLD                    S0CUST                                             
+      *                                                                                             
+      **************************************************************                                
+      * Entrada de Parámetros                                                                       
+      **************************************************************                                
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PJOBC                                             
+     C                   PARM                    @PPGMP                                             
+     C                   PARM                    @PCIASA                                            
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PEVEN                                             
+     C                   PARM                    @PTENV                                             
+     C                   PARM                    @PCODE                                             
+     C                   PARM                    @PNDOC                                             
+     C                   PARM                    @PFDOCA                                            
+     C                   PARM                    @PLDOCA                                            
+     C                   PARM                    @PEEMA                                             
+     C                   PARM                    @PREMA                                             
+      *                                                                                             
+     C                   MOVE      @PCIASA       @PCIAS                                             
+     C                   MOVE      @PFDOCA       @PFDOC                                             
+     C                   MOVE      @PLDOCA       @PLDOC                                             
+     C                   EVAL      @FEEMA=@PEEMA                                                    
+     C                   EVAL      @FREMA=@PREMA                                                    
+      *                                                                                             
+      **************************************************************                                
+      * Estructura                                                                                  
+      **************************************************************                                
+      *                                                                                             
+      * Comprobar si el evento está activo                                                          
+      *                                                                                             
+     C                   EVAL      E0EVEN=@PEVEN                                                    
+     C     KEDMAIC       CHAIN     EDMAIC                                                           
+     C                   IF        %FOUND(EDMAIC) AND E0BAJA<'1'                                    
+      *                                                                                             
+     C                   EVAL      ZXENVIO=@PTENV                                                   
+     C                   EVAL      ZXEMAI='0'                                                       
+     C                   EVAL      ZXALMA='0'                                                       
+      *                                                                                             
+     C                   IF        ZXENVIO=' ' OR ZXENVIO='0' OR                                    
+     C                             ZXENVIO='1' OR ZXENVIO='2' OR                                    
+     C                             ZXENVIO='5'                                                      
+     C                   EVAL      ZXEMAI='1'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Si el evento no es FACTURA OUT, no hay almacenaje                                           
+      * de documento digital                                                                        
+      *                                                                                             
+     C                   IF        @PEVEN='00900'                                                   
+     C                   IF        ZXENVIO=' ' OR ZXENVIO='0' OR                                    
+     C                             ZXENVIO='3' OR ZXENVIO='4' OR                                    
+     C                             ZXENVIO='5'                                                      
+     C                   EVAL      ZXALMA='1'                                                       
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EXSR      CS_TIPOENVIO                                                     
+     C                   IF        ZXEMAI='1' OR ZXALMA='1'                                         
+      *                                                                                             
+      * Si el evento está activo, comprueba cada uno de los tipos                                   
+      * de E-Mail a enviar y si tiene código clave asociado y activo                                
+      * Entonces proceso                                                                            
+      *                                                                                             
+     C                   EVAL      E2EVEN=@PEVEN                                                    
+     C                   EVAL      E2CIAS=@PCIAS                                                    
+     C                   EVAL      E2CODE=@PCODE                                                    
+      *                                                                                             
+     C                   IF        E0TI01<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI01                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+     C                   IF        E0TI02<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI02                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+     C                   IF        E0TI03<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI03                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+     C                   IF        E0TI04<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI04                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+     C                   IF        E0TI05<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI05                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+     C                   IF        E0TI06<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI06                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+     C                   IF        E0TI07<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI07                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+     C                   IF        E0TI08<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI08                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+     C                   IF        E0TI09<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI09                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+     C                   IF        E0TI10<>*BLANKS                                                  
+     C                   EVAL      E2TMAI=E0TI10                                                    
+     C                   EXSR      CS_GENEMA                                                        
+     C                   EVAL      E2CODE=@PCODE                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      *INLR=*ON                                                        
+      **************************************************************                                
+      * Comprueba el tipo de envío del documento                                                    
+      *------------------------------------------------------------*                                
+     C     CS_TIPOENVIO  BEGSR                                                                      
+      *                                                                                             
+      * Actualmente sólo se comprobará para factura OUT                                             
+      * para no reenviar ni almacenar de más                                                        
+      * Recupero factura en cualquier caso                                                          
+      *                                                                                             
+PR588C                   EVAL      VWCIAS=@PCIAS                                                    
+PR588C                   EVAL      VWCUST=@PCODE                                                    
+PR588*                                                                                             
+     C                   IF        @PEVEN='00900'                                                   
+     C                             OR @PEVEN='00905'                                                
+     C                             OR @PEVEN='00906'                                                
+      *                                                                                             
+PR588*                  EVAL      VWCIAS=@PCIAS                                                    
+PR588*                  EVAL      VWCUST=@PCODE                                                    
+     C                   EVAL      VWNFAC=@PNDOC                                                    
+     C                   EVAL      VWFFAC=@PFDOC                                                    
+     C     KCOFACC12     CHAIN(N)  COFACC12                                                         
+     C                   IF        NOT %FOUND(COFACC12)                                             
+     C                   EVAL      ZXEMAI='0'                                                       
+     C                   EVAL      ZXALMA='0'                                                       
+     C                   ELSE                                                                       
+      *                                                                                             
+     C                   IF        @PEVEN='00900'                                                   
+      *                                                                                             
+      * Comprobar los casos para no procesar de más                                                 
+      *                                                                                             
+     C                   IF        (ZXENVIO='2' OR ZXENVIO='5') AND                                 
+     C                             (VWPDEE>='01' AND VWPDEE<='98')                                  
+     C                   EVAL      ZXEMAI='0'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        (ZXENVIO='4' OR ZXENVIO='5') AND                                 
+     C                             (VWPDAI='1' OR VWPDAO='1')                                       
+     C                   EVAL      ZXALMA='0'                                                       
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Generar el/los E-mails necesarios según receptor/es                                         
+      *------------------------------------------------------------*                                
+     C     CS_GENEMA     BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      X9IDIO='1'                                                       
+     C     VWCIAS        CHAIN     PMEMPR                                                           
+     C                   IF        %FOUND(PMEMPR)                                                   
+     C                   EVAL      X9IDIO=P7IDIO                                                    
+     C                   ENDIF                                                                      
+     C                   EVAL      S0CIAS=VWCIAS                                                    
+     C                   EVAL      S0CUST=VWCUST                                                    
+     C     KCOCLIN       CHAIN     COCLIN                                                           
+     C                   IF        %FOUND(COCLIN)                                                   
+     C                   EVAL      X9IDIO=S0IDI1                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Grabación en PMJOBC (Si es una factura electrónica)                                         
+      *                                                                                             
+     C                   IF        @PEVEN='00900'                                                   
+     C                             OR @PEVEN='00905'                                                
+     C                             OR @PEVEN='00906'                                                
+      *                                                                                             
+     C                   EVAL      X9CIAS=VWCIAS                                                    
+     C                   EVAL      X9DLGA=*BLANKS                                                   
+     C                   EVAL      X9CUST=VWCUST                                                    
+     C                   EVAL      X9NPRF=VWNPRF                                                    
+     C                   EVAL      X9DAT1=VWDAT1                                                    
+     C                   EVAL      X9NFAC=VWNFAC                                                    
+     C                   EVAL      X9FFAC=VWFFAC                                                    
+1707CC*                  EVAL      X9COPY='1'                                                       
+1707CC                   EVAL      X9COPY='*'                                                       
+      *                                                                                             
+     C                   CLEAR                   Z1COMA                                             
+     C     CO1030        CAT       Z1COMA:0      Z1COMA                                             
+     C                   EVAL      JOLINE=99                                                        
+     C                   CALL      'PRD935'                                                         
+     C                   PARM                    @PJOBC                                             
+     C                   PARM                    JOLINE                                             
+     C                   PARM                    Z1COMA                                             
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Guardar si es E-MAIL forzado                                                                
+      *                                                                                             
+     C                   MOVE      *BLANKS       ZXEMAF            1                                
+     C                   IF        @FREMA<>*BLANKS                                                  
+     C                   MOVE      '1'           ZXEMAF                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      ZXADJUN=0                                                        
+     C                   EVAL      ZXGVAR=0                                                         
+      *                                                                                             
+     C                   EVAL      E2REMA=*BLANKS                                                   
+     C     KEDMAID0      SETLL     EDMAID                                                           
+     C                   IF        E2TMAI='05'                                                      
+     C     KEDMAIDX5     READE     EDMAID                                                           
+     C                   ELSE                                                                       
+     C     KEDMAID       READE     EDMAID                                                           
+     C                   ENDIF                                                                      
+     C                   DOW       NOT %EOF(EDMAID)                                                 
+      *                                                                                             
+     C                   IF        E2BAJA<'1'                                                       
+      *                                                                                             
+      * Llena fichero de trabajo con todas las variables requeridas                                 
+      *                                                                                             
+     C                   IF        ZXGVAR=0                                                         
+     C                   CAll      'ED0531'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PEVEN                                             
+     C                   PARM      E0TDAJ        @PTDAJ                                             
+     C                   PARM                    @PCODE                                             
+     C                   PARM                    @PNDOC                                             
+     C                   PARM                    @PFDOC                                             
+     C                   PARM                    @PLDOC                                             
+     C                   EVAL      ZXGVAR=1                                                         
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Si se requiere adjuntar documento primero hay que imprimirlo                                
+      *                                                                                             
+     C                   IF        E0ADJD='1' AND ZXADJUN=0                                         
+     C                   CAll      'ED0532'                                                         
+     C                   PARM                    @PJOBC                                             
+     C                   PARM                    @PPGMP                                             
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PEVEN                                             
+     C                   PARM      E0TDAJ        @PTDAJ                                             
+     C                   PARM                    @PCODE                                             
+     C                   PARM                    @PNDOC                                             
+     C                   PARM                    @PFDOC                                             
+     C                   PARM                    @PIDIO                                             
+     C                   PARM      *BLANKS       @PEPRTF          10                                
+     C                   EVAL      ZXADJUN=1                                                        
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Enviar E-Mail y/o Almacenar Documento                                                       
+      *                                                                                             
+     C                   IF        ZXEMAF=*BLANKS                                                   
+     C                   EVAL      @PEEMA=E2EEMA                                                    
+     C                   EVAL      @PREMA=E2REMA                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      @PEEMA=@FEEMA                                                    
+     C                   EVAL      @PREMA=@FREMA                                                    
+     C                   ENDIF                                                                      
+PR588C                   IF        @PIDIO=' '                                                       
+PR588C                   EVAL      @PIDIO=X9IDIO                                                    
+PR588C                   ENDIF                                                                      
+      *                                                                                             
+     C                   CAll      'ED0533'                                                         
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PTDAJ                                             
+     C                   PARM                    @PCODE                                             
+     C                   PARM                    @PNDOC                                             
+     C                   PARM                    @PFDOC                                             
+     C                   PARM                    @PLDOC                                             
+     C                   PARM                    @PEVEN                                             
+     C                   PARM                    ZXEMAI                                             
+     C                   PARM                    @PIDIO                                             
+     C                   PARM      E0ADJD        ZXADJD                                             
+     C                   PARM                    ZXALMA                                             
+     C                   PARM                    @PEEMA                                             
+     C                   PARM                    @PREMA                                             
+     C                   PARM                    @PEPRTF                                            
+      *                                                                                             
+      * Si el E-Mail receptor está forzado, sólo envío una vez                                      
+      * y no a todos los receptores configurados                                                    
+      *                                                                                             
+     C                   IF        ZXEMAF='1'                                                       
+     C                   LEAVE                                                                      
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        E2TMAI='05'                                                      
+     C     KEDMAIDX5     READE     EDMAID                                                           
+     C                   ELSE                                                                       
+     C     KEDMAID       READE     EDMAID                                                           
+     C                   ENDIF                                                                      
+     C                   ENDDO                                                                      
+      *                                                                                             
+      * Elimina el Spool de AS/400 si había adjunto                                                 
+      *                                                                                             
+     C                   IF        E0ADJD='1' AND ZXADJUN=1                                         
+     C                             AND @PEPRTF<>*BLANKS                                             
+     C                   EXSR      CS_DELETE                                                        
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Actualiza auditoría de envíos                                                               
+      *                                                                                             
+     C                   EXSR      CS_AUDIT                                                         
+      *                                                                                             
+     C                   EVAL      E2EEMA=*BLANKS                                                   
+     C                   EVAL      E2REMA=*BLANKS                                                   
+      *                                                                                             
+      * Eliminar datos de selección de factura                                                      
+      *                                                                                             
+     C                   EVAL      JOLINE=99                                                        
+     C     KPMJOBC       CHAIN     PMJOBC                                                           
+     C                   IF        %FOUND(PMJOBC)                                                   
+     C                   DELETE    RPMJOBC                                                          
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Actualiza auditoría de envíos                                                               
+      *------------------------------------------------------------*                                
+     C     CS_AUDIT      BEGSR                                                                      
+      *                                                                                             
+      * FACTURA OUT. Sólo E-MAIL con factura Adjunta                                                
+      *                                                                                             
+     C                   IF        (@PEVEN='00900' OR @PEVEN='00905'                                
+     C                             OR @PEVEN='00906')                                               
+     C                             AND ZXEMAI='1'                                                   
+     C                             AND E0ADJD='1' AND ZXADJUN=1                                     
+      *                                                                                             
+     C     KCOFACC12     CHAIN     COFACC12                                                         
+     C                   IF        %FOUND(COFACC12)                                                 
+      *                                                                                             
+     C                   EVAL      ZXPDEE=0                                                         
+     C                   IF        VWPDEE>='01' AND VWPDEE<='98'                                    
+     C                   MOVE      VWPDEE        ZXPDEE                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      ZXPDEE=ZXPDEE+1                                                  
+     C                   MOVE      ZXPDEE        VWPDEE                                             
+      *                                                                                             
+     C                   UPDATE    RCOFACC                                                          
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Eliminar el Spool AS/400                                                                    
+      *------------------------------------------------------------*                                
+     C     CS_DELETE     BEGSR                                                                      
+      *                                                                                             
+     C                   EVAL      ZXQCMD='DLTSPLF FILE('+@PEPRTF+') '+                             
+     C                             'SPLNBR(*LAST) SELECT(*CURRENT)'                                 
+     C                   CALL      'QCMDEXC'                                                        
+     C                   PARM                    ZXQCMD                                             
+     C                   PARM                    ZXLOGC                                             
+      *                                                                                             
+     C                   ENDSR                                                                      

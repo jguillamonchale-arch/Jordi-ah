@@ -1,0 +1,169 @@
+C1078 **************************************************************                                
+C1078 * APLICACIÓ: MÒDUL COMERCIAL                                 *                                
+C1078 **************************************************************                                
+C1078 * TITOL: DO0060  © FLUIDRA SERVICES        CR:   CR1078      *                                
+C1078 * DATA CREACIO:  19/02/2014           PACKAGE:   DP00072     *                                
+C1078 *                                                            *                                
+C1078 * FUNCIO DEL PROGRAMA: RECALCULO LINEAS EN ALMACÉN           *                                
+C1078 *                                                            *                                
+C1078 * DOCUMENTACIÓN PARAMETROS:                                  *                                
+C1078 * @PCIAS   CIAS de la Clave de Pedido de la empresa @PCIAS   *                                
+C1078 * @PMAGA   DLGA de la Clave de Pedido de la empresa @PCIAS   *                                
+C1078 **************************************************************                                
+25881 * CR   : HD25881                 MARCA:25881                 *                                
+25881 * FECHA CREACION:19/01/2015                                  *                                
+25881 * RECALCULO ALMACENES DOM                                    *                                
+25881 **************************************************************                                
+C1078H DATEDIT(*YMD/)                                                                               
+C1078H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+C1078 *                                                                                             
+C1078FEDPAR3    UF A E           K DISK                                                             
+C1078FCOCAPEA8  IF   E           K DISK                                                             
+C1078FCODEPE08  IF   E           K DISK                                                             
+C1078FMSALMA    IF   E           K DISK                                                             
+C1078                                                                                               
+C1078D* AREA DE DADES DE PROGRAMA I INICIALITZACIO DE VALORS COMUNS                                 
+C1078D                SDS                                                                           
+C1078D  SDSPGM                 1     10                                                             
+C1078D    CCCPGM                     10    OVERLAY(SDSPGM)                                          
+C1078D  SDSJOB               244    253                                                             
+C1078D    CCCJOB                     10    OVERLAY(SDSJOB)                                          
+C1078D  SDSSTS           *STATUS                                                                    
+C1078D  SDSUSR               254    263                                                             
+C1078D  SDSJNBR              264    269                                                             
+C1078                                                                                               
+C1078D* AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                       
+C1078D  DSLDA        E DS                  EXTNAME(PURLDADS)                                        
+C1078D    CCCDEEM                    30    OVERLAY(ZZDEEM)                                          
+C1078                                                                                               
+C1078 * PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                               
+C1078D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+C1078D                                     EXTNAME(INDDS:RIND0199)                                  
+C1078D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+C1078                                                                                               
+C1078 *                                                                                             
+C1078D  @PCIAA         S              3A                                                            
+C1078D  @PMAGA         S                   LIKE(M0MAGA)                                             
+C1078D  @PERRO         S              1  0                                                          
+C1078                                                                                               
+C1078D  ZXFISO         S               D   DATFMT(*ISO)                                             
+C1078D  ZXDIAS         S              8S 0                                                          
+C1078D  ZXFMAX         S              8  0                                                          
+C1078                                                                                               
+      * PARAMETROS CO2611                                                                           
+     D  @pedat1        S              8  0                                                          
+     D  @pedat2        S              8  0                                                          
+     D  @pedays        S              5  0                                                          
+     D  @peerro        S              1                                                             
+C1078 **********************************************************************                        
+C1078 * Estructura de Programa                                                                      
+C1078 **********************************************************************                        
+C1078 * Proceso                                                                                     
+C1078 **********************************************************************                        
+C1078C                   IF        T5MAGA=*BLANKS                                                   
+C1078C     *LOVAL        SETLL     MSALMA                                                           
+C1078C                   READ      MSALMA                                                           
+C1078C                   DOW       NOT%EOF                                                          
+25881C*                  IF        M0BAJA='1'                                                       
+25881C                   IF        M0BAJA<>'1'                                                      
+C1078C                   EVAL      T5MAGA=M0MAGA                                                    
+C1078C     KEDPAR3       CHAIN     EDPAR3                                                           
+C1078C                   IF        %FOUND                                                           
+C1078C                   EXSR      CS_PROCESO                                                       
+25881C                   ELSE                                                                       
+25881C     *NOKEY        CLEAR                   REDPAR3                                            
+25881C                   WRITE     REDPAR3                                                          
+C1078C     KEDPAR3       CHAIN     EDPAR3                                                           
+25881C                   EXSR      CS_PROCESO                                                       
+C1078C                   ENDIF                                                                      
+C1078C                   ENDIF                                                                      
+C1078C                   READ      MSALMA                                                           
+C1078C                   ENDDO                                                                      
+C1078C                   ELSE                                                                       
+C1078C                   IF        %FOUND(EDPAR3)                                                   
+C1078C                   EXSR      CS_PROCESO                                                       
+C1078C                   ENDIF                                                                      
+C1078C                   ENDIF                                                                      
+C1078C                   SETON                                        LR                            
+C1078 **************************************************************                                
+C1078 * SUBRUTINA INICIAL                                          *                                
+C1078 *------------------------------------------------------------*                                
+C1078C     *INZSR        BEGSR                                                                      
+C1078                                                                                               
+C1078 * DEFINICIO DE LES KLIST DEL PGM                                                              
+C1078C     KEDPAR3       KLIST                                                                      
+C1078C                   KFLD                    T5CIAS                                             
+C1078C                   KFLD                    T5MAGA                                             
+C1078                                                                                               
+C1078C     KCODEPE       KLIST                                                                      
+C1078C                   KFLD                    S5CIAS                                             
+C1078C                   KFLD                    S5DLGA                                             
+C1078C                   KFLD                    S5NPCO                                             
+C1078C                   KFLD                    S5TPED                                             
+C1078C                   KFLD                    S5DATP                                             
+C1078C                   KFLD                    S5NOPL                                             
+C1078                                                                                               
+C1078C     KMSALMA       KLIST                                                                      
+C1078C                   KFLD                    M0CIAS                                             
+C1078C                   KFLD                    M0MAGA                                             
+C1078                                                                                               
+C1078 * Entrada de parámetros                                                                       
+C1078C     *ENTRY        PLIST                                                                      
+C1078C                   PARM                    @PCIAA                                             
+C1078C                   PARM                    @PMAGA                                             
+C1078C                   PARM                    @PERRO                                             
+C1078 *                                                                                             
+C1078C                   MOVE      @PCIAA        M0CIAS                                             
+C1078C                   EVAL      M0MAGA=@PMAGA                                                    
+C1078C                   EVAL      T5CIAS=M0CIAS                                                    
+C1078C                   EVAL      T5MAGA=@PMAGA                                                    
+C1078C     KEDPAR3       CHAIN     EDPAR3                                                           
+C1078C     KMSALMA       CHAIN     MSALMA                                                           
+C1078C                   ENDSR                                                                      
+C1078 **********************************************************************                        
+C1078 * Proceso lectura del pedido                                                                  
+C1078 **********************************************************************                        
+C1078C     CS_PROCESO    BEGSR                                                                      
+C1078C                   EVAL      ZXDIAS=T5HORZ                                                    
+C1078C                   IF        ZXDIAS=0                                                         
+C1078C                   EVAL      ZXDIAS=999                                                       
+C1078C                   ENDIF                                                                      
+C1078                                                                                               
+C1078C                   MOVE      *DATE         @PEDAT1                                            
+C1078C                   EVAL      @PEDAYS=ZXDIAS                                                   
+C1078C                   CALL      'CO2611'                                                         
+C1078C                   PARM                    @PEDAT1                                            
+C1078C                   PARM                    @peDAYS                                            
+C1078C                   PARM      0             @PEDAT2                                            
+C1078C                   PARM      *BLANKS       @PEERRO                                            
+C1078C                   MOVE      @PEDAT2       ZXFMAX                                             
+C1078 *                                                                                             
+C1078 *                  ADDDUR    ZXDIAS:*D     ZXFISO                                             
+C1078 *                  MOVE      ZXFISO        ZXFMAX                                             
+C1078 *                                                                                             
+C1078C                   EVAL      T5MLIA=0                                                         
+C1078C     T5CIAS        SETLL     COCAPEA8                                                         
+C1078C     T5CIAS        READE     COCAPEA8                                                         
+C1078C                   DOW       NOT%EOF                                                          
+C1078C                   IF        ( S0PPED='99' AND S0TPE4='2') OR                                 
+C1078C                              S0PPED<>'99'                                                    
+C1078C                   EVAL      S5CIAS=S0CIAS                                                    
+C1078C                   EVAL      S5DLGA=S0DLGA                                                    
+C1078C                   EVAL      S5NPCO=S0NPCO                                                    
+C1078C                   EVAL      S5TPED=S0TPED                                                    
+C1078C                   EVAL      S5DATP=S0DATP                                                    
+C1078C                   EVAL      S5NOPL=S0NOPL                                                    
+C1078C     KCODEPE       SETLL     CODEPE08                                                         
+C1078C     KCODEPE       READE     CODEPE08                                                         
+C1078C                   DOW       NOT%EOF                                                          
+C1078C                   IF        M0LOGE=S5LOGE AND S5STUL<'5'                                     
+C1078C                             AND ZXFMAX>S5FREP AND S5TPE4<>'2'                                
+C1078C                   EVAL      T5MLIA=T5MLIA+1                                                  
+C1078C                   ENDIF                                                                      
+C1078C     KCODEPE       READE     CODEPE08                                                         
+C1078C                   ENDDO                                                                      
+C1078C                   ENDIF                                                                      
+C1078C     T5CIAS        READE     COCAPEA8                                                         
+C1078C                   ENDDO                                                                      
+     C                   UPDATE    REDPAR3                                                          
+C1078C     FI_PROCESO    ENDSR                                                                      

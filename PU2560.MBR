@@ -1,0 +1,481 @@
+     H DATEDIT(*YMD/)                                                                               
+      *  Este programa actualiza el estatus de una línea de pedido                                  
+      *  o el estatus de la orden principal.                                                        
+      *  EL parámetro @PPROC contiene de donde proviene la actualiza                                
+      *  ción de estatus que desea realizarse, sus valores son:                                     
+      *  A- Si proviene de linea de detalle y no continua en Orden de compra                        
+      *  0- Si proviene de linea de detalle y continúa con índ. u ord.                              
+      *     y corrige estatus de la O.F. principal                                                  
+      *  1,2 - Si actualiza la orden entera.                                                        
+      *                                                                                             
+      *  @PFINA Tiene valores:                                                                      
+      *  0- En caso de una línea mantiene abierta dicha línea                                       
+      *     o sea, con un estatus < 3 y si dicha línea estaba cerrada                               
+      *     la reabre.                                                                              
+      *  1- En el caso de 1 línea cierra dicha línea con estatus 3.                                 
+      *     En el caso de 1 orden (@PPROC>0) cierra las líneas de dicha                             
+      *     orden                                                                                   
+      *  B- Para los casos que se desee reabrir las líneas cerradas de                              
+      *     una O.F.                                                                                
+      *                                                                                             
+      * @PERRO RECIBE PARAMETRO ADICIONAL:                                                          
+      * X- NO SE DESEA QUE SE RECALCULE EL ESTATUS DE LA O.F. PRINCIPAL                             
+      * @PERRO RETORNA CODIGO DE ERROR SI FUERA NECESARIO                                           
+      * PONDREMOS LETRAS SI SOLO SON AVISOS Y Nº SI SON ERRORES                                     
+      * A- QUIERE CERRARSE PERO LA LINEA NO SE HA UTILIZADO                                         
+      * 3- NO SE PUDO CERRAR LA O.F. POR EXISTIR                                                    
+      *    CANTIDADES O IMPORTES SIN REPORTAR.                                                      
+      * 4- NO SE HA ENCONTRADO LA ORDEN O SU ESTATUS ERA >='90'                                     
+      *    CANTIDADES O IMPORTES SIN REPORTAR.                                                      
+      *****************************************************************                             
+      *    Los estatus de línea de pedido son:                                                      
+      *    - 0. Si todavía no se ha recepcionado cantidad.                                          
+      *    - 1. Si se ha recepcionado < 50%                                                         
+      *    - 2. Si se ha recepcionado entre el 50 y el 75 %                                         
+      *    - 3. Si se ha recepcionado >= 75 <=100                                                   
+      *    - 4. Si se ha recepcionado >= 100                                                        
+      *    - 5. Si esta línea se ha cerrado                                                         
+      *    Los estatus de línea de orden son:                                                       
+      *    -20. Si todavía no existe alguna línea recepcionada.                                     
+      *    -25. Si se ha listado el pedido.                                                         
+      *    -40. Si se ha recepcionado < 50% del pedido (según líneas)                               
+      *    -60. Si se ha recepcionado entre el 50 y el 75% (según líneas)                           
+      *    -80. Si se ha recepcionado >=75 %.                                                       
+      *    -85. Si se ha recepcionado >=100%.                                                       
+      *    -90. Orden cerrada.                                                                      
+      *****************************************************************                             
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FPUCAPE    UF   E           K DISK                                         Fichero de cabec    
+     FPUDEPE    UF   E           K DISK                                         Detalle de estru    
+27065FTR0035    O    E           K DISK    USROPN                                                   
+27065FUTCOM0    IF   E           K DISK    USROPN                                                   
+27065FUTCOMA    IF   E           K DISK    USROPN                                                   
+27065FPMEMPR    IF   E           K DISK    USROPN                                                   
+     D  ZXSTCP         S              1                                                             
+     D                SDS                                                       Datos               
+     D  SDSPGM                 1     10                                         Progra              
+     D  SDSJOB               244    253                                         Id Job              
+     D  SDSUSR               254    263                                         Id Usu              
+     D  SDSJNBR              264    269                                         Id Usu              
+                                                                                                    
+27065D  ZXUTCOMU       S              1  0                                                          
+27065D  ZXOPC0         S                   LIKE(C0OPC0)                                             
+27065D  ZXTIME         S                   LIKE(C0HORA)                                             
+27065                                                                                               
+      * Calculos Previos a Todo.                                                                    
+     C     KPUCAPE       KLIST                                                  *KL PMTABD   3      
+     C                   KFLD                    C0CIAS                         Empresa             
+     C                   KFLD                    C0DLGA                         Clase de tabla      
+     C                   KFLD                    C0NPCO                         Clase de tabla      
+     C                   KFLD                    C0TPED                         Clase de tabla      
+     C                   KFLD                    C0DATP                         Clase de tabla      
+     C                   KFLD                    C0NOPL                         Clase de tabla      
+      *                                                                                             
+     C     KPUDEPE0      KLIST                                                  *KL PMTABD   3      
+     C                   KFLD                    C5CIAS                         Empresa             
+     C                   KFLD                    C5DLGA                         Clase de tabla      
+     C                   KFLD                    C5NPCO                         Clase de tabla      
+     C                   KFLD                    C5TPED                         Clase de tabla      
+     C                   KFLD                    C5DATP                         Clase de tabla      
+     C                   KFLD                    C5NOPL                         Clase de tabla      
+      *                                                                                             
+     C     KPUDEPE       KLIST                                                  *KL PMTABD   3      
+     C                   KFLD                    C5CIAS                         Empresa             
+     C                   KFLD                    C5DLGA                         Clase de tabla      
+     C                   KFLD                    C5NPCO                         Clase de tabla      
+     C                   KFLD                    C5TPED                         Clase de tabla      
+     C                   KFLD                    C5DATP                         Clase de tabla      
+     C                   KFLD                    C5NOPL                         Clase de tabla      
+     C                   KFLD                    C5LINE                         Clase de tabla      
+27065                                                                                               
+27065C     KUTCOM0       KLIST                                                                      
+27065C                   KFLD                    U0CIAS                                             
+27065C                   KFLD                    U0TENV                                             
+27065C                   KFLD                    U0CLP0                                             
+27065C                   KFLD                    U0CLP2                                             
+27065                                                                                               
+27065C     KPMEMPR       KLIST                                                                      
+27065C                   KFLD                    P7CIAS                                             
+27065C                   KFLD                    P7DLGA                                             
+      *                                                                                             
+     C     *LIKE         DEFINE    C0CIAS        @PCIAS                                             
+     C     *LIKE         DEFINE    C0DLGA        @PDLGA                                             
+     C     *LIKE         DEFINE    C0NPCO        @PNPCO                                             
+     C     *LIKE         DEFINE    C0TPED        @PTPED                                             
+     C     *LIKE         DEFINE    C0DATP        @PDATP                                             
+     C     *LIKE         DEFINE    C0NOPL        @PNOPL                                             
+     C     *LIKE         DEFINE    C5LINE        @PLINE                                             
+     C     *LIKE         DEFINE    C0DAT8        @PDATA                                             
+     C     *LIKE         DEFINE    C0HORA        @PHINI                                             
+     C     *LIKE         DEFINE    C5STUL        ZXSTUL                                             
+     C     *LIKE         DEFINE    C0STCO        ZXSTCO                                             
+     C     *LIKE         DEFINE    C5CANT        ZXCANT                                             
+     C                   MOVE      @PFINA        @PFINA            1                                
+     C                   MOVE      @PPROC        @PPROC            1                                
+     C                   MOVE      ZXPROC        ZXPROC            1                                
+     C                   Z-ADD     ZXCOEF        ZXCOEF           11 5                              
+27065C                   Z-ADD     ZXOPENTR      ZXOPENTR          1 0                              
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PNPCO                                             
+     C                   PARM                    @PTPED                                             
+     C                   PARM                    @PDATP                                             
+     C                   PARM                    @PNOPL                                             
+     C                   PARM                    @PLINE                                             
+     C                   PARM                    @PFINA                                             
+     C                   PARM                    @PPROC                                             
+     C                   PARM                    @PERRO            1                                
+      *                                                                                             
+     C                   EXSR      SR01                                         Proceso Inicial     
+     C     LR            TAG                                                    Fin Programa        
+     C                   MOVE      '1'           *INLR                          Fin Programa        
+     C*- - - - - - - - - - - - - - - - - - - - - - - - - -                                          
+     C     SR01          BEGSR                                                  Proceso Inicial     
+      *                                                                                             
+     C                   Z-ADD     @PCIAS        C0CIAS                                             
+     C                   MOVE      @PDLGA        C0DLGA                                             
+     C                   MOVE      @PNPCO        C0NPCO                                             
+     C                   MOVE      @PTPED        C0TPED                                             
+     C                   Z-ADD     @PDATP        C0DATP                                             
+     C                   Z-ADD     @PNOPL        C0NOPL                                             
+     C                   Z-ADD     @PCIAS        C5CIAS                                             
+     C                   MOVE      @PDLGA        C5DLGA                                             
+     C                   MOVE      @PNPCO        C5NPCO                                             
+     C                   MOVE      @PTPED        C5TPED                                             
+     C                   Z-ADD     @PDATP        C5DATP                                             
+     C                   Z-ADD     @PNOPL        C5NOPL                                             
+     C                   Z-ADD     @PLINE        C5LINE                                             
+     C                   MOVE      @PFINA        ZXFINA            1                                
+     C                   MOVE      @PERRO        ZXERRO            1                                
+     C                   MOVE      *BLANKS       @PERRO            1                                
+      * Si se desea reabrir las líneas cerradas de una orden                                        
+     C     ZXFINA        IFEQ      'B'                                                              
+     C                   MOVE      '0'           @PFINA                                             
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   MOVE      @PPROC        ZXPROC                                             
+     C     ZXPROC        IFEQ      'A'                                                              
+     C                   MOVE      '0'           ZXPROC                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+      *  GUARDO SI ES UNA OPERACION EL ESTATUS PARA DESCUENTO                                       
+      *  MANUAL O AUTOMATICO                                                                        
+      ************** TRATAMIENTO DE UNA LINEA DE Orden***************                               
+      *** O DE UNA Orden Completa QUE QUIERE CERRARSE o reabrirse *****                             
+     C                   MOVE      ' '           ZXSTUL                                             
+     C                   MOVE      ' '           ZXPRO2                                             
+      *                                                                                             
+     C     ZXPROC        IFGT      '0'                                                              
+     C     @PFINA        ANDEQ     '1'                                                              
+     C                   MOVE      '1'           ZXPRO2            1                                
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     ZXPROC        IFGT      '0'                                                              
+     C     ZXFINA        ANDEQ     'B'                                                              
+     C                   MOVE      '1'           ZXPRO2            1                                
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C     ZXPROC        IFEQ      '0'                                          ZXPROC              
+     C     ZXPRO2        OREQ      '1'                                                              
+      **************** SOLO PARA UNA LINEA *************************                                
+     C     ZXPROC        IFEQ      '0'                                                              
+     C     *IN80         DOUEQ     '0'                                                              
+     C     KPUDEPE       CHAIN     PUDEPE                             8180                          
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C                   MOVE      C5STUL        ZXSTUL                                             
+     C     *IN81         IFNE      '1'                                          PUDEPE              
+     C                   MOVE      '0'           C5STUL                                             
+      *                                                                                             
+     C                   EXSR      CS_CASTUL                                                        
+     C  N81              UPDATE    RPUDEPE                                      *UPD PUDEPE         
+     C                   ENDIF                                                  PUDEPE              
+     C                   ENDIF                                                  ZXPROC=0            
+      ********* FIN  TRATAMIENTO DE UNA LINEA DE O.F. ***************                               
+      *************** PARA CERRAR TODA LA ORDEN *******************                                 
+     C     ZXPRO2        IFEQ      '1'                                          ZXPRO2              
+     C     *IN80         DOUEQ     '0'                                                              
+     C     KPUDEPE0      CHAIN     PUDEPE                             8180                          
+     C                   ENDDO                                                                      
+      *                                                                                             
+     C     *IN81         DOWNE     '1'                                          PUDEPE              
+     C                   MOVE      C5STUL        ZXSTUL                                             
+     C                   MOVE      '0'           C5STUL                                             
+     C                   EXSR      CS_CASTUL                                                        
+     C                   IF        @PFINA='1' AND C5EVPR>='1'                                       
+     C                             AND C5INCI<>*BLANKS AND C5INCI<>*BLANKS                          
+     C                   MOVE      ZXSTUL        C5STUL                                             
+     C                   ENDIF                                                                      
+     C  N81              UPDATE    RPUDEPE                                      *UPD PUDEPE         
+     C     *IN80         DOUEQ     '0'                                                              
+     C     KPUDEPE0      READE     PUDEPE                               8081                        
+     C                   ENDDO                                                                      
+     C                   ENDDO                                                  PUDEPE              
+     C                   ENDIF                                                  ZXPRO2=1            
+      * SI INICIALMENTE ERA DE TIPO 'A' EL @PPROC, SIGNIFICA QUE NO                                 
+      * CONTINUO ADELANTE EN EL RECALCULO DE ESTATUS (SOLO HACE EL                                  
+      * DE LINEA)                                                                                   
+     C     ZXPROC        IFEQ      '0'                                                              
+     C     @PPROC        ANDEQ     'A'                                                              
+     C                   GOTO      TFI1                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                  ZXPROCZXPR          
+      *                                                                                             
+      *                                                                                             
+     C     ZXERRO        IFEQ      'X'                                                              
+     C                   GOTO      TFI1                                                             
+     C                   ENDIF                                                                      
+      ************** TRATAMIENTO DE UN INDICE/O.F. ******************                               
+      ****** PARA ZXPROC ='1' O '2' EL PROCESO DE BUSCAR ESTATUS                                    
+     C     TREP          TAG                                                                        
+     C                   Z-ADD     0             ZXNUM0            4 0                              
+     C                   Z-ADD     0             ZXNUM1            4 0                              
+     C                   Z-ADD     0             ZXNUM2            4 0                              
+     C                   Z-ADD     0             ZXNUM3            4 0                              
+     C                   Z-ADD     0             ZXNUM4            4 0                              
+     C                   Z-ADD     0             ZXNUM5            4 0                              
+     C                   Z-ADD     0             ZXNUMT            5 0                              
+     C                   EVAL      ZXSTCP=*BLANKS                                                   
+     C     KPUDEPE0      CHAIN(N)  PUDEPE                             8180                          
+     C     *IN81         DOWNE     '1'                                          PUDEPE              
+     C     C5STUL        IFLE      '0'                                                              
+     C                   ADD       1             ZXNUM0                                             
+     C                   ENDIF                                                                      
+     C     C5STUL        IFEQ      '1'                                                              
+     C                   ADD       1             ZXNUM1                                             
+     C                   ENDIF                                                                      
+     C     C5STUL        IFEQ      '2'                                                              
+     C                   ADD       1             ZXNUM2                                             
+     C                   ENDIF                                                                      
+     C     C5STUL        IFEQ      '3'                                                              
+     C                   ADD       1             ZXNUM3                                             
+     C                   ENDIF                                                                      
+     C     C5STUL        IFEQ      '4'                                                              
+     C                   ADD       1             ZXNUM4                                             
+     C                   ENDIF                                                                      
+     C     C5STUL        IFEQ      '5'                                                              
+     C                   ADD       1             ZXNUM5                                             
+     C                   ENDIF                                                                      
+     C     C5CAPP        IFGT      0                                                                
+     C                   EVAL      ZXSTCP='P'                                                       
+     C                   ENDIF                                                                      
+     C     KPUDEPE0      READE(N)  PUDEPE                               8081                        
+     C                   ENDDO                                                                      
+      * EL ESTATUS MENOR DE ORDEN SERA '20'                                                         
+      * EL DETALLE PARA COMPLETAR EL ESTATUS DEL INDICE, ASI:                                       
+      *                                                                                             
+     C                   MOVE      *BLANKS       ZXSTCO                                             
+      * Busco el intervalo o zona en la que intervienen todas las líneas                            
+     C                   Z-ADD     ZXNUM0        ZXNUMT                                             
+     C                   ADD       ZXNUM1        ZXNUMT                                             
+     C                   ADD       ZXNUM2        ZXNUMT                                             
+     C                   ADD       ZXNUM3        ZXNUMT                                             
+     C                   ADD       ZXNUM4        ZXNUMT                                             
+     C                   ADD       ZXNUM5        ZXNUMT                                             
+     C                   Z-ADD     0             ZXNUST            8 4                              
+     C                   Z-ADD     0             ZXNUS2            2 0                              
+     C     *IN80         DOUEQ     '0'                                                              
+     C     KPUCAPE       CHAIN     PUCAPE                             8180                          
+     C                   ENDDO                                                                      
+                                                                                                    
+     C     *IN81         IFNE      '1'                                          PUCAPE              
+     C                   MOVE      C0STCO        ZXSTCO                                             
+                                                                                                    
+     C                   IF        ZXNUMT<>0                                                        
+      * Si todas las líneas están cerradas cierro también la orden                                  
+      * aunque no lo hayan dicho en @PFINA                                                          
+     C                   IF        ZXNUM5>=ZXNUMT                                                   
+     C                   MOVE      '90'          C0STCO                                             
+     C                   GOTO      TUPDATE                                                          
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     ZXNUM0        DIV(H)    ZXNUMT        ZXCOEF                                             
+     C     ZXCOEF        MULT      0             ZXCOEF                                             
+     C                   ADD       ZXCOEF        ZXNUST                                             
+     C     ZXNUM1        DIV(H)    ZXNUMT        ZXCOEF                                             
+     C     ZXCOEF        MULT      1             ZXCOEF                                             
+     C                   ADD       ZXCOEF        ZXNUST                                             
+     C     ZXNUM2        DIV(H)    ZXNUMT        ZXCOEF                                             
+     C     ZXCOEF        MULT      2             ZXCOEF                                             
+     C                   ADD       ZXCOEF        ZXNUST                                             
+     C     ZXNUM3        DIV(H)    ZXNUMT        ZXCOEF                                             
+     C     ZXCOEF        MULT      3             ZXCOEF                                             
+     C                   ADD       ZXCOEF        ZXNUST                                             
+     C     ZXNUM4        DIV(H)    ZXNUMT        ZXCOEF                                             
+     C     ZXCOEF        MULT      4             ZXCOEF                                             
+     C                   ADD       ZXCOEF        ZXNUST                                             
+     C     ZXNUM5        DIV(H)    ZXNUMT        ZXCOEF                                             
+     C     ZXCOEF        MULT      5             ZXCOEF                                             
+     C                   ADD       ZXCOEF        ZXNUST                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   MOVE      '20'          C0STCO                                             
+      *Si se ha listado el pedido: estatus 25                                                       
+     C                   IF        C0MIMP>'0'                                                       
+     C                   MOVE      '25'          C0STCO                                             
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ZXNUST>0                                                         
+     C                   MOVE      '30'          C0STCO                                             
+     C                   Z-ADD(H)  ZXNUST        ZXNUS2                                             
+     C                   IF        ZXNUS2=1                                                         
+     C                   MOVE      '40'          C0STCO                                             
+     C                   ENDIF                                                                      
+     C                   IF        ZXNUS2=2                                                         
+     C                   MOVE      '60'          C0STCO                                             
+     C                   ENDIF                                                                      
+     C                   IF        ZXNUS2=3                                                         
+     C                   MOVE      '70'          C0STCO                                             
+     C                   ENDIF                                                                      
+     C                   IF        ZXNUS2=4                                                         
+     C                   MOVE      '80'          C0STCO                                             
+     C                   ENDIF                                                                      
+     C                   IF        ZXNUS2=5                                                         
+     C                   MOVE      '85'          C0STCO                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * ACTUALIZACION FECHA LANZAMIENTO                                                             
+     C     ZXSTCO        IFLE      '10'                                                             
+     C     C0STCO        ANDGE     '2A'                                                             
+     C                   EVAL      C0FLAN=*DATE                                                     
+     C                   ENDIF                                                                      
+      * Si piden cerrar orden la cierro                                                             
+     C     @PFINA        IFEQ      '1'                                                              
+     C     ZXNUM5        ANDGE     ZXNUMT                                                           
+     C                   MOVE      '90'          C0STCO                                             
+     C                   ENDIF                                                                      
+      * Controlo la fecha de listado y marca en el caso de que sea la 1ª vez que pase               
+      * de un estado a otro                                                                         
+     C     ZXSTCO        IFLT      '25'                                                             
+     C     C0STCO        ANDEQ     '25'                                                             
+     C                   EVAL      C0FIMP=*DATE                                                     
+     C                   EVAL      C0MIMP='2'                                                       
+     C                   ENDIF                                                                      
+      * ACTUALIZACION FECHA 1er cambio de estatus (de hecho esta fecha debería                      
+      * ser coincidente con la 1ª fecha de recepción pero el usuario puede variar                   
+      * la fecha de recepción de material y esta fecha contempla la fecha máquina para dicha        
+      * entrada)                                                                                    
+     C     ZXSTCO        IFLE      '25'                                                             
+     C     C0STCO        ANDGE     '30'                                                             
+     C                   EVAL      C0PCST=*DATE                                                     
+     C                   ENDIF                                                                      
+     C     ZXSTCO        IFNE      C0STCO                                                           
+     C                   EVAL      C0FCST=*DATE                                                     
+     C                   ENDIF                                                                      
+     C                   IF        C0STCO<'90' AND ZXSTCP='P'                                       
+     C                   MOVE      'P'           C0STCO                                             
+     C                   ENDIF                                                                      
+     C     TUPDATE       TAG                                                                        
+     C  N81              UPDATE    RPUCAPE                                      *UPD PUCAPE         
+27065C  N81ZXSTCO        IFNE      C0STCO                                                           
+27065C     ZXSTCO        ANDLT     '9A'                                                             
+27065C     C0STCO        ANDGE     '90'                                                             
+27065 * Si se habia enviado la cabecera a Trace, entonces envio final                               
+27065 * de orden                                                                                    
+27065C                   IF        C0EVOL>='1'                                                      
+27065C                   EXSR      CS_TR0035                                                        
+27065C                   ENDIF                                                                      
+27065C                   ENDIF                                                                      
+     C                   ENDIF                                                  PUCAPE              
+      *                                                                                             
+     C     TFI1          TAG                                                                        
+     C                   ENDSR                                                  Fin Subrutina       
+      **************************************************************                                
+      * SUBRUTINA CONTROL DEL SFL S01                              *                                
+      *------------------------------------------------------------*                                
+     C     CS_CASTUL     BEGSR                                                                      
+     C                   EVAL      ZXCOEF=0                                                         
+     C                   EVAL      ZXCANT=C5CANT                                                    
+     C                   IF        C5CANC<>0                                                        
+     C                   EVAL      ZXCANT=C5CANC                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C*                  IF        C5CANS<>0                                                        
+     C                   IF        ZXCANT<>0                                                        
+     C     C5CANS        DIV(H)    ZXCANT        ZXCOEF                                             
+     C                   MULT      100           ZXCOEF                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   IF        ZXCOEF>0                                                         
+     C                   MOVE      '1'           C5STUL                                             
+     C                   IF        ZXCOEF>50 AND ZXCOEF<75                                          
+     C                   MOVE      '2'           C5STUL                                             
+     C                   ENDIF                                                                      
+     C                   IF        ZXCOEF>=75 AND ZXCOEF<100                                        
+     C                   MOVE      '3'           C5STUL                                             
+     C                   ENDIF                                                                      
+      * En principio si ZXCOEF>='100' pondré estado de cerrado                                      
+     C                   IF        ZXCOEF>=100                                                      
+     C****               MOVE      '4'           C5STUL                                             
+     C                   MOVE      '5'           C5STUL                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+      * SI SOLO TIENE CANTIDAD PREVISTA, AVISO CON ERROR 'A'                                        
+      * DE QUE NO HAN ENTRADO NADA                                                                  
+     C     @PFINA        IFEQ      '1'                                                              
+     C                   MOVE      '5'           C5STUL                                             
+     C     C5CANS        IFEQ      0                                                                
+     C                   MOVE      'A'           @PERRO                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * ACTUALIZACION FECHA 1er cambio de estatus (de hecho esta fecha debería                      
+      * ser coincidente con la 1ª fecha de recepción pero el usuario puede variar                   
+      * la fecha de recepción de material y esta fecha contempla la fecha máquina para dicha        
+      * entrada)                                                                                    
+     C     ZXSTUL        IFLE      '0'                                                              
+     C     C5STUL        ANDGE     '1'                                                              
+     C                   EVAL      C5PCST=*DATE                                                     
+     C                   ENDIF                                                                      
+     C     ZXSTUL        IFNE      C5STUL                                                           
+     C                   EVAL      C5FCST=*DATE                                                     
+     C                   ENDIF                                                                      
+     C                   ENDSR                                                  Fin Subrutina       
+27065 **************************************************************                                
+27065 * SUBRUTINA ENVIO FINALIZACION ORDEN                                                          
+27065 *------------------------------------------------------------*                                
+27065C     CS_TR0035     BEGSR                                                                      
+27065C                   IF        ZXOPENTR<=0                                                      
+27065C                   OPEN      UTCOM0                                                           
+27065C                   OPEN      UTCOMA                                                           
+27065C                   OPEN      TR0035                                                           
+27065C                   OPEN      PMEMPR                                                           
+27065C                   EVAL      ZXOPENTR=1                                                       
+27065C                   EVAL      C0USU0=SDSUSR                                                    
+27065C                   EVAL      C0PAN0=SDSJOB                                                    
+27065C                   EVAL      C0DAT0=*DATE                                                     
+27065C                   TIME                    ZXTIME                                             
+27065C                   MOVEL     ZXTIME        C0HOR0                                             
+27065C                   EVAL      P7CIAS=C0CIAS                                                    
+27065C                   EVAL      P7DLGA=C0DLGA                                                    
+27065C     KPMEMPR       CHAIN     PMEMPR                             81                            
+27065C                   ENDIF                                                                      
+27065                                                                                               
+27065C                   EVAL      U0CIAS=@PCIAS                                                    
+27065C                   EVAL      U0TENV='1'                                                       
+27065C                   EVAL      U0CLP0=C0PRVR                                                    
+27065 * El registro no debe ser baja ni puede estar desactivado y                                   
+27065 * debe permitir traspaso automatico de pedidos                                                
+27065C     KUTCOM0       CHAIN     UTCOM0                             81                            
+27065C                   IF        *IN81=*OFF AND U0BAJA<='0' AND                                   
+27065C                             U0ACTI<='0' AND U0EPP1>='1'                                      
+27065C                   EVAL      ZXUTCOMU=1                                                       
+27065C                   ENDIF                                                                      
+27065 * Se envia a OL el final de orden Compras                                                     
+27065C                   IF        ZXUTCOMU>=1 AND P7ALOL<='0'                                      
+27065C                   EVAL      C0TENV=U0TENV                                                    
+27065C                   EVAL      C0DEST=U0DEST                                                    
+27065C                   EVAL      C0TDES=U0TDES                                                    
+27065C                   EVAL      C0CIDT=U0CIA1                                                    
+27065C                   EVAL      C0CLDT=U0CLP1                                                    
+27065C                   EVAL      ZXOPC0='F'                                                       
+27065C                   EVAL      C0OPC0=ZXOPC0                                                    
+27065C                   DOU       *IN80=*OFF                                                       
+27065C                   EVAL      C0HOR0=C0HOR0+1                                                  
+27065C                   EVAL      C0PROG=SDSPGM                                                    
+27065C                   WRITE     RTR0035                              80                          
+27065C                   ENDDO                                                                      
+27065C                   ENDIF                                                                      
+27065C                   ENDSR                                                                      

@@ -1,0 +1,232 @@
+      **************************************************************                                
+      * ED0532  © Fluidra                                          *                                
+      * Gestión de E-MAILS EDI: Impresión de adjuntos              *                                
+      * Diciembre 2009 by Carlos del Valle                         *                                
+      **************************************************************                                
+      * DATA DE MODIFICACIÓ: 15/05/2013  MARCA: 1505C              *                                
+      * AUTOR: X.BOU                                               *                                
+      * DOCUMENTACIÓ: RECUPERAR IDIOMA DE IMPRESION DEL CLIENTE    *                                
+      *                                                            *                                
+      **************************************************************                                
+      * Modificación: 26614                                                                         
+      *        Autor: Carlos del Valle                                                              
+      * Fecha Inicio: Junio 2014                                                                    
+      *  Descripción: Garantizar que se coja el PRTF por defecto sea                                
+      *               quien sea el Usuario que factura                                              
+      **************************************************************                                
+      *                                                                                             
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+      *                                                                                             
+     FPMJOBC    IF   E           K DISK                                                             
+     FCOFACC12  IF   E           K DISK                                                             
+1505CFCOCLIN    IF   E           K DISK                                                             
+      *                                                                                             
+      * ESTRUCTURA DE LA INFDS                                                                      
+      *                                                                                             
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSSTATUS             11     15S 0                                                          
+     D  SDSCODERR             91    170                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+      *                                                                                             
+      * IMPORT/EXPORT PARÀMETRES                                                                    
+      *                                                                                             
+     D  @PJOBC         S             18                                                             
+     D  @PPGMP         S             10                                                             
+     D  @PCIAS         S                   LIKE(VWCIAS)                                             
+     D  @PDLGA         S                   LIKE(VWDLG2)                                             
+     D  @PTDAJ         S              1                                                             
+     D  @PCODE         S             25                                                             
+     D  @PNDOC         S             25                                                             
+     D  @PFDOC         S              8  0                                                          
+     D  @PIDIO         S              1                                                             
+     D  @PEVEN         S              5                                                             
+     D  @PPRTF         S             10                                                             
+      *                                                                                             
+     D  DSPRT        E DS                  EXTNAME(PRDPRTDS)                                        
+      *                                                                                             
+      * Campos de uso para trabajar con la API QCMDEXC                                              
+     D  ZXQCMD         S            150                                                             
+     D  ZXLOGC         S             15  5 INZ(150)                                                 
+      *                                                                                             
+      **************************************************************                                
+      * Definir Claves                                                                              
+      **************************************************************                                
+      *                                                                                             
+     C     KPMJOBC       KLIST                                                                      
+     C                   KFLD                    @PJOBC                                             
+     C                   KFLD                    JOLINE                                             
+      *                                                                                             
+     C     KCOFACC12     KLIST                                                                      
+     C                   KFLD                    VWCIAS                                             
+     C                   KFLD                    VWCUST                                             
+     C                   KFLD                    VWNFAC                                             
+     C                   KFLD                    VWFFAC                                             
+1505C *                                                                                             
+1505CC     KCOCLIN       KLIST                                                                      
+1505CC                   KFLD                    S0CIAS                                             
+1505CC                   KFLD                    S0CUST                                             
+      *                                                                                             
+      **************************************************************                                
+      * Entrada de Parámetros                                                                       
+      **************************************************************                                
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PJOBC                                             
+     C                   PARM                    @PPGMP                                             
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PDLGA                                             
+     C                   PARM                    @PEVEN                                             
+     C                   PARM                    @PTDAJ                                             
+     C                   PARM                    @PCODE                                             
+     C                   PARM                    @PNDOC                                             
+     C                   PARM                    @PFDOC                                             
+     C                   PARM                    @PIDIO                                             
+     C                   PARM                    @PPRTF                                             
+      *                                                                                             
+      **************************************************************                                
+      * Estructura                                                                                  
+      **************************************************************                                
+      *                                                                                             
+      * Si no nos llega el PPGM o PRTF no ejecutamos para evitar errores                            
+      *                                                                                             
+     C*                  IF        @PPGMP<>*BLANKS AND @PPRTF<>*BLANKS                              
+     C                   IF        @PPGMP<>*BLANKS                                                  
+1505C *                                                                                             
+1505C * Recuperar IDIOMA DEL CLIENTE                                                                
+1505C *                                                                                             
+1505CC                   EVAL      S0CIAS=@PCIAS                                                    
+1505CC                   EVAL      S0CUST=@PCODE                                                    
+1505CC     KCOCLIN       CHAIN     COCLIN                                                           
+1505CC                   IF        %FOUND(COCLIN)                                                   
+1505CC                   EVAL      @PIDIO=S0IDIO                                                    
+1505CC                   ENDIF                                                                      
+      *                                                                                             
+      * Recuperamos valores de Impresora                                                            
+      *                                                                                             
+     C                   EVAL      JOLINE=96                                                        
+     C     KPMJOBC       CHAIN     PMJOBC                                                           
+     C                   IF        %FOUND(PMJOBC)                                                   
+     C     JODATO        CAT       DSPRT:0       DSPRT                                              
+     C                   ENDIF                                                                      
+      *                                                                                             
+      * Selección de impresión                                                                      
+      *                                                                                             
+     C                   SELECT                                                                     
+      * Pedido de venta                                                                             
+     C                   WHEN      @PTDAJ='1'                                                       
+     C                   EXSR      CS_PEDVTA                                                        
+      * Albarán de venta                                                                            
+     C                   WHEN      @PTDAJ='2'                                                       
+     C                   EXSR      CS_ALBVTA                                                        
+      * Factura de venta                                                                            
+     C                   WHEN      @PTDAJ='3'                                                       
+     C                   EXSR      CS_FACVTA                                                        
+      * Pedido de compra                                                                            
+     C                   WHEN      @PTDAJ='4'                                                       
+     C                   EXSR      CS_PEDCOM                                                        
+      * Albarán de compra                                                                           
+     C                   WHEN      @PTDAJ='5'                                                       
+     C                   EXSR      CS_ALBCOM                                                        
+      * Factura de compra                                                                           
+     C                   WHEN      @PTDAJ='6'                                                       
+     C                   EXSR      CS_FACCOM                                                        
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   EVAL      *INLR=*ON                                                        
+      **************************************************************                                
+      * Pedido de venta                                                                             
+      *------------------------------------------------------------*                                
+     C     CS_PEDVTA     BEGSR                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Albarán de venta                                                                            
+      *------------------------------------------------------------*                                
+     C     CS_ALBVTA     BEGSR                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Factura de venta                                                                            
+      *------------------------------------------------------------*                                
+     C     CS_FACVTA     BEGSR                                                                      
+      *                                                                                             
+      * Recuperar Factura                                                                           
+      *                                                                                             
+     C                   EVAL      VWCIAS=@PCIAS                                                    
+     C                   EVAL      VWCUST=@PCODE                                                    
+     C                   EVAL      VWNFAC=@PNDOC                                                    
+     C                   EVAL      VWFFAC=@PFDOC                                                    
+     C     KCOFACC12     CHAIN     COFACC12                                                         
+     C                   IF        %FOUND(COFACC12)                                                 
+      *                                                                                             
+      * Altera PRTF para imprimir *PORTRAIT                                                         
+      *                                                                                             
+     C                   EXSR      CS_ALTERAR                                                       
+      *                                                                                             
+      * Imprimir                                                                                    
+      *                                                                                             
+     C                   CALL      @PPGMP                                                           
+     C                   PARM                    @PJOBC                                             
+      *                                                                                             
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Pedido de compra                                                                            
+      *------------------------------------------------------------*                                
+     C     CS_PEDCOM     BEGSR                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Albarán de compra                                                                           
+      *------------------------------------------------------------*                                
+     C     CS_ALBCOM     BEGSR                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Factura de compra                                                                           
+      *------------------------------------------------------------*                                
+     C     CS_FACCOM     BEGSR                                                                      
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * Alterar el Spool AS/400 para imprimir *PORTRAIT                                             
+      *------------------------------------------------------------*                                
+     C     CS_ALTERAR    BEGSR                                                                      
+      *                                                                                             
+      * Recupera el Nombre del PRTF a crear                                                         
+      *                                                                                             
+     C                   EVAL      @PPRTF=PYFPRT                                                    
+26614 *                                                                                             
+26614 * PRTF por Defecto en caso de no conseguirlo                                                  
+26614 *                                                                                             
+26614C                   IF        @PPRTF=*BLANKS                                                   
+26614C                   EVAL      PYFPRT='CO1031PR'                                                
+26614C                   EVAL      @PPRTF='CO1031PR'                                                
+26614C                   ENDIF                                                                      
+      *                                                                                             
+     C                   SELECT                                                                     
+      * Pedido de venta                                                                             
+     C                   WHEN      @PTDAJ='1'                                                       
+      * Albarán de venta                                                                            
+     C                   WHEN      @PTDAJ='2'                                                       
+      * Factura de venta                                                                            
+     C                   WHEN      @PTDAJ='3'                                                       
+     C                   EVAL      ZXQCMD='OVRPRTF FILE('+@PPRTF+') '+                              
+     C                             'PAGESIZE(70 131 *ROWCOL) HOLD(*YES) '+                          
+     C                             'FRONTMGN(0 0)'                                                  
+     C                   CALL      'QCMDEXC'                                                        
+     C                   PARM                    ZXQCMD                                             
+     C                   PARM                    ZXLOGC                                             
+      * Pedido de compra                                                                            
+     C                   WHEN      @PTDAJ='4'                                                       
+      * Albarán de compra                                                                           
+     C                   WHEN      @PTDAJ='5'                                                       
+      * Factura de compra                                                                           
+     C                   WHEN      @PTDAJ='6'                                                       
+      *                                                                                             
+     C                   ENDSL                                                                      
+      *                                                                                             
+     C                   ENDSR                                                                      

@@ -1,0 +1,276 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      *------------------------------------------------------------*                                
+      * TITOL: MM2555  © AQUAPOINT S.A.                           *                                 
+      * DATA CREACIO:  17/10/1997                                  *                                
+      * AUTOR: DPTO. INFORMATICA                                   *                                
+      * FUNCIO DEL PROGRAMA: BUSQUEDA DE COEFICIENTES PARA         *                                
+      *                      TRANSFORMAR EN EL TIEMPO UNA MONEDA   *                                
+      *                      EN OTRA                               *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      * ZXOPT1 = NOM DEL PROCÉS                                    *                                
+      *        - WN = FINESTRA  N.          N=[01,02,...,99]       *                                
+      *        - N TAMBÉ EQUIVAL AL NÚMERO DE FORMAT DEL SFL       *                                
+      *          I COINCIDEIX AMB EL Nº DE LÒGIC (ESSENT N=00 EL   *                                
+      *          FITXER FÍSIC)                                     *                                
+      * ZXOPT2 = RUTINA DINTRE DEL PROCÉS                          *                                
+      *        - 'INZ'= INICILITZAR                                *                                
+      *        - 'DSP'= VISUALITZA DE PANTALLA                     *                                
+      *        - 'CHK'= VALIDACIÓ DE LA PANTALLA                   *                                
+      *        - 'CLR'= NETEJA DEL SFL                             *                                
+      *        - 'UPD'= ACTUALITZACIONS DELS FITXERS               *                                
+      *                                                            *                                
+      **************************************************************                                
+      * DATA DE MODIFICACIÓ: DD/MM/AAAA  MARCA: DDMMA              *                                
+      * AUTOR:                                                     *                                
+      * DOCUMENTACIÓ:                                              *                                
+      *    - @PMONE Moneda de partida.                             *                                
+      *    - @PMON2 Moneda en la que realizar el cambio.           *                                
+      *    - @PDATA Fecha de búsqueda de cambio.                   *                                
+      *    - @PHORA Hora de búsqueda de cambio.                    *                                
+      *    - @PCMCCCO. Coeficiente cambios de compras.             *                                
+      *    - @PCMCCCC. Coeficiente cambios de ventas.              *                                
+      **************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+29049F*MSDIVI    IF A E           K DISK                                                            
+29049F*MSDIV2    IF A E           K DISK                                                            
+29049FMSDIVI    IF   E           K DISK                                                             
+29049FMSDIV2    IF   E           K DISK                                                             
+                                                                                                    
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D  SDSJOB               244    253                                                             
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+                                                                                                    
+     D                 DS                                                                           
+     D  ZXOPT                  1      6                                                             
+     D  ZXOPT1                 1      3                                                             
+     D  ZXOPT2                 4      6                                                             
+                                                                                                    
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+     D    @PCIAS       S                   LIKE(M6CIAS)                                             
+     D    @PMONE       S                   LIKE(M6MONE)                                             
+     D    @PMON2       S                   LIKE(M6MONE)                                             
+     D    @PDATA       S                   LIKE(M6DAT8)                                             
+     D    @PHORA       S                   LIKE(M6HORA)                                             
+     D    @PCMCOCO     S             20  9                                                          
+     D    @PCMCCCO     S             20  9                                                          
+     D    @PERRO       S              1                                                             
+     D    ZXERRO       S              1                                                             
+     D    ZXCMCOCO     S             20  9                                                          
+     D    ZXCMCCCO     S             20  9                                                          
+     D    ZXMONB       S                   LIKE(M6MONE)                                             
+     D    ZXMOP1       S                   LIKE(M6MONE)                                             
+     D    ZXMOP2       S                   LIKE(M6MONE)                                             
+     D    ZXMOP3       S                   LIKE(M6MONE)                                             
+     D    ZXMOP4       S                   LIKE(M6MONE)                                             
+     D    ZXCMPR       S                   LIKE(M6CMPR)                                             
+     D    ZXCMPR1      S                   LIKE(M6CMPR)                                             
+     D    ZXCMPR2      S                   LIKE(M6CMPR)                                             
+     D    ZXCMPR3      S                   LIKE(M6CMPR)                                             
+     D    ZXCMPR4      S                   LIKE(M6CMPR)                                             
+     D    ZXCMCO       S                   LIKE(M6CMCO)                                             
+     D    ZXCMCO1      S                   LIKE(M6CMCO)                                             
+     D    ZXCMCO2      S                   LIKE(M6CMCO)                                             
+     D    ZXCMCO3      S                   LIKE(M6CMCO)                                             
+     D    ZXCMCO4      S                   LIKE(M6CMCO)                                             
+     D    ZXCMCC       S                   LIKE(M6CMCC)                                             
+     D    ZXCMCC1      S                   LIKE(M6CMCC)                                             
+     D    ZXCMCC2      S                   LIKE(M6CMCC)                                             
+     D    ZXCMCC3      S                   LIKE(M6CMCC)                                             
+     D    ZXCMCC4      S                   LIKE(M6CMCC)                                             
+     D    ZXAUXB       S              8  0                                                          
+      **************************************************************                                
+      * RUTINA  PRINCIPAL DEL PROGRAMA                             *                                
+      *------------------------------------------------------------*                                
+     C                   DOW       ZXOPT1 <> 'END'                                                  
+     C     ZXOPT1        CASEQ     'CHK'         SUBCHK                                             
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL. DEFINICIO DE TOTS ELS PARÀMETRES        *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+      *                                                                                             
+     C     KMSDIVI0      KLIST                                                                      
+     C                   KFLD                    M6CIAS                                             
+     C                   KFLD                    M6MONE                                             
+      *                                                                                             
+     C     KMSDIVI       KLIST                                                                      
+     C                   KFLD                    M6CIAS                                             
+     C                   KFLD                    M6MONE                                             
+     C                   KFLD                    M6DAT8                                             
+     C                   KFLD                    M6HORA                                             
+      *                                                                                             
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAS                                             
+     C                   PARM                    @PMONE                                             
+     C                   PARM                    @PMON2                                             
+     C                   PARM                    @PDATA                                             
+     C                   PARM                    @PHORA                                             
+     C                   PARM                    @PCMCOCO                                           
+     C                   PARM                    @PCMCCCO                                           
+     C                   PARM                    @PERRO                                             
+                                                                                                    
+     C                   EVAL      ZXERRO=@PERRO                                                    
+     C                   EVAL      @PERRO=*BLANKS                                                   
+                                                                                                    
+     C                   EVAL      ZXOPT1='CHK'                                                     
+                                                                                                    
+     C                   EVAL      M6CIAS=@PCIAS                                                    
+     C     TINZSR        ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CHECK. DEFINICIO DE TOTS ELS PARÀMETRES          *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     SUBCHK        BEGSR                                                                      
+      * Vamos a buscar una correspondencia de la forma @PMONE=ZXCMCO1ZXCMCC1                        
+      * ZXCMPR1con moneda puente ZXMOP1 a @PMON2=forma @PMON2=ZXCMCO2ZXCMCC2                        
+      * ZXCMPR2con moneda puente ZXMOP2, donde se espera que ZXMOP1=ZXMOP2                          
+                                                                                                    
+     C                   EVAL      ZXOPT='END'                                                      
+      * Búsqueda de la correspondencia en la fecha de traspaso entre @PMONE                         
+      * y la moneda de trabajo de aquel momento                                                     
+      * Inicializo los valores de intercambios entre monedas puente                                 
+     C                   EVAL      ZXCMPR3=1                                                        
+     C                   EVAL      ZXCMCO3=1                                                        
+     C                   EVAL      ZXCMCC3=1                                                        
+     C                   EVAL      ZXCMPR4=1                                                        
+     C                   EVAL      ZXCMCO4=1                                                        
+     C                   EVAL      ZXCMCC4=1                                                        
+                                                                                                    
+     C                   EVAL      M6MONE=@PMONE                                                    
+     C                   EVAL      M6DAT8=@PDATA                                                    
+     C                   EVAL      M6HORA=@PHORA                                                    
+     C                   EXSR      CS_SUBBUS                                                        
+     C                   EVAL      ZXCMPR1=ZXCMPR                                                   
+     C                   EVAL      ZXCMCO1=ZXCMCO                                                   
+     C                   EVAL      ZXCMCC1=ZXCMCC                                                   
+     C                   EVAL      ZXMOP1=ZXMONB                                                    
+      * Búsqueda de la correspondencia en la fecha de traspaso entre @PMONE                         
+      * y la moneda de trabajo de aquel momento                                                     
+     C                   EVAL      M6MONE=@PMON2                                                    
+     C                   EVAL      M6DAT8=@PDATA                                                    
+     C                   EVAL      M6HORA=@PHORA                                                    
+     C                   EXSR      CS_SUBBUS                                                        
+     C                   EVAL      ZXCMPR2=ZXCMPR                                                   
+     C                   EVAL      ZXCMCO2=ZXCMCO                                                   
+     C                   EVAL      ZXCMCC2=ZXCMCC                                                   
+     C                   EVAL      ZXMOP2=ZXMONB                                                    
+      * Si en algún caso no existe la moneda puente, le pongo la otra moneda                        
+     C                   IF        ZXMOP1=*BLANKS                                                   
+     C                   EVAL      ZXMOP1=ZXMOP2                                                    
+     C                   ENDIF                                                                      
+     C                   IF        ZXMOP2=*BLANKS                                                   
+     C                   EVAL      ZXMOP2=ZXMOP1                                                    
+     C                   ENDIF                                                                      
+      *************                                                                                 
+      * En el caso especial que no coincidan las monedas puente                                     
+      * busco por última vez un intento de correspondencia entre monedas                            
+      * puente que tengan sus monedas puente coincidentes                                           
+     C                   IF        ZXMOP1<>ZXMOP2                                                   
+     C                   EVAL      M6MONE=ZXMOP1                                                    
+     C                   EVAL      M6DAT8=@PDATA                                                    
+     C                   EVAL      M6HORA=@PHORA                                                    
+     C                   EXSR      CS_SUBBUS                                                        
+     C                   EVAL      ZXCMPR3=ZXCMPR                                                   
+     C                   EVAL      ZXCMCO3=ZXCMCO                                                   
+     C                   EVAL      ZXCMCC3=ZXCMCC                                                   
+     C                   EVAL      ZXMOP3=ZXMONB                                                    
+      * Si aún no coinciden                                                                         
+     C                   IF        ZXMOP3<>ZXMOP2                                                   
+     C                   EVAL      M6MONE=ZXMOP2                                                    
+     C                   EVAL      M6DAT8=@PDATA                                                    
+     C                   EVAL      M6HORA=@PHORA                                                    
+     C                   EXSR      CS_SUBBUS                                                        
+     C                   EVAL      ZXCMPR4=ZXCMPR                                                   
+     C                   EVAL      ZXCMCO4=ZXCMCO                                                   
+     C                   EVAL      ZXCMCC4=ZXCMCC                                                   
+     C                   EVAL      ZXMOP4=ZXMONB                                                    
+     C                   IF        ZXMOP4<>ZXMOP1 AND ZXMOP3<>ZXMOP4                                
+     C                   EVAL      ZXCMPR3=1                                                        
+     C                   EVAL      ZXCMCO3=1                                                        
+     C                   EVAL      ZXCMCC3=1                                                        
+     C                   EVAL      ZXCMPR4=1                                                        
+     C                   EVAL      ZXCMCO4=1                                                        
+     C                   EVAL      ZXCMCC4=1                                                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+      * Se realizará por medio de factores de conversión para pasar por                             
+      * de @PMONE a @PMON2 según:@PMONE->ZXMOP1->ZXMOP3=ZXMOP4->ZXMOP2->                            
+      * @PMON2                                                                                      
+      * 1@PMONE*ZXCMCO1(ZXMOP1)/ZXCMPR1(@PMONE)*ZXCMCO3(ZXMOP3)/ZXCMPR3(ZXMO                        
+      * P1)*ZXCMPR4(ZXMOP2)/ZXCMCO4(ZXMOP3)*ZXCMPR2(@PMON2)/ZXCMCO2(ZXMOP2)                         
+      * Mismo proceso para cambios de ventas.                                                       
+                                                                                                    
+     C     ZXCMCO1       MULT      ZXCMCO3       ZXCMCOCO                                           
+     C                   MULT      ZXCMPR4       ZXCMCOCO                                           
+     C                   DIV(H)    ZXCMPR1       ZXCMCOCO                                           
+     C                   DIV(H)    ZXCMPR3       ZXCMCOCO                                           
+     C                   DIV(H)    ZXCMCO4       ZXCMCOCO                                           
+     C     ZXCMCOCO      MULT      ZXCMPR2       @PCMCOCO                                           
+     C                   DIV(H)    ZXCMCO2       @PCMCOCO                                           
+                                                                                                    
+     C     ZXCMCC1       MULT      ZXCMCC3       ZXCMCCCO                                           
+     C                   MULT      ZXCMPR4       ZXCMCCCO                                           
+     C                   DIV(H)    ZXCMPR1       ZXCMCCCO                                           
+     C                   DIV(H)    ZXCMPR3       ZXCMCCCO                                           
+     C                   DIV(H)    ZXCMCC4       ZXCMCCCO                                           
+     C     ZXCMCCCO      MULT      ZXCMPR2       @PCMCCCO                                           
+     C                   DIV(H)    ZXCMCC2       @PCMCCCO                                           
+                                                                                                    
+     C     TSUBCHK       ENDSR                                                                      
+      **************************************************************                                
+      * SUBRUTINA CHECK. DEFINICIO DE TOTS ELS PARÀMETRES          *                                
+      * GENERALS DEL PROGRAMA.                                     *                                
+      *------------------------------------------------------------*                                
+     C     CS_SUBBUS     BEGSR                                                                      
+      * Busca 1º en el fichero de divisas actual MSDIVI y si no encuentra va                        
+      * a buscar al histórico y si no encuentra se sitúa de nuevo en el his-                        
+      * tórico y lee hacia adelante y si no encuentra vuelve al MSDIVI hacia                        
+      * adelante para encontrar el 1er registro.                                                    
+     C                   EVAL      M6CMPR=0                                                         
+     C                   EVAL      M6CMCC=0                                                         
+     C                   EVAL      M6CMCO=0                                                         
+     C     KMSDIVI       SETGT     MSDIVI                                                           
+     C     KMSDIVI0      READPE    MSDIVI                                 83                        
+     C                   IF        READ1=*ON                                                        
+     C     KMSDIVI       SETGT     MSDIV2                                                           
+     C     KMSDIVI0      READPE    MSDIV2                                 83                        
+     C                   IF        READ1=*ON                                                        
+     C     KMSDIVI       SETLL     MSDIV2                                                           
+     C     KMSDIVI0      READE     MSDIV2                                 83                        
+     C                   IF        READ1=*ON                                                        
+     C     KMSDIVI       SETLL     MSDIVI                                                           
+     C     KMSDIVI0      READE     MSDIVI                                 83                        
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   EVAL      ZXCMPR=M6CMPR                                                    
+     C                   EVAL      ZXCMCC=M6CMCC                                                    
+     C                   EVAL      ZXCMCO=M6CMCO                                                    
+     C                   EVAL      ZXMONB=M6MONB                                                    
+                                                                                                    
+     C                   IF        ZXCMPR=0                                                         
+     C                   EVAL      ZXCMPR=1                                                         
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ZXCMCC=0                                                         
+     C                   EVAL      ZXCMCC=1                                                         
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   IF        ZXCMCO=0                                                         
+     C                   EVAL      ZXCMCO=1                                                         
+     C                   ENDIF                                                                      
+                                                                                                    
+     C                   ENDSR                                                                      

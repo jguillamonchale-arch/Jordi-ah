@@ -1,0 +1,324 @@
+      **************************************************************                                
+      * APLICACIÓ: MÒDUL DE COMPRES                                *                                
+      **************************************************************                                
+      * TITOL: DO0057  © AQUAPOINT S.A.                           *                                 
+      * DATA CREACIO:  04/08/1997    AUTOR: DPTO. INFORMATICA      *                                
+      * FUNCIO DEL PROGRAMA: GENERAR STOCK GLOBAL                  *                                
+      * (DSP/CRT/DLT/CPY/CHG)                                      *                                
+      * DOCUMENTACIO:                                              *                                
+      *                                                            *                                
+      * ZXOPT1 = NOM DEL PROCÉS                                    *                                
+      *        - PN = FORMAT DE PANTALLA N.(N=[01,02,...,99])      *                                
+      *        - WN = WINDOWS N.(N=[01,02,...,99])                 *                                
+      * ZXOPT2 = RUTINA DINTRE DEL PROCÉS                          *                                
+      *        - 'INZ'= INICILITZAR                                *                                
+      *        - 'DSP'= VISUALITZAR LA PANTALLA                    *                                
+      *        - 'CMD'= VALIDACIÓ DE LES TECLES DE FUNCIÓ          *                                
+      *        - 'CHK'= VALIDACIÓ DE LA PANTALLA                   *                                
+      *        - 'CLR'= NETEJA LA PANTALLA                         *                                
+      *        - 'UPD'= ACTUALITZACIONS DELS FITXERS               *                                
+      *                                                            *                                
+      **************************************************************                                
+     H DATEDIT(*YMD/)                                                                               
+     H OPTION(*NODEBUGIO:*SRCSTMT)                                                                  
+     FPUPROV    IF   E           K DISK                                                             
+     FPUPRP004  IF   E           K DISK    USROPN                                                   
+     F                                     EXTFILE(FILE_PUPRP0)                                     
+     FGXSTO02   IF   E           K DISK    RENAME(RGXSTO0:RGXSTO002)                                
+     FGXSTO0    UF A E           K DISK    PREFIX(X_)                                               
+     FMSARTI00  IF   E           K DISK    USROPN                                                   
+     F                                     EXTFILE(FILE_MSARTI)                                     
+     FMSALMA    IF   E           K DISK    USROPN                                                   
+     F                                     EXTFILE(FILE_MSALMA)                                     
+     FPMUNAL    IF   E           K DISK    USROPN                                                   
+     F                                     EXTFILE(FILE_PMUNAL)                                     
+     FUTCOM0    IF   E           K DISK                                                             
+     FPMLIBL    IF   E           K DISK                                                             
+                                                                                                    
+     D* AREA DE DADES DE PROGRAMA I INICIALITZACIO DE VALORS COMUNS                                 
+     D                SDS                                                                           
+     D  SDSPGM                 1     10                                                             
+     D    CCCPGM                     10    OVERLAY(SDSPGM)                                          
+     D  SDSJOB               244    253                                                             
+     D    CCCJOB                     10    OVERLAY(SDSJOB)                                          
+     D  SDSUSR               254    263                                                             
+     D  SDSJNBR              264    269                                                             
+     D* AREA DE DADES LOCAL I INICIALITZACIO DE VALORS COMUNS                                       
+     D  DSLDA        E DS                  EXTNAME(PURLDADS)                                        
+     D    CCCDEEM                    30    OVERLAY(ZZDEEM)                                          
+                                                                                                    
+     D* CONTROL DEL FLUXE DEL PROGRAMA                                                              
+     D                 DS                                                                           
+     D  ZXOPT                  1      6                                                             
+     D    ZXOPT1               1      3                                                             
+     D    ZXOPT2               4      6                                                             
+     D* Descomposicion de FIELD para tomar la parte del diccionario                                 
+     D                 DS                                                                           
+     D  FIELD                  1     10                                                             
+     D    ZXFMTO               1      3                                                             
+     D    ZXFIE4               4      7                                                             
+     D* SERIES A UTILITZAR EN PROGRAMA                                                              
+     DSSSECPA          S              1A   DIM(10)                                                  
+      * PLANTILLA D'INDICADORS DEL PROGRAMA (ELS RESERVATS NO SURTEN)                               
+     D  INDICADORS   E DS                  BASED(INDICADORP)                                        
+     D                                     EXTNAME(INDDS:RIND0199)                                  
+     D  INDICADORP     S               *   INZ(%ADDR(*IN))                                          
+                                                                                                    
+      * Definicion de algunas constantes                                                            
+     D  ZXZERO10       C                   '0000000000'                                             
+      *IMPORTACIÓ DE PARÀMETRES                                                                     
+                                                                                                    
+     D  @PCIAR         S                   LIKE(M0CIAS)                                             
+     D  @PCUST         S                   LIKE(C0PRVR)                                             
+     D  @PERRO         S              1                                                             
+                                                                                                    
+     D* DEFINICIO DE CAMPS DE TREBALL                                                               
+     D  Z_P            S              2  0 INZ(1)                                                   
+     D  ZXPTRETORN     S              6A   INZ                                                      
+                                                                                                    
+      * DEFINICIO DE CAMPS DE PARÀMETRES PER CALL (SENSE IMPORT/EXPORT)                             
+      * PARÀMETRES PEL PRD650 I CAMPS DE TREBALL ASSOCIATS                                          
+      * VALOR NUMÈRIC                                                                               
+     D   PXNUM         S             29  9                                                          
+      * VALOR ALFANUMÈRIC                                                                           
+     D   PXALPH        S             29                                                             
+      * LONGITUD TOTAL DEL CAMP (Nº CARÀCTERS INCLÒS CODI EDICIÓ)                                   
+     D   PXFLDD        S              2  0 INZ(20)                                                  
+      * Nº DE DECIMALS DEL CAMP                                                                     
+     D  PXDCCD         S              1  0                                                          
+      * TIPUS DE FORMAT DECIMAL (.,)                                                                
+     D  PXFMD1         S                   LIKE(ZZFMD1)INZ                                          
+      * CODI D'EDICIÓ (4,M,Q,Z)                                                                     
+     D  PXEDTC         S                   LIKE(ZZEDTC)INZ('4')                                     
+      * RETORN CODI D'ERROR                                                                         
+     D  PXNMER         S              1  0 INZ(0)                                                   
+      * TIPUS D'AJUST DECIMAL (0=MIG 1=PER SOBRE 2=PER SOTA)                                        
+     D  PXTIPA         S                   LIKE(ZZAJUD)                                             
+      *                                                                                             
+     D  XZCIAS         S                   LIKE(M5CIAS)                                             
+     D  XZARTI         S                   LIKE(M5ARTI)                                             
+     D  XZVARI         S                   LIKE(M5VARI)                                             
+     D  XZMODE         S                   LIKE(M5MODE)                                             
+      *                                                                                             
+     D  FILE_PUPRP0    S             20A                                                            
+     D  FILE_MSARTI    S             20A                                                            
+     D  FILE_PMUNAL    S             20A                                                            
+     D  FILE_MSALMA    S             20A                                                            
+      **************************************************************                                
+      * RUTINA PRINCIPAL DEL PGM : DISTRIBUCIÓ DEL PAS PELS FMTS   *                                
+      *------------------------------------------------------------*                                
+     C     ZXOPT1        DOWNE     'END'                                                            
+     C     ZXOPT1        CASEQ     'SR1'         SR1MAIN                                            
+     C     ZXOPT1        CASEQ     'SR2'         SR2MAIN                                            
+     C                   ENDCS                                                                      
+     C                   ENDDO                                                                      
+     C                   SETON                                        LR                            
+      **************************************************************                                
+      * SUBRUTINA INICIAL                                          *                                
+      *------------------------------------------------------------*                                
+     C     *INZSR        BEGSR                                                                      
+                                                                                                    
+      * DEFINICIO DE LES KLIST DEL PGM                                                              
+     C     KMSALMA       KLIST                                                                      
+     C                   KFLD                    M0CIAS                                             
+     C                   KFLD                    M0MAGA                                             
+                                                                                                    
+     C     KGXSTO002S    KLIST                                                                      
+     C                   KFLD                    G1CIAO                                             
+     C                   KFLD                    G1MAGO                                             
+                                                                                                    
+     C     KGXSTO002     KLIST                                                                      
+     C                   KFLD                    G1CIAO                                             
+     C                   KFLD                    G1MAGO                                             
+     C                   KFLD                    G1ARTO                                             
+     C                   KFLD                    G1VARO                                             
+     C                   KFLD                    G1MODO                                             
+     C                   KFLD                    G1CALO                                             
+                                                                                                    
+     C     KGXSTO0       KLIST                                                                      
+     C                   KFLD                    X_G1CIAS                                           
+     C                   KFLD                    X_G1MAGA                                           
+     C                   KFLD                    X_G1ARTI                                           
+     C                   KFLD                    X_G1VARI                                           
+     C                   KFLD                    X_G1MODE                                           
+     C                   KFLD                    X_G1CALI                                           
+                                                                                                    
+     C     KMSARTI00     KLIST                                                                      
+     C                   KFLD                    M5CIAS                                             
+     C                   KFLD                    M5ARTI                                             
+     C                   KFLD                    M5VARI                                             
+     C                   KFLD                    M5MODE                                             
+                                                                                                    
+     C     KPUPRP004     KLIST                                                                      
+     C                   KFLD                    C3CIAS                                             
+     C                   KFLD                    C3PRVR                                             
+     C                   KFLD                    C3ARVP                                             
+                                                                                                    
+     C     KPUPRP0042    KLIST                                                                      
+     C                   KFLD                    C3CIAS                                             
+     C                   KFLD                    C3PRVR                                             
+     C                   KFLD                    C3ARVP                                             
+     C                   KFLD                    C3ARVM                                             
+      *                                                                                             
+     C     KUTCOM0       KLIST                                                                      
+     C                   KFLD                    U0CIAS                                             
+     C                   KFLD                    U0TENV                                             
+     C                   KFLD                    U0CLP0                                             
+      *                                                                                             
+     C     KPMUNAL       KLIST                                                                      
+     C                   KFLD                    P6CIAS                                             
+     C                   KFLD                    P6ARTI                                             
+     C                   KFLD                    P6VARI                                             
+     C                   KFLD                    P6MODE                                             
+     C                   KFLD                    P6UNIM                                             
+      *                                                                                             
+     C     *DTAARA       DEFINE    PURLDA        DSLDA                                              
+     C                   IN        DSLDA                                                            
+      * Entrada de parámetros                                                                       
+     C     *ENTRY        PLIST                                                                      
+     C                   PARM                    @PCIAR                                             
+     C                   PARM                    @PCUST                                             
+     C                   PARM                    @PERRO                                             
+      *                                                                                             
+     C                   EVAL      M0CIAS=@PCIAR                                                    
+      *                                                                                             
+     C                   EVAL      U0CIAS=@PCIAR                                                    
+     C                   EVAL      U0TENV='6'                                                       
+     C                   EVAL      U0CLP0=@PCUST                                                    
+     C     KUTCOM0       CHAIN     UTCOM0                                                           
+      *                                                                                             
+     C                   EVAL      PPCIAS=U0CIA1                                                    
+     C     PPCIAS        CHAIN     PMLIBL                                                           
+     C                   IF        (%SUBST(PPBL10:9:1)='V') OR PPDSAC='1'                           
+     C                             OR NOT%FOUND                                                     
+     C                   EVAL      ZXOPT='ENDEND'                                                   
+     C                   LEAVESR                                                                    
+     C                   ELSE                                                                       
+     C                   EVAL      ZXOPT='SR1CLR'                                                   
+     C                   ENDIF                                                                      
+      * PUPRP0                                                                                      
+     C                   EVAL      FILE_PUPRP0='PURLIBF'+PPCIAS+                                    
+     C                                         '/PUPRP004'                                          
+     C                   OPEN      PUPRP004                                                         
+      * MSARTI                                                                                      
+     C                   EVAL      FILE_MSARTI='PURLIBF'+PPCIAS+                                    
+     C                                         '/MSARTI00'                                          
+     C                   OPEN      MSARTI00                                                         
+      * PMUNAL                                                                                      
+     C                   EVAL      FILE_PMUNAL='PURLIBF'+PPCIAS+                                    
+     C                                         '/PMUNAL'                                            
+     C                   OPEN      PMUNAL                                                           
+      * MSALMA                                                                                      
+     C                   EVAL      FILE_MSALMA='PURLIBF'+PPCIAS+                                    
+     C                                         '/MSALMA'                                            
+     C                   OPEN      MSALMA                                                           
+      *                                                                                             
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * CONTAR LINEAS A PREPARAR                                   *                                
+      *------------------------------------------------------------*                                
+     C     SR1MAIN       BEGSR                                                                      
+     C                   EVAL      ZXOPT='ENDEND'                                                   
+     C                   MOVE      PPCIAS        M0CIAS                                             
+     C     M0CIAS        SETLL     MSALMA                                                           
+     C     M0CIAS        READE     MSALMA                                                           
+     C                   DOW       NOT%EOF                                                          
+     C                   IF        M0TAL1='7' AND M0PRVR=U0CLP1                                     
+     C                   MOVE      @PCIAR        G1CIAO                                             
+     C     G1CIAO        SETLL     GXSTO02                                                          
+     C     G1CIAO        READE     GXSTO02                                                          
+     C                   DOW       NOT%EOF                                                          
+     C                   IF        G1CIAO=G1CIAS                                                    
+     C                   MOVEL     G1ARTI        M5ARTI                                             
+     C                   MOVEL     G1VARI        M5VARI                                             
+     C                   MOVEL     G1MODE        M5MODE                                             
+                                                                                                    
+     C                   EVAL      C3CIAS=M0CIAS                                                    
+     C                   EVAL      C3PRVR=M0PRVR                                                    
+     C                   EVAL      C3ARVP=M5ARTI+M5VARI+M5MODE                                      
+     C     KPUPRP004     CHAIN     PUPRP004                                                         
+     C                   IF        NOT%FOUND                                                        
+     C                   EVAL      C3ARVM=C3ARVP                                                    
+     C                   EVAL      C3ARVP=*BLANKS                                                   
+     C     KPUPRP0042    CHAIN     PUPRP004                                                         
+     C                   ENDIF                                                                      
+     C                   IF        %FOUND(PUPRP004)                                                 
+     C                   EVAL      M5CIAS=M0CIAS                                                    
+     C                   EVAL      M5ARTI=%SUBST(C3ARVM:1:15)                                       
+     C                   EVAL      M5VARI=%SUBST(C3ARVM:16:3)                                       
+     C                   EVAL      M5MODE=%SUBST(C3ARVM:19:3)                                       
+     C     KMSARTI00     CHAIN     MSARTI00                                                         
+      *                                                                                             
+     C                   IF        %FOUND(MSARTI00)                                                 
+C3340C                             AND(M0TLEX<>'OWNER'OR                                            
+C3340C                             (M0TLEX='OWNER'AND                                               
+C3340C                             (M5PROP>'0' OR M5FABR>'0')))                                     
+     C                   EVAL      ZXCA11=G1SACT                                                    
+     C                   MOVEL     G1UNIO        ZXUN10                                             
+      * Buscamos en PMUNAL UNIDADES ALTERNATIVAS                                                    
+     C                   EVAL      XZCOFU=1                                                         
+     C                   IF        M5UNIM<>ZXUN10                                                   
+     C                   EVAL      XZCIAS=M0CIAS                                                    
+     C                   EVAL      XZARTI=M5ARTI                                                    
+     C                   EVAL      XZVARI=M5VARI                                                    
+     C                   EVAL      XZMODE=M5MODE                                                    
+     C                   EVAL      ZXCA10=G1SACT                                                    
+     C                   EVAL      ZXCA11=G1SACT                                                    
+      *                  EVAL      ZXUN10=ZXUN10                                                    
+     C                   EVAL      ZXUN11=M5UNIM                                                    
+     C* CAMBIO de unidades                                                                          
+     C/COPY *LIBL/QSRDSRC,SRD021                                                                    
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   MOVEL     M0CIAS        X_G1CIAS                                           
+     C                   MOVEL     M0MAGA        X_G1MAGA                                           
+     C                   MOVEL     M5ARTI        X_G1ARTI                                           
+     C                   MOVEL     M5VARI        X_G1VARI                                           
+     C                   MOVEL     M5MODE        X_G1MODE                                           
+     C                   MOVEL     'A'           X_G1CALI                                           
+     C     KGXSTO0       CHAIN     GXSTO0                                                           
+      *                                                                                             
+     C                   EVAL      X_G1SACT=ZXCA11                                                  
+     C                   MOVE      M5ARTI        X_G1ARTI                                           
+     C                   MOVE      M5VARI        X_G1VARI                                           
+     C                   MOVE      M5MODE        X_G1MODE                                           
+     C                   MOVE      M0MAGA        X_G1MAGA                                           
+     C                   MOVE      M0PRVR        X_G1PRVR                                           
+     C                   EVAL      X_G1DAT8=*DATE                                                   
+     C                   TIME                    X_G1HORA                                           
+     C                   MOVE      SDSUSR        X_G1USUA                                           
+     C                   MOVE      SDSJOB        X_G1PANT                                           
+     C                   IF        NOT%FOUND(GXSTO0)                                                
+     C                   EVAL      X_G1DAT1=*DATE                                                   
+     C                   EVAL      X_G1CIAO=G1CIAO                                                  
+     C                   EVAL      X_G1MAGO=G1MAGO                                                  
+     C                   EVAL      X_G1ARTO=G1ARTO                                                  
+     C                   EVAL      X_G1VARO=G1VARO                                                  
+     C                   EVAL      X_G1MODO=G1MODO                                                  
+     C                   EVAL      X_G1CALO=G1CALO                                                  
+     C                   EVAL      X_G1UNIO=G1UNIO                                                  
+     C                   EVAL      X_G1ARES=G1ARES                                                  
+     C                   WRITE     RGXSTO0                                                          
+     C                   ELSE                                                                       
+     C                   UPDATE    RGXSTO0                                                          
+     C                   ENDIF                                                                      
+      *                                                                                             
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+     C                   ENDIF                                                                      
+                                                                                                    
+     C     G1CIAO        READE     GXSTO02                                                          
+     C                   ENDDO                                                                      
+     C                   ENDIF                                                                      
+     C     M0CIAS        READE     MSALMA                                                           
+     C                   ENDDO                                                                      
+     C                                                                                              
+     C                                                                                              
+     C                   ENDSR                                                                      
+      **************************************************************                                
+      * COMMON SUBRUTINE (CS_) :                                  *                                 
+      * COMPLETAR FICHERO GXSTO0                                   *                                
+      *------------------------------------------------------------*                                
+     C     SR2MAIN       BEGSR                                                                      
+     C                   ENDSR                                                                      

@@ -1,0 +1,425 @@
+       //  La presa de decisió és realitza en el programa (CO0176, CO0180)                         
+       //  Aquí cerquem les diferents comandes-proveïdor. Per cada una validem si l'empresa est    
+       //   en M3.                                                                                 
+       //   Hem de rebre tota la info per accedir al fitxer EDTRLP                                 
+       //          CIAS    S0CIAS                                                                  
+       //          DLGA    S0DLGA                                          JV2015                  
+       //          NPCO    S0NPCO                                                                  
+       //          TPED    S0TPED                                                                  
+       //          DATP    S0DATP                                                                  
+       //          NOPL    S0NOPL                                                                  
+       //     Alguns d'aquests camps en EDTRLP són GRAFIC. Per reduir espai el pas es realitza     
+       //      el format especificat anteriorment                                                  
+       //     Amb els valors anteriors accedim a EDTRLP                                            
+       //       Amb T0CIA2 accedim a PMLIBL.                                                       
+       //         Si %sst(PPBL10:9:1) ='V' // Empresa a M3                                         
+       //           Em de cercar el CONO i DIVI                                                    
+       //           CONO: Si %sst(PPBL10:10:1) ='P'                                                
+       //                   Accedim amb l'usuari actual al SVUSER                                  
+       //========================================================================                  
+       //PROGRAMA...: MM1413                                                                       
+       //DESCRIPCIÓ.: Crida a l'API xxxxxxxx.yyyyyyyyyyyyyyy per Alinear Coenvios                  
+       //             en M3                                                                        
+       //AUTOR......: Mmontana                                                                     
+       //DATA.......: 03/02/2022                                                                   
+       //========================================================================                  
+       //DESCRIPCIÓ.: Tenir en compte qualsevol entorn de desenvolupament.                         
+       //AUTOR......: Raul Fdez.                                                                   
+       //DATA.......: 20/07/2022                                                                   
+       //MARCA......: NAP45                                                                        
+       //========================================================================                  
+       //DESCRIPCIÓ.: Descripció de la modificació                                                 
+       //AUTOR......: Popeye                                                                       
+       //DATA.......: dd/mm/yyyy                                                                   
+       //MARCA......: fsd-nnnnn                                                                    
+       //========================================================================                  
+       ctl-opt OPTION(*NODEBUGIO:*SRCSTMT) DFTACTGRP(*NO) THREAD(*SERIALIZE)                        
+               copyright('2022 Fluidra, S.A.');                                                     
+       //========================================================================                  
+       dcl-f edtrlp00 keyed;                                                                        
+       dcl-f pmlibl   keyed;                                                                        
+       dcl-f APIENWF keyed;                                                                         
+       dcl-f svuser keyed ;                                                                         
+       dcl-f cocape   keyed usropn;                                                                 
+       dcl-f codepe   keyed usropn;                                                                 
+       dcl-f EQTABL10 keyed usropn ExtFile(file_eqtabl);                                            
+                                                                                                    
+       //========================================================================                  
+       //Constants                                                                                 
+       dcl-c cm const('''');                                                                        
+       dcl-c c@ const(' ');                                                                         
+       dcl-c ma const('ABCDEFGHIJKLMNOPQRSTUVWXYZ');                                                
+       dcl-c mi const('abcdefghijklmnopqrstuvwxyz');                                                
+                                                                                                    
+       //Variables                                                                                 
+       dcl-s sCommand char(2500) inz(*blanks);                                                      
+       dcl-s bLinZero ind;                                                                          
+       dcl-s iLast packed(3);                                                                       
+       dcl-s i   packed(4);                                                                         
+       dcl-s ptrMM1413 pointer;                                                                     
+       // var pel file EQTABL10                                                                     
+       dcl-s file_eqtabl char(21) inz(' ');                                                         
+       dcl-s    x_eqtabl char(09) inz('/EQTABL10');                                                 
+       // Dades per MM1414                                                                          
+       dcl-s envmnt  char(3);                                                                       
+       dcl-s bkcono  char(3);                                                                       
+       dcl-s cono  char(3);                                                                         
+       dcl-s divi    char(3);                                                                       
+       dcl-s ApiName char(10);                                                                      
+       dcl-s TrnName char(15);                                                                      
+       dcl-s DataIn  char(999);                                                                     
+       dcl-s DataOut char(999);                                                                     
+       // Var per cercar i transformar divi                                                         
+       dcl-s envmnt2 char(3);                                                                       
+       dcl-s zxdiv packed(3:0);                                                                     
+                                                                                                    
+       //Estructures                                                                               
+       // DS pmlibl                                                                                 
+       dcl-ds Libl likerec(RPMLIBL);                                                                
+                                                                                                    
+       // LDA                                                                                       
+       dcl-ds purLDAds extname('PURLDADS');                                                         
+       end-ds;                                                                                      
+                                                                                                    
+       dcl-ds dsLDA dtaara('PURLDA');                                                               
+          purLDA like(PURLDADS);                                                                    
+       end-ds;                                                                                      
+                                                                                                    
+       // SDS                                                                                       
+       dcl-ds pgm_stat psds;                                                                        
+         sdsPgmID   char(10) pos(1);                                                                
+         PgmID      char(10) pos(1);                                                                
+         sdsWrkstn  char(10) pos(244);                                                              
+         sdsJobUser char(10) pos(254);                                                              
+         sdsCurUser char(10) pos(358);                                                              
+         UsrId      char(10) pos(358);                                                              
+         sdsJobnbr  char(6)  pos(264);                                                              
+         sdsJobDate char(6)  pos(270);                                                              
+         sdsMsg     char(7)  pos(40);                                                               
+         sdsMsgd    char(80) pos(91);                                                               
+         sdsDate    char(8)  pos(191);                                                              
+       end-ds;                                                                                      
+                                                                                                    
+       // camps per lectura del fitxer EDTRLP                                                       
+       dcl-ds *n;                                                                                   
+             x0cias like(t0cias);                                                                   
+             x0dlga like(t0dlga);                                                                   
+             x0npco like(t0npco);                                                                   
+             x0tped like(t0tped);                                                                   
+             x0datp like(t0datp);                                                                   
+             x0nopl like(t0nopl);                                                                   
+             x0line like(t0line);                                                                   
+       end-ds;                                                                                      
+                                                                                                    
+       // per capturar els parms d'entrada                                                          
+       dcl-ds dsMM1413 based(ptrMM1413);                                                            
+             bkcias like(s0cias);                                                                   
+             bkdlga like(s0dlga);                                                                   
+             bknpco like(s0npco);                                                                   
+             bktped like(s0tped);                                                                   
+             bkdatp like(s0datp);                                                                   
+             bknopl like(s0nopl);                                                                   
+             Tlin   like(s5line) dim(999);                                                          
+       end-ds;                                                                                      
+                                                                                                    
+       // Estructura per evitar crides innecessaries                                                
+       dcl-ds dsMM1414 qualified dim(200);                                                          
+         z0cia2 like(t0cia2) inz(999);                                                              
+         z0npc2 like(t0npc2) inz;                                                                   
+         z0entr char(3) inz;                                                                        
+         z0cono char(3) inz;                                                                        
+         z0divi char(3) inz;                                                                        
+       end-ds;                                                                                      
+                                                                                                    
+       //========================================================================                  
+       //Módulos llamados                                                                          
+       dcl-pr qcmd   ExtPgm('QCMDEXC');                                                             
+         *n char(2500) const;                                                                       
+         *n packed(15:5) const;                                                                     
+       end-pr;                                                                                      
+                                                                                                    
+       dcl-pr m3Api  ExtPgm('MM1414'); // Aquest sols s'encarrega de fer un delay                   
+         *n char(3) const;                      // entorno;                                         
+         *n char(3) const;                      // cono                                             
+         *n char(3) const;                      // divi                                             
+         *n char(10) const;                     // nombre api                                       
+         *n char(15) const;                     // transacción                                      
+         *n char(999);                          // Datos input                                      
+         *n char(999);                          // Datos output                                     
+       end-pr;                                                                                      
+                                                                                                    
+       //========================================================================                  
+       //PLIST                                                                                     
+       dcl-pi *n;                                                                                   
+         ptrPI pointer;                                                                             
+       end-pi;                                                                                      
+                                                                                                    
+       //========================================================================                  
+       //Bucle principal: Tlin    Bucle secundari: EDTRLP                                          
+       // Podem tenir informat el núm de línia o pot venir a 0. En aquest cas s'ha de processar     
+         if Tlin(1) = 0;                                                                            
+           bLinZero = *on;                                                                          
+           Tlin(1) = 1;  // forcem valor per entrar la primera vegada                               
+         endif;                                                                                     
+         i = 1;                                                                                     
+         exsr MontaClau;                                                                            
+         dow i <= %elem(Tlin);  //Tlin(i) <> 0;                                                     
+          if Tlin(i) <> 0;                                                                          
+           x0line =  Tlin(i) ;  // Camp final de la clau                                            
+           setll (x0cias:x0dlga:x0npco:x0tped:x0datp:x0nopl:x0line) EDTRLP00;                       
+           exsr Lectura;                                                                            
+           dow not %eof(EDTRLP00);                                                                  
+             If ValidaProvM3;                                                                       
+               exsr CallMM;                                                                         
+             endif;                                                                                 
+             exsr Lectura;                                                                          
+           enddo;                                                                                   
+           i +=1;                                                                                   
+          else;                                                                                     
+           leave;                                                                                   
+          endif;                                                                                    
+         enddo;                                                                                     
+                                                                                                    
+         //That's all folks!!                                                                      
+        *inlr=*on;                                                                                 
+       //============================================================                              
+       // subrutines                                                                               
+       //============================================================                              
+       begSr *inzsr ;        //Inicial                                                             
+        //Recuperamos LDA:                                                                         
+         in dsLDA;                                                                                  
+         purLdaDS = purLDA;                                                                         
+                                                                                                    
+        //Recuperamos el CONO perdido en la AP7                                                    
+         exsr RtvCono;                                                                              
+                                                                                                    
+        //Inicialitzem dsMM1414().z0cia2 a 999                                                     
+        // dsMM1414(*).z0cia2 = *hival;                                                             
+                                                                                                    
+        //Recuperem paràmetres rebuts                                                              
+         ptrMM1413 = ptrPI;                                                                         
+                                                                                                    
+        //COPY PARA DEBUG.  PARA SALIR, A='X' (cualquier cosa distinta de '1')                     
+        /COPY PURLIBC8/QSRDSRC,SRDWSDEBUG                                                           
+                                                                                                    
+        //Valors fixes: api                                                                        
+         ApiName = 'MWFQ85MI';                                                                      
+         TrnName = 'ExeMWFQ85   ';                                                                  
+                                                                                                    
+        //Sols per definicions                                                                     
+         if 1 = 2;                                                                                  
+           open codepe;                                                                             
+           open cocape;                                                                             
+         endif;                                                                                     
+       endSR;                                                                                       
+                                                                                                    
+       //============================================================                              
+       begSR MontaClau;                                                                             
+         //Passem els camps rebus a camps del fitxer EDTRLP (graph)                                
+             x0cias =    bkcias ;                                                                   
+             x0dlga =    bkdlga ;                                                                   
+             x0npco =    bknpco ;                                                                   
+             x0tped =    bktped ;                                                                   
+             x0datp =    bkdatp ;                                                                   
+             x0nopl =    bknopl ;                                                                   
+       endSR;                                                                                       
+                                                                                                    
+       //============================================================                              
+       begSR RtvCono;                                                                               
+         //Recuperamos el cono perdido en la AP7                                                   
+         chain (sdsCurUser) svuser;                                                                 
+         if %found;                                                                                 
+           bkCono = %subst(k4amp4:1 :3);                                                            
+         endif;                                                                                     
+         if bkCono = '  ';                                                                          
+           bkCono = '100';                                                                          
+         endif;                                                                                     
+       endSR;                                                                                       
+                                                                                                    
+       //============================================================                              
+       begSR Lectura;                                                                               
+         //Llegim EDTRLP depenent del tipus de procés                                              
+         if bLinZero;                                                                               
+           reade (x0cias:x0dlga:x0npco:x0tped:x0datp:x0nopl) EDTRLP;                                
+         else;                                                                                      
+           reade (x0cias:x0dlga:x0npco:x0tped:x0datp:x0nopl:x0line) EDTRLP;                         
+         endif;                                                                                     
+       endSR;                                                                                       
+                                                                                                    
+       //============================================================                              
+       begSR CallMM;                                                                                
+         //Recuperem dades addicionals, si fa falta, i fem crida                                   
+                                                                                                    
+         // Passem els valors a les variables per la crida                                          
+         DataIn = *blanks;                                                                          
+         DataOut= *blanks;                                                                          
+         DataIn = t0npc2;                                                                           
+         cono = dsMM1414(iLast).z0cono;                                                             
+         divi = dsMM1414(iLast).z0divi;                                                             
+         envmnt = dsMM1414(iLast).z0entr;                                                           
+                                                                                                    
+         sCommand = *blanks;                                                                        
+         clear sCommand;                                                                            
+         if ZZJDIR = *blanks;                                                                       
+           ZZJDIR = '*JOBD';                                                                        
+         endif;                                                                                     
+         sCommand = 'SBMJOB CMD(CALL PGM(MM1414) PARM('+ cm + envmnt  +                             
+            cm + c@ + cm + bkcono + cm + c@ + cm + divi + cm + c@ + cm +                            
+            ApiName + cm + c@ + cm + TrnName+ cm + c@ + cm + DataIn + cm + c@ +                     
+           cm + DataOut + cm +')) JOB(M3ALIN) JOBQ(' + ZZJDIR+') ' ;                                
+                                                                                                    
+           Qcmd(sCommand:%len(%trimr(sCommand)));                                                   
+                                                                                                    
+       endSR;                                                                                       
+                                                                                                    
+        //========================================================================                 
+        //Procediments============================================================                 
+        // ------------------------------------------------------------------------                 
+        // ValidaProvM3: Validem si aquest proveïdor està en M3                                     
+        //-------------------------------------------------------------------------                 
+       dcl-proc ValidaProvM3;                                                                       
+         dcl-pi *n ind;                                                                             
+         end-pi;                                                                                    
+         dcl-s bRetorn ind inz(*on);                                                                
+         dcl-s ip packed(3);                                                                        
+         dcl-s ic packed(3);                                                                        
+                                                                                                    
+           //Validar si ja hem processat el proveïdor                                               
+           ip = %lookup(t0cia2:dsMM1414(*).z0cia2:1:iLast);                                         
+           //Si l'hem processat cercar la comanda                                                   
+           if ip > 0; //ja l'hem processat                                                          
+             ic = %lookup(t0npc2:dsMM1414(*).z0npc2:ip:iLast);                                      
+             if ic > 0;                                                                             
+               if dsMM1414(ic).z0cia2 = t0cia2;                                                     
+                 return *off;                                                                       
+               endif;                                                                               
+             endif;                                                                                 
+             // En aquest punt hem processat cia però altres comandes, ja tenim les dades           
+             iLast += 1;                                                                            
+             dsMM1414(iLast).z0cia2 = dsmm1414(ip).z0cia2;                                          
+             dsMM1414(iLast).z0npc2 = t0npc2;                                                       
+             dsMM1414(iLast).z0entr = dsmm1414(ip).z0entr;                                          
+             dsMM1414(iLast).z0cono = dsmm1414(ip).z0cono;                                          
+             dsMM1414(iLast).z0divi = dsmm1414(ip).z0divi;                                          
+             sorta %subarr(dsMM1414(*).z0cia2:1:iLast) ;                                            
+             return *on;                                                                            
+           endif;                                                                                   
+           //En aquest punt NO tenim dades, ho hem de cercar tot                                    
+           // 1er.- validar si la Cia està en M3                                                    
+           ppcias = %editc(t0cia2:'X');                                                             
+           chain ppcias PMLIBL Libl;                                                                
+           if not %found;  //això no hauria de passar                                               
+             return *off;                                                                           
+           endif;                                                                                   
+           if %subst(libl.ppbl10:9:1)<>'V'; //empresa NO M3, sortim                                 
+             return *off;                                                                           
+           endif;                                                                                   
+           //En aquest punt tenim empresa M3.                                                       
+                                                                                                    
+           iLast += 1;                                                                              
+           dsMM1414(iLast).z0cia2 = t0cia2;                                                         
+           dsMM1414(iLast).z0npc2 = t0npc2;                                                         
+                                                                                                    
+           GetEntr(iLast);                                                                          
+           GetCono(iLast);                                                                          
+           GetDivi(iLast);                                                                          
+                                                                                                    
+           sorta %subarr(dsMM1414(*).z0cia2:1:iLast) ;                                              
+           return *on;                                                                              
+                                                                                                    
+       end-proc;                                                                                    
+        // ------------------------------------------------------------------------                 
+        // GetEntr : Recupera entorn                                                                
+        //-------------------------------------------------------------------------                 
+       dcl-proc GetEntr;                                                                            
+         dcl-pi *n;                                                                                 
+           iPos like(iLast);                                                                        
+         end-pi;                                                                                    
+                                                                                                    
+         //Averiguamos en que entorno estamos:                                                     
+         select;                                                                                    
+           when %scan('M3EDBDEV':Libl) <> 0;                                                        
+             envmnt='Dev';                                                                          
+           when %scan('M3EDBDE2':Libl) <> 0;                                                        
+             envmnt='De2';                                                                          
+           when %scan('M3EDBITP':Libl) <> 0;                                                        
+             envmnt='Itp';                                                                          
+           when %scan('M3EDBTST':Libl) <> 0;                                                        
+             envmnt='Tst';                                                                          
+           other;                                                                                   
+             envmnt='Prd';                                                                          
+         endsl;                                                                                     
+                                                                                                    
+         //Miramos si hay alteraciones:                                                            
+         chain (t0cia2:pgmId:UsrId) APIENWF;                                                        
+         if not %found;                                                                             
+           chain (t0cia2:pgmId:' ') APIENWF;                                                        
+           if not %found;                                                                           
+             chain (t0cia2:' ':UsrId) APIENWF;                                                      
+             if not %found;                                                                         
+               chain (t0cia2:' ':' ') APIENWF;                                                      
+             endif;                                                                                 
+           endif;                                                                                   
+         endif;                                                                                     
+                                                                                                    
+         if %found;                                                                                 
+           envmnt = WFENTO;                                                                         
+         endif;                                                                                     
+         dsMM1414(iLast).z0entr = envmnt;                                                           
+                                                                                                    
+       end-proc;                                                                                    
+        // ------------------------------------------------------------------------                 
+        // GetCono : ...                                                                            
+        //-------------------------------------------------------------------------                 
+       dcl-proc GetCono;                                                                            
+         dcl-pi *n;                                                                                 
+           iPos like(iLast);                                                                        
+         end-pi;                                                                                    
+                                                                                                    
+         //Decidim quin cono posem                                                                 
+         if %subst(Libl.ppbl10:10:1) = 'P';                                                         
+           dsMM1414(iPos).z0cono = bkCono;                                                          
+         else;                                                                                      
+           dsMM1414(iPos).z0cono = '100';                                                           
+         endif;                                                                                     
+                                                                                                    
+       end-proc;                                                                                    
+        // ------------------------------------------------------------------------                 
+        // GetDivi : ...                                                                            
+        //-------------------------------------------------------------------------                 
+       dcl-proc GetDivi;                                                                            
+         dcl-pi *n;                                                                                 
+           iPos like(iLast);                                                                        
+         end-pi;                                                                                    
+                                                                                                    
+         //Conversió divi                                                                          
+                                                                                                    
+         //if envmnt  = 'Itp';                NAP45                                                
+         //  envmnt2='ITP';                   NAP45                                                
+         //endif;                             NAP45                                                
+         //if envmnt  = 'Prd';                NAP45                                                
+         //  envmnt2='PRD';                   NAP45                                                
+         //endif;                             NAP45                                                
+         envmnt2 = %xlate(mi:ma:envmnt);    //NAP45                                                
+         clear file_eqtabl ;                                                                        
+         file_eqtabl = 'M3AQADB' + envmnt2 + x_eqtabl ;                                             
+         open(e) EQTABL10;                                                                          
+         EQMCOD = 'DIVI';                                                                           
+         EQACOD = 'CIAS';                                                                           
+         EQACIA = 0;                                                                                
+         clear EQAVAL;                                                                              
+         EQAVAL = %char(%editc(t0cia2:'X'));                                                        
+         EQMCIA = 1;                                                                                
+         EQMDIV = ' ';                                                                              
+         EQMDIV = ' ';                                                                              
+         EQMVAL = ' ';                                                                              
+                                                                                                    
+         setll (EQMCOD:EQACOD:EQACIA:EQAVAL:EQMCIA) EQTABL10;                                       
+         reade (EQMCOD:EQACOD:EQACIA:EQAVAL:EQMCIA) EQTABL10;                                       
+         if not %eof;                                                                               
+           zxdiv = %dec(%trim(%char(EQMVAL)):3:0);                                                  
+         endif;                                                                                     
+         close(e) EQTABL10;                                                                         
+         divi = %editc(zxdiv:'X');                                                                  
+         dsMM1414(iLast).z0divi = divi;                                                             
+       end-proc;                                                                                    
